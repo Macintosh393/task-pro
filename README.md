@@ -4,9 +4,9 @@ TaskPro — веб-застосунок для особистого управл
 
 ## Team
 
-- Владислав — fullstack, team lead, DevOps
-- Ангеліна — fullstack
-- Максим — fullstack, GitHub Projects owner
+- Владислав Воробйов — Team Lead, DevOps / Infrastructure, Project Manager
+- Ангеліна Хмельницька — Fullstack, QA
+- Максим Кособуцький — Fullstack, QA
 
 ## Tech stack
 
