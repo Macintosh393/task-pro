@@ -1,5 +1,9 @@
-function App() {
-  return <></>;
-}
+import Placeholder from './components/Placeholder';
 
-export default App;
+export default function App() {
+  return (
+    <>
+      <Placeholder />
+    </>
+  );
+}
