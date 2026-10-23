@@ -11,7 +11,12 @@ export default function Placeholder() {
     <>
       {isLoading && <p>Loading...</p>}
       {isError && <p>Server is unreachable</p>}
-      {data && <p>Connected successfully</p>}
+      {!isError && data && (
+        <>
+          <p>Connected successfully</p>
+          <pre>{JSON.stringify(data, null, 2)}</pre>
+        </>
+      )}
     </>
   );
 }
