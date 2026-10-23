@@ -5,6 +5,6 @@ type THealthResponse = {
 };
 
 export const getHealthStatus = async () => {
-  const response = await axios.get<THealthResponse>('api/health');
+  const response = await axios.get<THealthResponse>('api/health', { timeout: 5000 });
   return response.data;
 };
