@@ -61,7 +61,8 @@ npm run start:dev
 | `npm run start:dev`  | Запустити застосунок із відстеженням змін               |
 | `npm run build`      | Зібрати застосунок                                      |
 | `npm run start:prod` | Запустити зібраний застосунок                           |
-| `npm run lint`       | Перевірити та автоматично виправити lint-помилки ESLint |
+| `npm run lint`       | Перевірити TypeScript-файли через ESLint без змін        |
+| `npm run lint:fix`   | Автоматично виправити lint-помилки ESLint                |
 | `npm run format`     | Форматувати TypeScript-файли через Prettier             |
 | `npm test`           | Запустити unit-тести                                    |
 | `npm run test:cov`   | Запустити тести та сформувати звіт покриття             |
