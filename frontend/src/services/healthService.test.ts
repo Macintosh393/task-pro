@@ -14,6 +14,6 @@ describe('getHealthStatus', () => {
     } as AxiosResponse<typeof data>);
 
     await expect(getHealthStatus()).resolves.toEqual(data);
-    expect(axios.get).toHaveBeenCalledWith('api/health');
+    expect(axios.get).toHaveBeenCalledWith('api/health', { timeout: 5000 });
   });
 });
