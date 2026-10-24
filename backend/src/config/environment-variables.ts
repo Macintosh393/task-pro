@@ -5,7 +5,7 @@ export class EnvironmentVariables {
   @IsNumber()
   @Min(1)
   @Max(65535)
-  PORT: number;
+  PORT: number = 3000;
 
   @IsString()
   @IsNotEmpty()
