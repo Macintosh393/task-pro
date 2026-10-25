@@ -1,0 +1,71 @@
+/* Semantic names are our contract, not original Figma variable names.
+   :root provides a deterministic Dark fallback; no persistence policy. */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --surface-canvas: var(--palette-neutral-800);
+  --surface-sidebar: var(--palette-neutral-950);
+  --surface-header: var(--palette-neutral-900);
+  --surface-card: var(--palette-neutral-950);
+  --surface-column-heading: var(--palette-neutral-950);
+  --surface-filters: var(--palette-neutral-925);
+  --text-primary: var(--palette-white);
+  --text-sidebar: var(--palette-white);
+  --text-description: rgb(255 255 255 / 50%);
+  --text-caption: rgb(255 255 255 / 50%);
+  --text-sidebar-muted: rgb(255 255 255 / 50%);
+  --border-filters: rgb(190 219 176 / 50%);
+  --shadow-filters: none;
+  --action-primary: var(--palette-green-300);
+  --action-on-primary: var(--palette-neutral-900);
+  --priority-low: var(--palette-blue-300);
+  --priority-medium: var(--palette-pink-300);
+  --priority-high: var(--palette-green-300);
+  --priority-none: rgb(255 255 255 / 30%);
+  /* Derived defaults, NOT source-backed interaction states. */
+  --border-subtle: rgb(255 255 255 / 20%);
+  --focus-ring: var(--palette-white);
+  --focus-ring-sidebar: var(--palette-white);
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+}
+
+:root[data-theme='light'],
+:root[data-theme='violet'] {
+  color-scheme: light;
+  --surface-canvas: var(--palette-neutral-100);
+  --surface-sidebar: var(--palette-white);
+  --surface-header: var(--palette-neutral-50);
+  --surface-card: var(--palette-white);
+  --surface-column-heading: var(--palette-white);
+  --surface-filters: var(--palette-neutral-50);
+  --text-primary: var(--palette-neutral-900);
+  --text-sidebar: var(--palette-neutral-900);
+  --text-description: rgb(22 22 22 / 70%);
+  --text-caption: rgb(22 22 22 / 50%);
+  --text-sidebar-muted: rgb(22 22 22 / 50%);
+  --border-filters: transparent;
+  --shadow-filters: 0 4px 16px rgb(22 22 22 / 5%);
+  --priority-none: rgb(22 22 22 / 30%);
+  /* Derived defaults. */
+  --border-subtle: rgb(22 22 22 / 20%);
+  --focus-ring: var(--palette-neutral-900);
+  --focus-ring-sidebar: var(--palette-neutral-900);
+}
+
+:root[data-theme='violet'] {
+  --surface-canvas: var(--palette-violet-50);
+  --surface-sidebar: var(--palette-violet-600);
+  --text-sidebar: var(--palette-white);
+  --text-sidebar-muted: rgb(255 255 255 / 50%);
+  --action-primary: var(--palette-violet-600);
+  --action-on-primary: var(--palette-white);
+  --focus-ring-sidebar: var(--palette-white);
+}
+
+/* Observed Violet desktop header differs from tablet/mobile (1440px anchor). */
+@media (min-width: 1440px) {
+  :root[data-theme='violet'] {
+    --surface-header: var(--palette-white);
+  }
+}

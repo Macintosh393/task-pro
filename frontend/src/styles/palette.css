@@ -1,0 +1,17 @@
+/* Raw source colors only. Components consume semantic roles from themes.css.
+   Provenance and qualifications: ../../docs/themes.md. */
+:root {
+  --palette-white: #ffffff;
+  --palette-neutral-50: #fcfcfc;
+  --palette-neutral-100: #f6f6f7;
+  --palette-neutral-800: #1f1f1f;
+  --palette-neutral-900: #161616;
+  --palette-neutral-925: #151515;
+  --palette-neutral-950: #121212;
+  --palette-violet-50: #ecedfd;
+  --palette-violet-400: #7b7ede;
+  --palette-violet-600: #5255bc;
+  --palette-green-300: #bedbb0;
+  --palette-blue-300: #8fa1d0;
+  --palette-pink-300: #e09cb5;
+}

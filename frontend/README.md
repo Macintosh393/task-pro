@@ -44,3 +44,7 @@ src/
 ├── App.tsx                    # кореневий компонент
 └── main.tsx                   # точка входу та React Query provider
 ```
+
+## Storybook і теми
+
+`npm run storybook` запускає локальний Storybook без автоматичного відкриття браузера. `npm run build-storybook` створює статичну збірку. [Контракт тем, токени, джерела та прогалини](docs/themes.md).
