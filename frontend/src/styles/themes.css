@@ -69,3 +69,36 @@
     --surface-header: var(--palette-white);
   }
 }
+
+/* UI-kit interaction adaptations; see docs/ui-kit.md. */
+:root,
+:root[data-theme='dark'] {
+  --control-surface: var(--surface-card);
+  --control-border: #929292;
+  --control-muted: #b8b8b8;
+  --control-disabled-surface: #303030;
+  --control-disabled-text: #b8b8b8;
+  --action-hover: #c8e6ba;
+  --action-secondary-hover: #303030;
+  --action-danger: #ff9b9b;
+  --action-on-danger: #161616;
+  --action-danger-hover: #ffb5b5;
+  --text-error: #ff9b9b;
+  --modal-backdrop: rgb(0 0 0 / 60%);
+}
+:root[data-theme='light'],
+:root[data-theme='violet'] {
+  --control-border: #767676;
+  --control-muted: #626262;
+  --control-disabled-surface: #e7e7e7;
+  --control-disabled-text: #626262;
+  --action-secondary-hover: #ededed;
+  --action-danger: #b42318;
+  --action-on-danger: #ffffff;
+  --action-danger-hover: #941b12;
+  --text-error: #b42318;
+}
+:root[data-theme='violet'] {
+  /* Darker than source #7b7ede adaptation to keep white action text readable. */
+  --action-hover: #4649a6;
+}

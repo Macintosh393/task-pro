@@ -34,3 +34,9 @@
 Для цієї чернетки перевірено спільні CSS-імпорти, Storybook theme decorator, джерельні canvas-кольори та всі 1025 хешів локального export; SHA-256 `FREEZE.json`: `8a34d3559079e645f69270d69c757b4885685f10a18e7273a79441588c2654ac`. Попередні перевірки реалізації описані в [themes.md](../themes.md); у межах ADR build і UI-тести повторно не запускалися.
 
 Перед прийняттям потрібне командне review. Для майбутніх компонентів — перевірка варіантів і станів у всіх трьох темах, клавіатурного фокуса, доступних назв і контрасту; app build, Storybook build, lint та доречні тести поведінки.
+
+## Локальна реалізація для review — 2026-10-25
+
+За окремим дозволом користувача підготовлено [мінімальний UI-kit](../ui-kit.md): Text/Heading, Button/IconButton, Icon, Input/Textarea/FormField, Modal. Цей додаток не змінює Draft на Accepted і не закриває командні issues.
+
+Запропонований тестовий підхід: Vitest із jsdom та React DOM/act без React Testing Library; colocated CSF/args/controls/autodocs, native DOM play checks; реальні keyboard/focus/theme checks у GPU-disabled headless Playwright. jsdom не використовується як доказ dialog focus containment. Контракти, джерела, адаптації і межі QA описані в ui-kit.md. Потрібне командне review conventions перед спільним прийняттям.

@@ -48,7 +48,7 @@ Priority low #8fa1d0, medium #e09cb5, high #bedbb0; завжди додавай�
 
 - `--border-subtle` (20%) — **derived** декоративна рамка technical specimen; не замінює контрастну межу інтерактивного control.
 - `--focus-ring*` — **derived**: 2px + 2px offset, white на dark/sidebar violet, #161616 на light/violet content. Компонента має вибрати відповідну роль і перевірити фактичну поверхню. Це не Figma active-field state.
-- UI-kit містить #7b7ede, але його призначення як Violet hover — адаптація. Green hover brightness 1.05 та error #ff9b9b/#b42318 також адаптації. Hover/error/disabled API тут **не реалізовані**: залишені наступним component tasks разом із перевірками контрасту й поведінки.
+- UI-kit містить #7b7ede, але його призначення як Violet hover — адаптація. Green hover brightness 1.05 та error #ff9b9b/#b42318 також адаптації. На момент color-only основи ці API не були реалізовані; поточні компоненти, відхилення hover та перевірки описані в [ui-kit.md](ui-kit.md).
 - 40% opacity normal-field group не переноситься на filled/active fields. Auth #151515/#1f1f1f не означає три auth variants; auth компоненти та токени не входять у цю основу.
 - Poppins 400/500/600 спостерігається у джерелі, але font binaries/typography system не імпортовані в цьому color-only scope.
 
@@ -61,3 +61,7 @@ Priority low #8fa1d0, medium #e09cb5, high #bedbb0; завжди додавай�
 Headless Chromium shell 141, Playwright 1.56.1, `--disable-gpu --disable-software-rasterizer`: на dev і static build toolbar послідовно перемкнув Light → Violet → Dark. Перевірені html data-theme, computed body background/text, action background і focus outline 2px; runtime page errors не виявлено. Для Violet перевірено header token на 375/768/1439px (#fcfcfc) і 1440px (#ffffff). QA tooling тимчасовий, не додає Playwright до залежностей проєкту.
 
 Обмеження: це функціональний smoke QA, не screenshot/pixel comparison чи повний accessibility audit. GPU/desktop browser не запускався. Static build має стандартне попередження про chunk >500 kB у Storybook preview. Системний Node 25 давав engine warning при початковому install; build/lint/test виконано на заявленому Node 24.22.1.
+
+## UI-kit продовження
+
+Shared primitives, локальний Poppins, derived interaction tokens і перевірки: [ui-kit.md](ui-kit.md). Історичний color-only specimen залишається окремим; його system font не описує типографіку нових компонентів.

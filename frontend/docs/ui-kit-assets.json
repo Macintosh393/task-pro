@@ -1,0 +1,20 @@
+[
+  {
+    "name": "close",
+    "source": "captures/retained-2026-10-17/1058-4908/assets/imgXClose.svg",
+    "sha256": "41999b764d82266468ee6af3f5ed63cc494f99b668166aa80d01ace5f2ce8809",
+    "adaptation": "Inline original paths, currentColor; removed export IDs and trash opacity. Size chosen by consumer."
+  },
+  {
+    "name": "plus",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgPlus1.svg",
+    "sha256": "b65595706a3ef531a937358994a19f58e69c15f3fd72d39cd14e6c0184ac6680",
+    "adaptation": "Inline original paths, currentColor; removed export IDs and trash opacity. Size chosen by consumer."
+  },
+  {
+    "name": "trash",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgTrash04.svg",
+    "sha256": "2544c0c25ca01bd567a47370b9c0d69aa55163dc8cf91b29f35716701d11a04d",
+    "adaptation": "Inline original paths, currentColor; removed export IDs and trash opacity. Size chosen by consumer."
+  }
+]
