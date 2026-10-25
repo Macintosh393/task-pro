@@ -16,5 +16,101 @@
     "source": "captures/new-2026-10-18/1058-10396/assets/imgTrash04.svg",
     "sha256": "2544c0c25ca01bd567a47370b9c0d69aa55163dc8cf91b29f35716701d11a04d",
     "adaptation": "Inline original paths, currentColor; removed export IDs and trash opacity. Size chosen by consumer."
+  },
+  {
+    "name": "filter",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgFilter.svg",
+    "sha256": "870a7dafa32c2e95faf82f77b6eadcf6de66807522dedc6ae12d20bf4bfefa93",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
+  },
+  {
+    "name": "edit",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgPencil01.svg",
+    "sha256": "e6d9812463ee28bae5eeeebffdd302727327503fd17ae7981bfd0391a8eaa4fa",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
+  },
+  {
+    "name": "move",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgArrowCircleBrokenRight.svg",
+    "sha256": "ef1adc36e319b33f8e7a545693f59c827bd56913b4f3e5b1f8540e83c1fa5312",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
+  },
+  {
+    "name": "bell",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgBell2.svg",
+    "sha256": "fc0548d2c19d89c4e196afd248edf69e27535d637596e46247f54dfe28134a62",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
+  },
+  {
+    "name": "logout",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgVuesaxLinearLogin.svg",
+    "sha256": "8e99a807ec1cb376f012c91272a51aa9d56132d577f4473df24ccb0585d77ca9",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
+  },
+  {
+    "name": "project",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgIconProject.svg",
+    "sha256": "705d76450abfcf34dec84d1059d6807d486d21cfa79c3fc08e80b801d7fd8cd5",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
+  },
+  {
+    "name": "star",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgStar04.svg",
+    "sha256": "bc9f770cbdb797b3a4a75023e7e4603c6850a79b42c156296ca9680b20a91d39",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
+  },
+  {
+    "name": "loading",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgLoading03.svg",
+    "sha256": "3cd04f42d1641e6a2909843dfcf060e9d563d895f26b4fec5ae5fccc5471bfba",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
+  },
+  {
+    "name": "puzzle",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgPuzzlePiece02.svg",
+    "sha256": "f72355702f9905cb594edda995bd919b7b3b994e4968d06d2b314321e5acfb1a",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
+  },
+  {
+    "name": "container",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgContainer.svg",
+    "sha256": "7ea79df1ad8de97ebdcc786d1e0b2cd5e29131cd3a66c416a237b9147fd28ca9",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
+  },
+  {
+    "name": "lightning",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgLightning02.svg",
+    "sha256": "a1dc6bd64556dbbe4b573f6e901001d019caa33d616e0474fd2846e89a3a3eed",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
+  },
+  {
+    "name": "colors",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgColors.svg",
+    "sha256": "dfd0bac52f3d2ebe66853b71312106761affb8fd5a30a288c1ae83dd50c950db",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
+  },
+  {
+    "name": "hexagon",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgHexagon01.svg",
+    "sha256": "84f6b647b3d8c6f898188b439e35e7dbc107352b305f8b0724c04ab1e2ee7cf8",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
+  },
+  {
+    "name": "logo",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgIcon.svg",
+    "sha256": "726817a028f5655300ac184dd45022ccb81e5dd52a7d754cb61eba479132980d",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
+  },
+  {
+    "name": "avatar",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgGroup1456.svg",
+    "sha256": "c1d35faa52c0b90eae82e554c49e2152c5d283bfffdc0279f6500a6b6f37178b",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
+  },
+  {
+    "name": "boxed-plus",
+    "source": "captures/new-2026-10-18/1058-10396/assets/imgPlus3.svg",
+    "sha256": "7315473069c40c63b5feaf4a61c5bfc2a2e5a4e09c75a2262aa7ec3087ee87cd",
+    "adaptation": "Original SVG geometry; removed export IDs/opacity and redundant viewport clips; semantic CSS colors. Logo and boxed plus retain separate fill/stroke roles."
   }
 ]

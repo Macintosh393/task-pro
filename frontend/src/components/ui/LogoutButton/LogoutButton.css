@@ -1,0 +1,29 @@
+.ui-logout {
+  gap: 14px;
+  padding: 6px 0;
+  min-height: 44px;
+  color: var(--text-sidebar);
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+.ui-logout .ui-icon {
+  color: var(--logout-icon);
+}
+
+.ui-logout:hover:not(:disabled) {
+  color: var(--text-sidebar);
+}
+
+.ui-logout:hover:not(:disabled) .ui-icon {
+  color: var(--logout-hover);
+}
+
+.ui-logout:focus-visible {
+  outline-color: var(--focus-ring-sidebar);
+}
+
+.ui-logout:disabled .ui-icon {
+  color: inherit;
+}

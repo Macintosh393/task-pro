@@ -48,7 +48,7 @@ Priority low #8fa1d0, medium #e09cb5, high #bedbb0; завжди додавай�
 
 - `--border-subtle` (20%) — **derived** декоративна рамка technical specimen; не замінює контрастну межу інтерактивного control.
 - `--focus-ring*` — **derived**: 2px + 2px offset, white на dark/sidebar violet, #161616 на light/violet content. Компонента має вибрати відповідну роль і перевірити фактичну поверхню. Це не Figma active-field state.
-- UI-kit містить #7b7ede, але його призначення як Violet hover — адаптація. Green hover brightness 1.05 та error #ff9b9b/#b42318 також адаптації. На момент color-only основи ці API не були реалізовані; поточні компоненти, відхилення hover та перевірки описані в [ui-kit.md](ui-kit.md).
+- UI-kit містить #7b7ede, але його призначення як Violet hover — адаптація. Попередній Green hover brightness 1.05 замінено source #9dc888 після UI-kit review; error #ff9b9b/#b42318 залишається адаптацією. На момент color-only основи ці API не були реалізовані; поточні компоненти, відхилення hover та перевірки описані в [ui-kit.md](ui-kit.md).
 - 40% opacity normal-field group не переноситься на filled/active fields. Auth #151515/#1f1f1f не означає три auth variants; auth компоненти та токени не входять у цю основу.
 - Poppins 400/500/600 спостерігається у джерелі, але font binaries/typography system не імпортовані в цьому color-only scope.
 

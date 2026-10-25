@@ -1,0 +1,60 @@
+.ui-icon-button {
+  width: 49px;
+  height: 49px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.ui-icon-button.ui-button--small {
+  width: 44px;
+  height: 44px;
+}
+
+.ui-icon-button .ui-spinner {
+  position: static;
+  width: 20px;
+  height: 20px;
+}
+
+.ui-icon-button--compact-add,
+.ui-icon-button--compact-add.ui-button--small {
+  isolation: isolate;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: var(--compact-ink);
+}
+
+.ui-icon-button--compact-add::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  width: 40px;
+  height: 36px;
+  border-radius: 6px;
+  background: var(--compact-surface);
+}
+
+.ui-icon-button--compact-add:hover:not(:disabled) {
+  background: transparent;
+}
+
+.ui-icon-button--compact-add:hover:not(:disabled)::before {
+  background: var(--compact-hover);
+}
+
+.ui-icon-button--compact-add:disabled {
+  background: transparent;
+  color: var(--control-disabled-text);
+}
+
+.ui-icon-button--compact-add:disabled::before {
+  background: var(--control-disabled-surface);
+}
+
+.ui-reminder {
+  color: var(--icon-action-active);
+}
