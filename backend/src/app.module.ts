@@ -4,9 +4,11 @@ import { AppService } from './app.service.js';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { validate, EnvironmentVariables } from './config/environment-variables.js';
+import { AuthModule } from './auth/auth.module.js';
 
 @Module({
   imports: [
+    AuthModule,
     ConfigModule.forRoot({ isGlobal: true, validate }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
