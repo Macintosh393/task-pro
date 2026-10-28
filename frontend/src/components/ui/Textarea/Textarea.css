@@ -1,0 +1,4 @@
+textarea.ui-control {
+  min-height: 120px;
+  resize: vertical;
+}

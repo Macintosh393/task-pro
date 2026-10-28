@@ -1,0 +1,16 @@
+.ui-board-choice {
+  color: var(--control-muted);
+}
+
+.ui-board-choice:has(:checked) {
+  color: var(--text-primary);
+}
+
+.ui-board-choice:has(:checked)::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid var(--field-accent);
+  border-radius: 6px;
+  pointer-events: none;
+}

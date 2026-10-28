@@ -1,0 +1,27 @@
+.ui-text {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-text {
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.ui-text--medium {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ui-text--small {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.ui-tone--primary {
+  color: var(--text-primary);
+}
+
+.ui-tone--muted {
+  color: var(--control-muted);
+}
