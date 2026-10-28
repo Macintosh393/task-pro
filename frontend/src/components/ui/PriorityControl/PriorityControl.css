@@ -1,0 +1,38 @@
+.ui-priority--none {
+  --priority-color: var(--priority-none);
+}
+
+.ui-priority--low {
+  --priority-color: var(--priority-low);
+}
+
+.ui-priority--medium {
+  --priority-color: var(--priority-medium);
+}
+
+.ui-priority--high {
+  --priority-color: var(--priority-high);
+}
+
+.ui-priority-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--priority-color);
+  pointer-events: none;
+}
+
+.ui-choice input:checked + .ui-priority-dot {
+  background: transparent;
+  border: 1px solid var(--priority-color);
+  display: grid;
+  place-items: center;
+}
+
+.ui-choice input:checked + .ui-priority-dot::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--priority-color);
+}

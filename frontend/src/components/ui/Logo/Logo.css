@@ -1,0 +1,9 @@
+.ui-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  color: var(--text-sidebar);
+  font: 600 16px/24px var(--font-ui);
+  letter-spacing: -0.04em;
+}

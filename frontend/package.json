@@ -11,7 +11,9 @@
     "build": "tsc -b && vite build",
     "test": "vitest",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6006 --host 127.0.0.1 --no-open --disable-telemetry",
+    "build-storybook": "storybook build --disable-telemetry"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -25,6 +27,9 @@
     "@babel/core": "^7.29.7",
     "@eslint/js": "^10.0.1",
     "@rolldown/plugin-babel": "^0.2.4",
+    "@storybook/addon-docs": "10.6.3",
+    "@storybook/addon-themes": "10.6.3",
+    "@storybook/react-vite": "10.6.3",
     "@types/babel__core": "^7.20.5",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
@@ -36,7 +41,9 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.13.0",
+    "jsdom": "29.0.1",
     "prettier": "3.9.10",
+    "storybook": "10.6.3",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.71.2",
     "vite": "^8.3.4",

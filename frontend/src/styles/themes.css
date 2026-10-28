@@ -1,0 +1,150 @@
+/* Semantic names are our contract, not original Figma variable names.
+   :root provides a deterministic Dark fallback; no persistence policy. */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --surface-canvas: var(--palette-neutral-800);
+  --surface-sidebar: var(--palette-neutral-950);
+  --surface-header: var(--palette-neutral-900);
+  --surface-card: var(--palette-neutral-950);
+  --surface-column-heading: var(--palette-neutral-950);
+  --surface-filters: var(--palette-neutral-925);
+  --text-primary: var(--palette-white);
+  --text-sidebar: var(--palette-white);
+  --text-description: rgb(255 255 255 / 50%);
+  --text-caption: rgb(255 255 255 / 50%);
+  --text-sidebar-muted: rgb(255 255 255 / 50%);
+  --border-filters: rgb(190 219 176 / 50%);
+  --shadow-filters: none;
+  --action-primary: var(--palette-green-300);
+  --action-on-primary: var(--palette-neutral-900);
+  --priority-low: var(--palette-blue-300);
+  --priority-medium: var(--palette-pink-300);
+  --priority-high: var(--palette-green-300);
+  --priority-none: rgb(255 255 255 / 30%);
+  /* Derived defaults, NOT source-backed interaction states. */
+  --border-subtle: rgb(255 255 255 / 20%);
+  --focus-ring: var(--palette-white);
+  --focus-ring-sidebar: var(--palette-white);
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+}
+
+:root[data-theme='light'],
+:root[data-theme='violet'] {
+  color-scheme: light;
+  --surface-canvas: var(--palette-neutral-100);
+  --surface-sidebar: var(--palette-white);
+  --surface-header: var(--palette-neutral-50);
+  --surface-card: var(--palette-white);
+  --surface-column-heading: var(--palette-white);
+  --surface-filters: var(--palette-neutral-50);
+  --text-primary: var(--palette-neutral-900);
+  --text-sidebar: var(--palette-neutral-900);
+  --text-description: rgb(22 22 22 / 70%);
+  --text-caption: rgb(22 22 22 / 50%);
+  --text-sidebar-muted: rgb(22 22 22 / 50%);
+  --border-filters: transparent;
+  --shadow-filters: 0 4px 16px rgb(22 22 22 / 5%);
+  --priority-none: rgb(22 22 22 / 30%);
+  /* Derived defaults. */
+  --border-subtle: rgb(22 22 22 / 20%);
+  --focus-ring: var(--palette-neutral-900);
+  --focus-ring-sidebar: var(--palette-neutral-900);
+}
+
+:root[data-theme='violet'] {
+  --surface-canvas: var(--palette-violet-50);
+  --surface-sidebar: var(--palette-violet-600);
+  --text-sidebar: var(--palette-white);
+  --text-sidebar-muted: rgb(255 255 255 / 50%);
+  --action-primary: var(--palette-violet-600);
+  --action-on-primary: var(--palette-white);
+  --focus-ring-sidebar: var(--palette-white);
+}
+
+/* Observed Violet desktop header differs from tablet/mobile (1440px anchor). */
+@media (min-width: 1440px) {
+  :root[data-theme='violet'] {
+    --surface-header: var(--palette-white);
+  }
+}
+
+/* UI-kit interaction adaptations; see docs/ui-kit.md. */
+:root,
+:root[data-theme='dark'] {
+  --control-surface: var(--surface-card);
+  --control-border: #929292;
+  --control-muted: #b8b8b8;
+  --control-disabled-surface: #303030;
+  --control-disabled-text: #b8b8b8;
+  --action-hover: #9dc888;
+  --action-secondary-hover: #303030;
+  --action-danger: #ff9b9b;
+  --action-on-danger: #161616;
+  --action-danger-hover: #ffb5b5;
+  --text-error: #ff9b9b;
+  --modal-backdrop: rgb(0 0 0 / 60%);
+}
+:root[data-theme='light'],
+:root[data-theme='violet'] {
+  --control-border: #767676;
+  --control-muted: #626262;
+  --control-disabled-surface: #e7e7e7;
+  --control-disabled-text: #626262;
+  --action-secondary-hover: #ededed;
+  --action-danger: #b42318;
+  --action-on-danger: #ffffff;
+  --action-danger-hover: #941b12;
+  --text-error: #b42318;
+}
+:root[data-theme='violet'] {
+  /* Darker than source #7b7ede adaptation to keep white action text readable. */
+  --action-hover: #4649a6;
+}
+
+/* UI-kit source roles: frame 1058:10396. Keep field and compact action roles separate. */
+:root,
+:root[data-theme='dark'] {
+  --field-surface: #1f1f1f;
+  --field-accent: #bedbb0;
+  --action-hover: #9dc888;
+  --compact-surface: #bedbb0;
+  --compact-hover: #9dc888;
+  --compact-ink: #161616;
+  --button-icon-surface: #161616;
+  --button-icon-ink: #ffffff;
+  --icon-action: var(--control-muted);
+  --icon-action-active: #bedbb0;
+  --logo-tile: #1f1f1f;
+  --logo-mark: #ffffff;
+  --avatar-surface: #1f1f1f;
+  --avatar-ink: #151515;
+  --avatar-add-surface: #bedbb0;
+  --avatar-add-ink: #161616;
+  --logout-icon: #bedbb0;
+  --logout-hover: #9dc888;
+}
+:root[data-theme='light'],
+:root[data-theme='violet'] {
+  --field-surface: transparent;
+  --avatar-surface: #f6f6f7;
+  --avatar-ink: #ffffff;
+}
+:root[data-theme='violet'] {
+  --field-accent: #5255bc;
+  --action-hover: #4649a6; /* Existing readable-text adaptation retained. */
+  --compact-surface: #b8bcfd;
+  --compact-hover: #979cea;
+  --compact-ink: #ffffff;
+  --button-icon-surface: #ffffff;
+  --button-icon-ink: #161616;
+  --icon-action-active: #5255bc;
+  --logo-tile: #ecedfd;
+  --logo-mark: #5255bc;
+  --avatar-surface: #ecedfd;
+  --avatar-add-surface: #ecedfd;
+  --avatar-add-ink: #5255bc;
+  --logout-icon: #ffffff;
+  --logout-hover: #b8bcfd;
+}

@@ -1,0 +1,22 @@
+.ui-heading {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-heading {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.4;
+}
+
+.ui-heading--small {
+  font-size: 16px;
+}
+
+.ui-heading--medium {
+  font-size: 18px;
+}
+
+.ui-heading--large {
+  font-size: 24px;
+}
