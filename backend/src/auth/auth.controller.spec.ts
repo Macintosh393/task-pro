@@ -95,7 +95,7 @@ describe('AuthController', () => {
         httpOnly: true,
         secure: false, // NODE_ENV === 'development'
         sameSite: 'strict',
-        path: '/auth',
+        path: '/api/auth',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 604_800_000 ms
       });
     });
@@ -139,7 +139,7 @@ describe('AuthController', () => {
         expect.objectContaining({
           httpOnly: true,
           sameSite: 'strict',
-          path: '/auth',
+          path: '/api/auth',
         }),
       );
     });
@@ -198,7 +198,7 @@ describe('AuthController', () => {
         expect.objectContaining({
           httpOnly: true,
           sameSite: 'strict',
-          path: '/auth',
+          path: '/api/auth',
         }),
       );
     });
@@ -214,7 +214,7 @@ describe('AuthController', () => {
         expect.objectContaining({
           httpOnly: true,
           sameSite: 'strict',
-          path: '/auth',
+          path: '/api/auth',
         }),
       );
     });
@@ -356,7 +356,7 @@ describe('AuthController', () => {
           secure: true,
           httpOnly: true,
           sameSite: 'strict',
-          path: '/auth',
+          path: '/api/auth',
         }),
       );
     });
