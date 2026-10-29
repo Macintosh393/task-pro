@@ -1,9 +1,5 @@
-import Placeholder from './components/Placeholder';
+import { RegisterPage } from './pages/RegisterPage';
 
 export default function App() {
-  return (
-    <>
-      <Placeholder />
-    </>
-  );
+  return <RegisterPage />;
 }
