@@ -1,7 +1,6 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 
-import { User } from '../users/entities/user.entity.js';
 import { UsersService } from '../users/users.service.js';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto.js';
@@ -33,5 +32,17 @@ export class AuthService {
     const refreshToken = await this.refreshTokensService.issue(user.id);
 
     return { accessToken, refreshToken };
+  }
+
+  async refresh(token: string): Promise<TokenPair> {
+    const { userId, token: refreshToken } = await this.refreshTokensService.rotate(token);
+
+    const accessToken = await this.jwtService.signAsync({ sub: userId });
+
+    return { accessToken, refreshToken };
+  }
+
+  async logout(token: string): Promise<void> {
+    await this.refreshTokensService.revoke(token);
   }
 }

@@ -1,6 +1,5 @@
-import { Controller, Get, Req } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import type { Request } from 'express';
 
 import { User } from './entities/user.entity.js';
 import { UsersService } from './users.service.js';
