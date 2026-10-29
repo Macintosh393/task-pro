@@ -9,7 +9,7 @@ export function Avatar({ src, name, className = '', ...props }: AvatarProps) {
     <div
       {...props}
       className={cn(
-        'ui-avatar relative size-[68px] shrink-0 overflow-hidden rounded-lg bg-avatar-surface text-avatar-ink',
+        'relative size-[68px] shrink-0 overflow-hidden rounded-lg bg-avatar-surface text-avatar-ink',
         className,
       )}
     >
@@ -25,7 +25,7 @@ export function Avatar({ src, name, className = '', ...props }: AvatarProps) {
           name="avatar"
           size={68}
           label={name}
-          className="ui-avatar__placeholder absolute top-5 left-1.5 h-[77.688px] w-[55.753px]"
+          className="absolute top-5 left-1.5 h-[77.688px] w-[55.753px]"
         />
       )}
     </div>

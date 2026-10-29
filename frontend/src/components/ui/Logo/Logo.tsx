@@ -7,7 +7,7 @@ export function Logo({ className = '', ...props }: ComponentPropsWithRef<'span'>
     <span
       {...props}
       className={cn(
-        'ui-logo inline-flex items-center gap-2 whitespace-nowrap font-ui text-base/6 font-semibold tracking-[-0.04em] text-sidebar',
+        'inline-flex items-center gap-2 whitespace-nowrap font-ui text-base/6 font-semibold tracking-[-0.04em] text-sidebar',
         className,
       )}
     >

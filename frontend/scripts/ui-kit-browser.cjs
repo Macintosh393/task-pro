@@ -49,9 +49,9 @@ fs.mkdirSync(output, { recursive: true });
       await go('ui-button--primary', theme);
       const button = page.getByRole('button', { name: 'Save changes' });
       await button.waitFor();
-      await page.evaluate(() => {
+      await button.evaluate((el) => {
         window.qaClicks = 0;
-        document.querySelector('.ui-button').addEventListener('click', () => window.qaClicks++);
+        el.addEventListener('click', () => window.qaClicks++);
       });
       await page.keyboard.press('Tab');
       await button.focus();
@@ -70,11 +70,10 @@ fs.mkdirSync(output, { recursive: true });
         const b = page.getByRole('button', { name: 'Save changes' });
         await b.waitFor();
         assert(await b.isDisabled());
-        await page.evaluate(() => {
+        await b.evaluate((el) => {
           window.qaClicks = 0;
-          const b = document.querySelector('.ui-button');
-          b.addEventListener('click', () => window.qaClicks++);
-          b.click();
+          el.addEventListener('click', () => window.qaClicks++);
+          el.click();
         });
         await page.keyboard.press('Tab');
         await page.keyboard.press('Enter');

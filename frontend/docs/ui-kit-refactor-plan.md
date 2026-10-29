@@ -23,3 +23,10 @@
 Перевірено lint, 13 unit tests, TypeScript, app build і Storybook build. Census дав 15 компонентів із власними stories, 18 story-файлів, 77 stories, 1 MDX і 33 Linux baselines; перевірено SHA-256 усіх 41 assets.
 
 Перевірку завершено 2026-10-29 у середовищі з доступним loopback і Docker. `npm run test:ui` пройшов усі 7 тестів: 77 stories із кожним із трьох налаштувань теми, axe для stories і відкритих modal, keyboard/fields/upload/geometry contracts. `npm run test:ui:visual` пройшов 3 тести та порівняв усі 33 Linux screenshots із наявними baselines без їх оновлення. Переглянуто desktop і 320px reference screenshots у трьох темах, а також вибрані overview/modal baselines. Результати та межі записано в [ui-kit.md](ui-kit.md).
+
+## Селектори browser tests
+
+1. Замінити `.ui-button`, `.ui-avatar` і `.ui-avatar__placeholder` на locators за роллю та accessible name; `.ui-logo` знаходити за точним текстом. Зберегти перевірки розмірів wrapper, завантаження зображення та SVG fallback. Перевірити contracts у трьох темах.
+2. Прибрати ці чотири class hooks із компонентів. Перевірити відсутність посилань на них у tests/scripts, lint, build Storybook та 33 Linux screenshot comparisons без оновлення baselines.
+
+Виконано: кнопки та avatar знаходяться через `getByRole` з accessible name, logo через `getByText`. Розмір avatar wrapper перевіряється через батьківський елемент знайденого зображення; fallback assertion чекає SVG, щоб не прийняти пошкоджений `img` із тим самим ім'ям. Чотири class hooks видалено. Census 32 test/story/helper/script файлів дав 0 `ui-*` class selectors. Syntax checks scripts, lint, Storybook build, browser contracts у трьох темах і всі 33 Linux screenshot comparisons пройшли без оновлення baselines.

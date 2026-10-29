@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const { expect } = require('@playwright/test');
 
 module.exports = async function checkDesign({ page, go, theme, output }) {
   await go('ui-design-reference--kit', theme);
@@ -71,11 +72,15 @@ module.exports = async function checkDesign({ page, go, theme, output }) {
   assert.equal(await logout.locator('svg').getAttribute('width'), '32');
   assert.equal(await logout.evaluate((el) => getComputedStyle(el).fontSize), '16px');
   assert.equal(
-    await page.locator('.ui-logo').evaluate((el) => el.getBoundingClientRect().height),
+    await page
+      .getByText('Task Pro', { exact: true })
+      .evaluate((el) => el.getBoundingClientRect().height),
     32,
   );
   assert.equal(
-    await page.locator('.ui-avatar').evaluate((el) => el.getBoundingClientRect().width),
+    await page
+      .getByRole('img', { name: 'Your profile', exact: true })
+      .evaluate((el) => el.parentElement.getBoundingClientRect().width),
     68,
   );
   await page.getByRole('radio', { name: 'Low', exact: true }).focus();
@@ -104,12 +109,13 @@ module.exports = async function checkDesign({ page, go, theme, output }) {
       ),
     });
   await page.getByRole('status').filter({ hasText: 'Selected: profile.png' }).waitFor();
-  await page.waitForFunction(() => {
-    const img = document.querySelector('.ui-avatar img');
-    return img?.complete && img.naturalWidth > 0;
-  });
+  const uploadedAvatar = page.getByRole('img', { name: 'Your profile', exact: true });
+  await expect(uploadedAvatar).toHaveJSProperty('complete', true);
+  await expect.poll(() => uploadedAvatar.evaluate((el) => el.naturalWidth)).toBeGreaterThan(0);
   await go('ui-design-reference--missing-avatar', theme);
-  await page.locator('.ui-avatar__placeholder[role="img"]').waitFor();
+  const fallbackAvatar = page.getByRole('img', { name: 'Profile', exact: true });
+  await expect(fallbackAvatar).toBeVisible();
+  await expect(fallbackAvatar).toHaveJSProperty('tagName', 'svg');
   await go('ui-design-reference--disabled-selections', theme);
   for (const radio of await page.getByRole('radio').all()) assert(await radio.isDisabled());
   await go('ui-design-reference--disabled-upload', theme);
