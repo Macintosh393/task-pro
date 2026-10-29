@@ -1,11 +1,12 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 
 import { User } from './entities/user.entity.js';
 import { UsersService } from './users.service.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 
 @ApiBearerAuth()
+@ApiCookieAuth('accessToken')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

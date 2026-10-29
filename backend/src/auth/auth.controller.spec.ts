@@ -22,6 +22,7 @@ function createMockAuthService(): Record<'login' | 'refresh' | 'logout', ReturnT
 function createMockConfigService(overrides: Partial<Record<string, unknown>> = {}) {
   const defaults: Record<string, unknown> = {
     NODE_ENV: 'development',
+    ACCESS_TOKEN_TTL_MINUTES: 15,
     REFRESH_TOKEN_TTL_DAYS: 7,
     ...overrides,
   };
@@ -74,11 +75,24 @@ describe('AuthController', () => {
       authService.login.mockResolvedValue(tokens);
     });
 
-    it('should return { accessToken } and set refresh cookie on response', async () => {
-      const result = await controller.login(loginDto, res as unknown as Response);
+    it('should set both accessToken and refreshToken cookies on response', async () => {
+      await controller.login(loginDto, res as unknown as Response);
 
-      expect(result).toEqual({ accessToken: 'access-jwt' });
-      expect(res.cookie).toHaveBeenCalledTimes(1);
+      expect(res.cookie).toHaveBeenCalledTimes(2);
+      expect(res.cookie).toHaveBeenNthCalledWith(1, 'accessToken', 'access-jwt', {
+        httpOnly: true,
+        secure: false, // NODE_ENV === 'development'
+        sameSite: 'strict',
+        path: '/api',
+        maxAge: 15 * 60 * 1000, // 900_000 ms
+      });
+      expect(res.cookie).toHaveBeenNthCalledWith(2, 'refreshToken', 'refresh-jwt', {
+        httpOnly: true,
+        secure: false, // NODE_ENV === 'development'
+        sameSite: 'strict',
+        path: '/api/auth',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 604_800_000 ms
+      });
     });
 
     it('should pass loginDto to authService.login', async () => {
@@ -88,19 +102,7 @@ describe('AuthController', () => {
       expect(authService.login).toHaveBeenCalledTimes(1);
     });
 
-    it('should call response.cookie with correct name, value, and options', async () => {
-      await controller.login(loginDto, res as unknown as Response);
-
-      expect(res.cookie).toHaveBeenCalledWith('refreshToken', 'refresh-jwt', {
-        httpOnly: true,
-        secure: false, // NODE_ENV === 'development'
-        sameSite: 'strict',
-        path: '/api/auth',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 604_800_000 ms
-      });
-    });
-
-    it('should propagate error when authService.login throws', async () => {
+    it('should propagate error when authService.login throws and set no cookies', async () => {
       const error = new UnauthorizedException('Wrong login credentials');
       authService.login.mockRejectedValue(error);
 
@@ -119,20 +121,22 @@ describe('AuthController', () => {
       authService.refresh.mockResolvedValue(tokens);
     });
 
-    it('should extract refresh token from request.cookies and return new { accessToken }', async () => {
-      const req = createMockRequest({ refreshToken: 'old-refresh' });
-
-      const result = await controller.refresh(req as unknown as Request, res as unknown as Response);
-
-      expect(authService.refresh).toHaveBeenCalledWith('old-refresh');
-      expect(result).toEqual({ accessToken: 'new-access' });
-    });
-
-    it('should set new refresh cookie on response', async () => {
+    it('should extract refresh token from request.cookies and set new access and refresh cookies', async () => {
       const req = createMockRequest({ refreshToken: 'old-refresh' });
 
       await controller.refresh(req as unknown as Request, res as unknown as Response);
 
+      expect(authService.refresh).toHaveBeenCalledWith('old-refresh');
+      expect(res.cookie).toHaveBeenCalledTimes(2);
+      expect(res.cookie).toHaveBeenCalledWith(
+        'accessToken',
+        'new-access',
+        expect.objectContaining({
+          httpOnly: true,
+          sameSite: 'strict',
+          path: '/api',
+        }),
+      );
       expect(res.cookie).toHaveBeenCalledWith(
         'refreshToken',
         'new-refresh',
@@ -185,7 +189,7 @@ describe('AuthController', () => {
   // logout()
   // -----------------------------------------------------------------------
   describe('logout()', () => {
-    it('should call authService.logout and clear cookie when refreshToken cookie is present', async () => {
+    it('should call authService.logout and clear both cookies when refreshToken cookie is present', async () => {
       authService.logout.mockResolvedValue(undefined);
       const req = createMockRequest({ refreshToken: 'some-token' });
 
@@ -193,6 +197,15 @@ describe('AuthController', () => {
 
       expect(authService.logout).toHaveBeenCalledWith('some-token');
       expect(authService.logout).toHaveBeenCalledTimes(1);
+      expect(res.clearCookie).toHaveBeenCalledTimes(2);
+      expect(res.clearCookie).toHaveBeenCalledWith(
+        'accessToken',
+        expect.objectContaining({
+          httpOnly: true,
+          sameSite: 'strict',
+          path: '/api',
+        }),
+      );
       expect(res.clearCookie).toHaveBeenCalledWith(
         'refreshToken',
         expect.objectContaining({
@@ -203,29 +216,26 @@ describe('AuthController', () => {
       );
     });
 
-    it('should NOT call authService.logout when no refreshToken cookie, still clears cookie', async () => {
+    it('should NOT call authService.logout when no refreshToken cookie, but still clears both cookies', async () => {
       const req = createMockRequest({});
 
       await controller.logout(req as unknown as Request, res as unknown as Response);
 
       expect(authService.logout).not.toHaveBeenCalled();
-      expect(res.clearCookie).toHaveBeenCalledWith(
-        'refreshToken',
-        expect.objectContaining({
-          httpOnly: true,
-          sameSite: 'strict',
-          path: '/api/auth',
-        }),
-      );
+      expect(res.clearCookie).toHaveBeenCalledTimes(2);
+      expect(res.clearCookie).toHaveBeenCalledWith('accessToken', expect.objectContaining({ path: '/api' }));
+      expect(res.clearCookie).toHaveBeenCalledWith('refreshToken', expect.objectContaining({ path: '/api/auth' }));
     });
 
-    it('should NOT throw when request.cookies is undefined, still clears cookie', async () => {
+    it('should NOT throw when request.cookies is undefined, and still clear both cookies', async () => {
       const req = createMockRequest(undefined);
 
       await expect(controller.logout(req as unknown as Request, res as unknown as Response)).resolves.toBeUndefined();
 
       expect(authService.logout).not.toHaveBeenCalled();
-      expect(res.clearCookie).toHaveBeenCalledTimes(1);
+      expect(res.clearCookie).toHaveBeenCalledTimes(2);
+      expect(res.clearCookie).toHaveBeenCalledWith('accessToken', expect.objectContaining({ path: '/api' }));
+      expect(res.clearCookie).toHaveBeenCalledWith('refreshToken', expect.objectContaining({ path: '/api/auth' }));
     });
 
     it('should NOT call authService.logout when refreshToken cookie is non-string', async () => {
@@ -234,18 +244,20 @@ describe('AuthController', () => {
       await controller.logout(req as unknown as Request, res as unknown as Response);
 
       expect(authService.logout).not.toHaveBeenCalled();
-      expect(res.clearCookie).toHaveBeenCalledTimes(1);
+      expect(res.clearCookie).toHaveBeenCalledTimes(2);
+      expect(res.clearCookie).toHaveBeenCalledWith('accessToken', expect.objectContaining({ path: '/api' }));
+      expect(res.clearCookie).toHaveBeenCalledWith('refreshToken', expect.objectContaining({ path: '/api/auth' }));
     });
   });
 
   // -----------------------------------------------------------------------
-  // refreshCookieOptions (private getter, tested indirectly)
+  // Cookie security options (environment dependent)
   // -----------------------------------------------------------------------
-  describe('refreshCookieOptions (tested indirectly via login)', () => {
+  describe('cookie security options (tested indirectly via login)', () => {
     const loginDto: LoginDto = { email: 'u@e.com', password: 'pw' };
     const tokens = { accessToken: 'at', refreshToken: 'rt' };
 
-    it('should set secure=true in production', async () => {
+    it('should set secure=true on both cookies in production', async () => {
       configService = createMockConfigService({ NODE_ENV: 'production' });
       controller = new AuthController(
         authService as unknown as AuthService,
@@ -255,10 +267,11 @@ describe('AuthController', () => {
 
       await controller.login(loginDto, res as unknown as Response);
 
+      expect(res.cookie).toHaveBeenCalledWith('accessToken', 'at', expect.objectContaining({ secure: true }));
       expect(res.cookie).toHaveBeenCalledWith('refreshToken', 'rt', expect.objectContaining({ secure: true }));
     });
 
-    it('should set secure=false in non-production (development)', async () => {
+    it('should set secure=false on both cookies in non-production (development)', async () => {
       configService = createMockConfigService({ NODE_ENV: 'development' });
       controller = new AuthController(
         authService as unknown as AuthService,
@@ -268,6 +281,7 @@ describe('AuthController', () => {
 
       await controller.login(loginDto, res as unknown as Response);
 
+      expect(res.cookie).toHaveBeenCalledWith('accessToken', 'at', expect.objectContaining({ secure: false }));
       expect(res.cookie).toHaveBeenCalledWith('refreshToken', 'rt', expect.objectContaining({ secure: false }));
     });
 
@@ -281,18 +295,19 @@ describe('AuthController', () => {
 
       await controller.login(loginDto, res as unknown as Response);
 
+      expect(res.cookie).toHaveBeenCalledWith('accessToken', 'at', expect.objectContaining({ secure: false }));
       expect(res.cookie).toHaveBeenCalledWith('refreshToken', 'rt', expect.objectContaining({ secure: false }));
     });
   });
 
   // -----------------------------------------------------------------------
-  // setRefreshCookie (private, tested indirectly)
+  // Cookie maxAge calculations
   // -----------------------------------------------------------------------
-  describe('setRefreshCookie (tested indirectly via login)', () => {
+  describe('cookie maxAge calculations', () => {
     const loginDto: LoginDto = { email: 'u@e.com', password: 'pw' };
 
-    it('should compute maxAge correctly for 7 days (604800000 ms)', async () => {
-      configService = createMockConfigService({ REFRESH_TOKEN_TTL_DAYS: 7 });
+    it('should compute accessToken maxAge correctly for ACCESS_TOKEN_TTL_MINUTES', async () => {
+      configService = createMockConfigService({ ACCESS_TOKEN_TTL_MINUTES: 30 });
       controller = new AuthController(
         authService as unknown as AuthService,
         configService as unknown as ConfigService<EnvironmentVariables, true>,
@@ -301,10 +316,14 @@ describe('AuthController', () => {
 
       await controller.login(loginDto, res as unknown as Response);
 
-      expect(res.cookie).toHaveBeenCalledWith('refreshToken', 'r', expect.objectContaining({ maxAge: 604_800_000 }));
+      expect(res.cookie).toHaveBeenCalledWith(
+        'accessToken',
+        'a',
+        expect.objectContaining({ maxAge: 30 * 60 * 1000 }), // 1_800_000 ms
+      );
     });
 
-    it('should compute maxAge correctly for 30 days (2592000000 ms)', async () => {
+    it('should compute refreshToken maxAge correctly for REFRESH_TOKEN_TTL_DAYS', async () => {
       configService = createMockConfigService({ REFRESH_TOKEN_TTL_DAYS: 30 });
       controller = new AuthController(
         authService as unknown as AuthService,
@@ -320,26 +339,13 @@ describe('AuthController', () => {
         expect.objectContaining({ maxAge: 30 * 24 * 60 * 60 * 1000 }),
       );
     });
-
-    it('should compute maxAge correctly for 1 day (86400000 ms)', async () => {
-      configService = createMockConfigService({ REFRESH_TOKEN_TTL_DAYS: 1 });
-      controller = new AuthController(
-        authService as unknown as AuthService,
-        configService as unknown as ConfigService<EnvironmentVariables, true>,
-      );
-      authService.login.mockResolvedValue({ accessToken: 'a', refreshToken: 'r' });
-
-      await controller.login(loginDto, res as unknown as Response);
-
-      expect(res.cookie).toHaveBeenCalledWith('refreshToken', 'r', expect.objectContaining({ maxAge: 86_400_000 }));
-    });
   });
 
   // -----------------------------------------------------------------------
-  // refreshCookieOptions used consistently in logout clearCookie
+  // logout cookie options consistency
   // -----------------------------------------------------------------------
-  describe('logout refreshCookieOptions consistency', () => {
-    it('should pass secure=true to clearCookie in production', async () => {
+  describe('logout cookie options consistency', () => {
+    it('should pass secure=true to clearCookie for both cookies in production', async () => {
       configService = createMockConfigService({ NODE_ENV: 'production' });
       controller = new AuthController(
         authService as unknown as AuthService,
@@ -351,31 +357,21 @@ describe('AuthController', () => {
       await controller.logout(req as unknown as Request, res as unknown as Response);
 
       expect(res.clearCookie).toHaveBeenCalledWith(
+        'accessToken',
+        expect.objectContaining({
+          secure: true,
+          httpOnly: true,
+          sameSite: 'strict',
+          path: '/api',
+        }),
+      );
+      expect(res.clearCookie).toHaveBeenCalledWith(
         'refreshToken',
         expect.objectContaining({
           secure: true,
           httpOnly: true,
           sameSite: 'strict',
           path: '/api/auth',
-        }),
-      );
-    });
-
-    it('should pass secure=false to clearCookie in development', async () => {
-      configService = createMockConfigService({ NODE_ENV: 'development' });
-      controller = new AuthController(
-        authService as unknown as AuthService,
-        configService as unknown as ConfigService<EnvironmentVariables, true>,
-      );
-      const req = createMockRequest({ refreshToken: 'tok' });
-      authService.logout.mockResolvedValue(undefined);
-
-      await controller.logout(req as unknown as Request, res as unknown as Response);
-
-      expect(res.clearCookie).toHaveBeenCalledWith(
-        'refreshToken',
-        expect.objectContaining({
-          secure: false,
         }),
       );
     });

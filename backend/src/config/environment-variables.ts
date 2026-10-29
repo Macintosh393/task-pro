@@ -41,9 +41,9 @@ export class EnvironmentVariables {
   @IsNotEmpty()
   JWT_SECRET: string;
 
-  @IsString()
-  @IsNotEmpty()
-  JWT_EXPIRES_IN: string;
+  @IsInt()
+  @Min(1)
+  ACCESS_TOKEN_TTL_MINUTES: number = 15;
 
   @IsInt()
   @Min(1)

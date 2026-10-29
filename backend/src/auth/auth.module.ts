@@ -17,12 +17,16 @@ import { RefreshToken } from './entities/refresh-token.entity.js';
     TypeOrmModule.forFeature([RefreshToken]),
     JwtModule.registerAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService<EnvironmentVariables, true>) => ({
-        secret: config.get('JWT_SECRET', { infer: true }),
-        signOptions: {
-          expiresIn: config.get('JWT_EXPIRES_IN', { infer: true }),
-        },
-      }),
+      useFactory: (config: ConfigService<EnvironmentVariables, true>) => {
+        const ttlMinutes = config.get('ACCESS_TOKEN_TTL_MINUTES', { infer: true });
+
+        return {
+          secret: config.get('JWT_SECRET', { infer: true }),
+          signOptions: {
+            expiresIn: `${ttlMinutes}m`,
+          },
+        };
+      },
     }),
   ],
   providers: [AuthService, { provide: APP_GUARD, useClass: JwtAuthGuard }, RefreshTokensService],

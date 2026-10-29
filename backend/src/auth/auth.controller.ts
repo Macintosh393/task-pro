@@ -3,7 +3,6 @@ import { ApiNoContentResponse, ApiOkResponse, ApiUnauthorizedResponse } from '@n
 
 import { AuthService } from './auth.service.js';
 import { LoginDto } from './dto/login.dto.js';
-import { AccessTokenDto } from './dto/access-token.dto.js';
 import { Public } from '../common/decorators/public.decorator.js';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '../config/environment-variables.js';
@@ -19,28 +18,26 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: AccessTokenDto })
+  @ApiOkResponse({ description: 'Logged in successfully' })
   @ApiUnauthorizedResponse({ description: 'Wrong login credentials' })
-  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) response: Response): Promise<AccessTokenDto> {
+  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) response: Response): Promise<void> {
     const { accessToken, refreshToken } = await this.authService.login(loginDto);
 
+    this.setAccessCookie(response, accessToken);
     this.setRefreshCookie(response, refreshToken);
-
-    return { accessToken };
   }
 
   @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: AccessTokenDto })
+  @ApiOkResponse({ description: 'Tokens successfully refreshed' })
   @ApiUnauthorizedResponse({ description: 'Refresh token is invalid' })
-  async refresh(@Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<AccessTokenDto> {
+  async refresh(@Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<void> {
     const token = this.extractRefreshToken(request);
     const { accessToken, refreshToken } = await this.authService.refresh(token);
 
+    this.setAccessCookie(response, accessToken);
     this.setRefreshCookie(response, refreshToken);
-
-    return { accessToken };
   }
 
   @Public()
@@ -54,7 +51,17 @@ export class AuthController {
       await this.authService.logout(token);
     }
 
+    response.clearCookie('accessToken', this.accessCookieOptions);
     response.clearCookie('refreshToken', this.refreshCookieOptions);
+  }
+
+  private get accessCookieOptions(): CookieOptions {
+    return {
+      httpOnly: true,
+      secure: this.config.get('NODE_ENV', { infer: true }) === 'production',
+      sameSite: 'strict',
+      path: '/api',
+    };
   }
 
   private get refreshCookieOptions(): CookieOptions {
@@ -64,6 +71,15 @@ export class AuthController {
       sameSite: 'strict',
       path: '/api/auth',
     };
+  }
+
+  private setAccessCookie(response: Response, accessToken: string): void {
+    const ttlMinutes = this.config.get('ACCESS_TOKEN_TTL_MINUTES', { infer: true });
+
+    response.cookie('accessToken', accessToken, {
+      ...this.accessCookieOptions,
+      maxAge: ttlMinutes * 60 * 1000,
+    });
   }
 
   private setRefreshCookie(response: Response, refreshToken: string): void {

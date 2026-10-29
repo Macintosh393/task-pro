@@ -1,4 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApiNoContentResponse } from '@nestjs/swagger';
 import { AppService } from './app.service.js';
 import { Public } from './common/decorators/public.decorator.js';
 
@@ -8,7 +9,7 @@ export class AppController {
 
   @Public()
   @Get('health')
-  getHealth(): { status: number } {
-    return { status: 200 };
-  }
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({ description: 'Service is healthy' })
+  getHealth(): void {}
 }

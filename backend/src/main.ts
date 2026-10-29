@@ -10,8 +10,19 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
 
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
+
   app.use(cookieParser());
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   const documentConfig = new DocumentBuilder()
@@ -19,6 +30,7 @@ async function bootstrap() {
     .setDescription('')
     .setVersion('0.1')
     .addBearerAuth()
+    .addCookieAuth('accessToken')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, documentConfig);

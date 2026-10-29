@@ -6,9 +6,14 @@ import type { JwtService } from '@nestjs/jwt';
 import { JwtAuthGuard } from './jwt-auth.guard.js';
 import type { JwtPayload } from './jwt-payload.interface.js';
 
-function createMockExecutionContext(authorization?: string) {
-  const request: { headers: { authorization?: string }; user?: JwtPayload } = {
+function createMockExecutionContext(authorization?: string, cookies?: Record<string, unknown>) {
+  const request: {
+    headers: { authorization?: string };
+    cookies?: Record<string, unknown>;
+    user?: JwtPayload;
+  } = {
     headers: {},
+    cookies,
   };
 
   if (authorization !== undefined) {
@@ -65,10 +70,54 @@ describe('JwtAuthGuard', () => {
       expect(reflector.getAllAndOverride).toHaveBeenCalledWith('isPublic', [context.getHandler(), context.getClass()]);
     });
 
-    it('should throw UnauthorizedException when no Authorization header is present', async () => {
+    it('should throw UnauthorizedException when neither cookie nor Authorization header is present', async () => {
       const { context } = createMockExecutionContext();
 
       await expect(guard.canActivate(context)).rejects.toThrow(new UnauthorizedException('Authentication is required'));
+    });
+
+    it('should return true and set request.user when valid token is in accessToken cookie', async () => {
+      const { context, request } = createMockExecutionContext(undefined, { accessToken: 'cookie.jwt.token' });
+
+      const result = await guard.canActivate(context);
+
+      expect(result).toBe(true);
+      expect(jwtService.verifyAsync).toHaveBeenCalledWith('cookie.jwt.token');
+      expect(request.user).toEqual(mockPayload);
+    });
+
+    it('should prioritize accessToken cookie over Authorization header', async () => {
+      const { context, request } = createMockExecutionContext('Bearer header.token', {
+        accessToken: 'cookie.token',
+      });
+
+      const result = await guard.canActivate(context);
+
+      expect(result).toBe(true);
+      expect(jwtService.verifyAsync).toHaveBeenCalledWith('cookie.token');
+      expect(request.user).toEqual(mockPayload);
+    });
+
+    it('should fallback to Authorization header when accessToken cookie is absent', async () => {
+      const { context, request } = createMockExecutionContext('Bearer valid.jwt.token');
+
+      const result = await guard.canActivate(context);
+
+      expect(result).toBe(true);
+      expect(jwtService.verifyAsync).toHaveBeenCalledWith('valid.jwt.token');
+      expect(request.user).toEqual(mockPayload);
+    });
+
+    it('should fallback to Authorization header when accessToken cookie is empty string', async () => {
+      const { context, request } = createMockExecutionContext('Bearer fallback.token', {
+        accessToken: '',
+      });
+
+      const result = await guard.canActivate(context);
+
+      expect(result).toBe(true);
+      expect(jwtService.verifyAsync).toHaveBeenCalledWith('fallback.token');
+      expect(request.user).toEqual(mockPayload);
     });
 
     it('should throw UnauthorizedException when Authorization header uses wrong scheme (e.g. "Basic xyz")', async () => {
@@ -89,37 +138,19 @@ describe('JwtAuthGuard', () => {
       await expect(guard.canActivate(context)).rejects.toThrow(new UnauthorizedException('Authentication is required'));
     });
 
-    it('should return true and set request.user when Bearer token is valid', async () => {
-      const { context, request } = createMockExecutionContext('Bearer valid.jwt.token');
-
-      const result = await guard.canActivate(context);
-
-      expect(result).toBe(true);
-      expect(request.user).toEqual(mockPayload);
-    });
-
     it('should throw UnauthorizedException when jwtService.verifyAsync throws', async () => {
       jwtService.verifyAsync.mockRejectedValue(new Error('jwt expired'));
-      const { context } = createMockExecutionContext('Bearer expired.jwt.token');
+      const { context } = createMockExecutionContext(undefined, { accessToken: 'expired.jwt.token' });
 
       await expect(guard.canActivate(context)).rejects.toThrow(
         new UnauthorizedException('Token is invalid or expired'),
       );
     });
 
-    it('should call jwtService.verifyAsync with the extracted token string', async () => {
-      const { context } = createMockExecutionContext('Bearer my-secret-token');
-
-      await guard.canActivate(context);
-
-      expect(jwtService.verifyAsync).toHaveBeenCalledOnce();
-      expect(jwtService.verifyAsync).toHaveBeenCalledWith('my-secret-token');
-    });
-
     it('should set request.user to the exact payload returned by verifyAsync', async () => {
       const customPayload: JwtPayload = { sub: 'custom-user', iat: 111, exp: 222 };
       jwtService.verifyAsync.mockResolvedValue(customPayload);
-      const { context, request } = createMockExecutionContext('Bearer some.token');
+      const { context, request } = createMockExecutionContext(undefined, { accessToken: 'some.token' });
 
       await guard.canActivate(context);
 
@@ -128,16 +159,14 @@ describe('JwtAuthGuard', () => {
   });
 
   describe('extractToken() (tested indirectly via canActivate)', () => {
-    it('should treat undefined authorization header as null token and throw', async () => {
-      const { context } = createMockExecutionContext(undefined);
+    it('should treat undefined authorization header and cookies as null token and throw', async () => {
+      const { context } = createMockExecutionContext(undefined, undefined);
 
       await expect(guard.canActivate(context)).rejects.toThrow(new UnauthorizedException('Authentication is required'));
       expect(jwtService.verifyAsync).not.toHaveBeenCalled();
     });
 
     it('should handle multiple spaces in authorization header — only first split element matters', async () => {
-      // "Bearer token with spaces" splits to ["Bearer", "token", "with", "spaces"]
-      // The guard destructures [type, token] so token = "token" (second element)
       const { context, request } = createMockExecutionContext('Bearer token with spaces');
 
       const result = await guard.canActivate(context);
