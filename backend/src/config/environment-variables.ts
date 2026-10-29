@@ -4,6 +4,7 @@ import { plainToInstance } from 'class-transformer';
 enum NodeEnvironment {
   Development = 'development',
   Production = 'production',
+  Test = 'test',
 }
 
 export class EnvironmentVariables {
