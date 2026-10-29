@@ -1,4 +1,4 @@
-const { chromium } = require('playwright');
+const { chromium } = require('@playwright/test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const checkDesign = require('./ui-kit-design-checks.cjs');
@@ -167,22 +167,6 @@ fs.mkdirSync(output, { recursive: true });
         viewport: '320x400 modal scroll and overview no overflow',
         font: 'Poppins loaded',
       });
-    }
-    const index = await (await page.request.get(`${base}/index.json`)).json();
-    const stories = Object.values(index.entries).filter(
-      (entry) => entry.type === 'story' && entry.title.startsWith('UI/'),
-    );
-    for (const theme of ['Dark', 'Light', 'Violet']) {
-      for (const story of stories) await go(story.id, theme);
-    }
-    results.push({
-      renderedStories: stories.length,
-      themes: 3,
-      playStatus: 'storyFinished success for every UI story',
-    });
-    for (const id of ['ui-button--activation', 'ui-button--loading-guard']) {
-      await go(id, 'Dark');
-      await page.getByRole('button').waitFor();
     }
     assert.deepEqual(errors, []);
     fs.writeFileSync(

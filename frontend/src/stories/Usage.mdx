@@ -49,8 +49,10 @@ Escape і кнопка закриття повертають фокус до tri
 
 Design panel відкриває вихідний UI KIT. Потрібен доступ до Figma-файлу.
 Оригінальні SVG і raster assets збережені локально з SHA-256 у
-`docs/figma-assets.json`. SVG зберігають вихідні кольори тем; close icon успадковує
-currentColor. Accessible names задаються через label або назву control.
+`docs/figma-assets.json`. Іконки використовують inline geometry з походженням у
+`docs/ui-kit-assets.json`. Одноколірні glyphs успадковують currentColor; logo і
+boxed-plus читають semantic tokens. Hover, disabled і checked states задає control.
+Accessible names задаються через label або назву control.
 
 Зберігаємо 302 × 49 Create, 28px boxed plus, 40 × 36 compact tile і 68px avatar.
 Інтерактивні області compact controls розширені до 44px. Placeholder, idle borders

@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Requires aria-label. Decorative SVG assets preserve their source theme colors; close inherits currentColor. Hit target is at least 44px.',
+          'Requires aria-label. Decorative SVG glyphs inherit the button state color. Hit target is at least 44px.',
       },
     },
   },

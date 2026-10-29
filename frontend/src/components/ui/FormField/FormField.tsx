@@ -15,8 +15,8 @@ export function FormField({ id, label, help, error, children, className = '' }: 
   const describedBy =
     [help && `${fieldId}-help`, error && `${fieldId}-error`].filter(Boolean).join(' ') || undefined;
   return (
-    <div className={cn('ui-field flex min-w-0 flex-col gap-1.5', className)}>
-      <label htmlFor={fieldId} className="text-sm font-medium wrap-anywhere">
+    <div className={cn('flex min-w-0 flex-col gap-1.5', className)}>
+      <label htmlFor={fieldId} className="text-sm/normal font-medium wrap-anywhere">
         {label}
       </label>
       <FieldContext value={{ id: fieldId, describedBy, invalid: Boolean(error) }}>

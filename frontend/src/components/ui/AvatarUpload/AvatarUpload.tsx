@@ -13,9 +13,9 @@ export function AvatarUpload({
   ...props
 }: AvatarUploadProps) {
   return (
-    <div className="ui-avatar-upload relative w-[68px] pb-5">
+    <div className="relative w-[68px] pb-5">
       <Avatar {...props} />
-      <label className="group/upload absolute top-11 left-3 grid size-11 place-items-center rounded-md has-focus-visible:outline-2 has-focus-visible:outline-solid has-focus-visible:outline-focus-ring has-focus-visible:outline-offset-2">
+      <label className="group/upload absolute top-11 left-3 grid size-11 place-items-center rounded-md has-focus-visible:outline-(length:--focus-ring-width) has-focus-visible:outline-solid has-focus-visible:outline-focus-ring has-focus-visible:outline-offset-(--focus-ring-offset)">
         <input
           type="file"
           className="absolute inset-0 size-full cursor-pointer opacity-0 disabled:cursor-not-allowed"

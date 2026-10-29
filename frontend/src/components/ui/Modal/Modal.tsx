@@ -37,7 +37,7 @@ export function Modal({
   return (
     <dialog
       ref={dialogRef}
-      className="ui-modal m-auto box-border max-h-[calc(100dvh-32px)] w-[min(480px,calc(100vw-32px))] max-w-none overflow-auto rounded-lg border border-control-border bg-surface-filters p-6 font-ui text-primary backdrop:bg-modal-backdrop [&_:focus-visible]:outline-2 [&_:focus-visible]:outline-solid [&_:focus-visible]:outline-focus-ring [&_:focus-visible]:outline-offset-2"
+      className="ui-modal m-auto box-border max-h-[calc(100dvh-32px)] w-[min(480px,calc(100vw-32px))] max-w-none overflow-auto rounded-lg border border-control-border bg-surface-filters p-6 font-ui text-primary backdrop:bg-modal-backdrop [&_:focus-visible]:outline-(length:--focus-ring-width) [&_:focus-visible]:outline-solid [&_:focus-visible]:outline-focus-ring [&_:focus-visible]:outline-offset-(--focus-ring-offset)"
       aria-labelledby={`${id}-title`}
       aria-describedby={description ? `${id}-description` : undefined}
       onCancel={(event) => {
@@ -90,7 +90,7 @@ export function Modal({
         />
       </div>
       {description && (
-        <p id={`${id}-description`} className="mt-0 mb-4 text-sm text-control-muted wrap-anywhere">
+        <p id={`${id}-description`} className="mt-0 mb-4 text-sm/normal text-control-muted wrap-anywhere">
           {description}
         </p>
       )}

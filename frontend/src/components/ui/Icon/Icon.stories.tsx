@@ -11,7 +11,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Local TaskPro SVG assets preserve their source theme colors. The close icon inherits currentColor. A label gives a standalone icon an accessible name; without it the icon is decorative.',
+          'TaskPro SVG glyphs inherit currentColor. Logo and boxed-plus use semantic color tokens. A label gives a standalone icon an accessible name; without it the icon is decorative.',
       },
     },
   },

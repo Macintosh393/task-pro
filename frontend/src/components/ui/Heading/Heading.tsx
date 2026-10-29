@@ -2,7 +2,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import type { ComponentPropsWithRef } from 'react';
 import { cn } from '../cn';
 
-const headingVariants = cva('ui-heading m-0 font-medium tracking-[-0.02em] wrap-anywhere', {
+const headingVariants = cva('m-0 font-medium tracking-[-0.02em] wrap-anywhere', {
   variants: {
     size: { small: 'text-base/[1.4]', medium: 'text-lg/[1.4]', large: 'text-2xl/[1.4]' },
   },

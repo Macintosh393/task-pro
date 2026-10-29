@@ -12,7 +12,7 @@ export function LogoutButton({
       {...props}
       variant="ghost"
       className={cn(
-        'ui-logout group/logout min-h-11 gap-3.5 px-0 py-1.5 text-base/6 tracking-normal text-sidebar enabled:hover:text-sidebar focus-visible:outline-focus-ring-sidebar',
+        'group/logout min-h-11 gap-3.5 px-0 py-1.5 text-base/6 tracking-normal text-sidebar enabled:hover:text-sidebar focus-visible:outline-focus-ring-sidebar',
         className,
       )}
     >

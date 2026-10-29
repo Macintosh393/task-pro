@@ -16,6 +16,7 @@
     "build-storybook": "storybook build --disable-telemetry",
     "test:ui": "npm run build-storybook && playwright test --grep-invert @visual",
     "test:ui:update": "npm run build-storybook && node scripts/visual-tests.mjs --update-snapshots",
+    "test:ui:ci": "playwright test",
     "test:ui:check": "playwright test --grep-invert @visual",
     "test:ui:install": "playwright install chromium",
     "test:ui:visual": "npm run build-storybook && node scripts/visual-tests.mjs"

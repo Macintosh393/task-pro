@@ -3,7 +3,7 @@ import { focusRing } from '../control-styles';
 
 export const buttonVariants = cva(
   [
-    'group/button relative inline-flex max-w-full cursor-pointer items-center justify-center gap-2 rounded-lg border',
+    'relative inline-flex max-w-full cursor-pointer items-center justify-center gap-2 rounded-lg border',
     'font-ui text-sm/normal font-medium tracking-[-0.02em] wrap-anywhere',
     'enabled:active:shadow-[inset_0_0_0_2px_currentColor]',
     'disabled:cursor-not-allowed disabled:border-control-border disabled:bg-control-disabled-surface disabled:text-control-disabled-text',

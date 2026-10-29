@@ -53,6 +53,3 @@
   --color-logout-hover: var(--logout-hover);
   --shadow-field: 0 4px 16px rgb(22 22 22 / 8%);
 }
-
-@custom-variant theme-light (&:where([data-theme='light'] *));
-@custom-variant theme-violet (&:where([data-theme='violet'] *));

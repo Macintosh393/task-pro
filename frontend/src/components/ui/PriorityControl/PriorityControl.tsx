@@ -32,7 +32,7 @@ export function PriorityControl({
 }: PriorityControlProps) {
   const id = useId();
   return (
-    <fieldset className="ui-choice-group m-0 min-w-0 border-0 p-0" disabled={disabled}>
+    <fieldset className="m-0 min-w-0 border-0 p-0" disabled={disabled}>
       <legend className="mb-1.5 text-sm/[21px] font-medium">{label}</legend>
       <div className="flex flex-wrap">
         {priorities.map((priority) => (

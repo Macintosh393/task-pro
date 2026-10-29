@@ -4,7 +4,7 @@ import { Icon, type IconName, type IconProps } from '../Icon';
 import { cn } from '../cn';
 
 const iconButtonVariants = cva(
-  'ui-icon-button shrink-0 p-0 [&>.ui-spinner]:static [&>.ui-spinner]:size-5',
+  'shrink-0 p-0 [&>.ui-spinner]:static [&>.ui-spinner]:size-5',
   {
     variants: {
       size: { small: 'size-11', medium: 'size-[49px]' },

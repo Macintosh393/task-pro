@@ -35,7 +35,7 @@ export function Icon({ name, size = 20, label, className = '', ...props }: IconP
   return (
     <svg
       {...props}
-      className={cn('ui-icon inline-block shrink-0 align-middle', className)}
+      className={cn('inline-block shrink-0 align-middle', className)}
       width={size}
       height={size}
       viewBox={icons[name].viewBox}

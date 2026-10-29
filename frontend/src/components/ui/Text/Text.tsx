@@ -2,7 +2,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import type { ComponentPropsWithRef } from 'react';
 import { cn } from '../cn';
 
-const textVariants = cva('ui-text m-0 font-normal tracking-[-0.02em] wrap-anywhere', {
+const textVariants = cva('m-0 font-normal tracking-[-0.02em] wrap-anywhere', {
   variants: {
     size: { small: 'text-xs/4', medium: 'text-sm/[21px]' },
     tone: { primary: 'text-primary', muted: 'text-control-muted' },
