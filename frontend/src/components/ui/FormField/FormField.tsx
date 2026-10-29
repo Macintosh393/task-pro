@@ -1,3 +1,4 @@
+import { cn } from '../cn';
 import { useId, type ReactNode } from 'react';
 import { FieldContext } from './field-context';
 export type FormFieldProps = {
@@ -8,27 +9,30 @@ export type FormFieldProps = {
   children: ReactNode;
   className?: string;
 };
-/** One Input or Textarea per field. Supply an id here, not on its child. */
 export function FormField({ id, label, help, error, children, className = '' }: FormFieldProps) {
   const generatedId = useId();
   const fieldId = id ?? generatedId;
   const describedBy =
     [help && `${fieldId}-help`, error && `${fieldId}-error`].filter(Boolean).join(' ') || undefined;
   return (
-    <div className={`ui-field ${className}`}>
-      <label htmlFor={fieldId} className="ui-field__label">
+    <div className={cn('ui-field flex min-w-0 flex-col gap-1.5', className)}>
+      <label htmlFor={fieldId} className="text-sm font-medium wrap-anywhere">
         {label}
       </label>
       <FieldContext value={{ id: fieldId, describedBy, invalid: Boolean(error) }}>
         {children}
       </FieldContext>
       {help && (
-        <p id={`${fieldId}-help`} className="ui-field__help">
+        <p id={`${fieldId}-help`} className="m-0 text-xs/normal text-control-muted wrap-anywhere">
           {help}
         </p>
       )}
       {error && (
-        <p id={`${fieldId}-error`} className="ui-field__error" aria-live="polite">
+        <p
+          id={`${fieldId}-error`}
+          className="m-0 text-xs/normal text-text-error wrap-anywhere"
+          aria-live="polite"
+        >
           {error}
         </p>
       )}

@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Requires aria-label; decorative SVG inherits currentColor. Hit target is at least 44px.',
+          'Requires aria-label. Decorative SVG assets preserve their source theme colors; close inherits currentColor. Hit target is at least 44px.',
       },
     },
   },
@@ -26,9 +26,7 @@ const meta = {
     icon: {
       control: 'select',
       options: [
-        'plus',
         'close',
-        'trash',
         ...Object.keys(sourceIcons).filter(
           (name) => !['logo', 'avatar', 'boxed-plus'].includes(name),
         ),
@@ -36,7 +34,7 @@ const meta = {
     },
     variant: { control: 'select', options: ['primary', 'secondary', 'destructive', 'ghost'] },
     size: { control: 'select', options: ['small', 'medium'] },
-    iconSize: { control: 'select', options: [16, 18, 20, 24, 32] },
+    iconSize: { control: 'select', options: [10, 16, 18, 20, 24, 28, 32, 68] },
     treatment: { control: 'select', options: ['standard', 'compact-add'] },
   },
 } satisfies Meta<typeof IconButton>;

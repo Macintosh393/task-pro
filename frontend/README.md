@@ -30,7 +30,7 @@ npm run test
 npm run lint
 ```
 
-Build запускає перевірку TypeScript і створює production-збірку. Unit-тести виконуються через Vitest без React Testing Library; наявний тест перевіряє health-сервіс. ESLint запускається командою `npm run lint`.
+Build запускає перевірку TypeScript і створює production-збірку. Unit-тести виконуються через Vitest без React Testing Library; тести перевіряють health-сервіс і UI-компоненти. ESLint запускається командою `npm run lint`.
 
 ## Структура
 
@@ -48,3 +48,5 @@ src/
 ## Storybook і теми
 
 `npm run storybook` запускає локальний Storybook без автоматичного відкриття браузера. `npm run build-storybook` створює статичну збірку. [Контракт тем, токени, джерела та прогалини](docs/themes.md).
+
+[UI-kit](docs/ui-kit.md) описує контракти компонентів, Tailwind/CVA та перевірки. Після `npm run test:ui:install` команда `npm run test:ui` збирає Storybook і запускає browser/axe suite. `npm run test:ui:visual` порівнює screenshots у зафіксованому Linux Docker image; `npm run test:ui:update` оновлює baselines для review. Обидві visual-команди потребують Docker.

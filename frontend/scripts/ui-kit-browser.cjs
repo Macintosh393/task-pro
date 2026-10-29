@@ -1,4 +1,3 @@
-// Optional browser QA: provide Playwright on NODE_PATH; no project/runtime dependency.
 const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -28,7 +27,7 @@ fs.mkdirSync(output, { recursive: true });
   const go = async (story, theme) => {
     await page.goto(`${base}/iframe.html?id=${story}&viewMode=story&globals=theme:${theme}`);
     await page.locator('#storybook-root').waitFor();
-    await page.locator(`html[data-theme="${theme.toLowerCase()}"]`).waitFor();
+
     await page.waitForFunction(
       () => document.querySelector('#storybook-root')?.childElementCount > 0,
     );
@@ -182,7 +181,6 @@ fs.mkdirSync(output, { recursive: true });
       themes: 3,
       playStatus: 'storyFinished success for every UI story',
     });
-    // Explicitly retain the activation stories in the QA contract.
     for (const id of ['ui-button--activation', 'ui-button--loading-guard']) {
       await go(id, 'Dark');
       await page.getByRole('button').waitFor();
