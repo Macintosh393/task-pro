@@ -5,11 +5,13 @@ import { AuthService } from './auth.service.js';
 import { User } from '../users/entities/user.entity.js';
 import { LoginDto } from './dto/login.dto.js';
 import { AccessTokenDto } from './dto/access-token.dto.js';
+import { Public } from '../common/decorators/public.decorator.js';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: AccessTokenDto })

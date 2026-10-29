@@ -5,6 +5,8 @@ import { UsersModule } from '../users/users.module.js';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '../config/environment-variables.js';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './jwt-auth.guard.js';
 
 @Module({
   imports: [
@@ -19,7 +21,7 @@ import { EnvironmentVariables } from '../config/environment-variables.js';
       }),
     }),
   ],
-  providers: [AuthService],
+  providers: [AuthService, { provide: APP_GUARD, useClass: JwtAuthGuard }],
   controllers: [AuthController],
 })
 export class AuthModule {}
