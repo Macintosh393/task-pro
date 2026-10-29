@@ -25,4 +25,16 @@ describe('RegisterDto', () => {
     expect(fields).toContain('email');
     expect(fields).toContain('password');
   });
+
+  it('rejects a name containing only spaces', async () => {
+    const dto = new RegisterDto();
+    dto.name = '     ';
+    dto.email = 'test@example.com';
+    dto.password = 'TestPassword123!';
+
+    const errors = await validate(dto);
+    const fields = errors.map((error) => error.property);
+
+    expect(fields).toContain('name');
+  });
 });
