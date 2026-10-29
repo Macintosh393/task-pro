@@ -1,11 +1,19 @@
-import { IsNotEmpty, IsNumber, IsString, Max, Min, validateSync } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsString, Max, Min, validateSync } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
+
+enum NodeEnvironment {
+  Development = 'development',
+  Production = 'production',
+}
 
 export class EnvironmentVariables {
   @IsNumber()
   @Min(1)
   @Max(65535)
   PORT: number = 3000;
+
+  @IsEnum(NodeEnvironment)
+  NODE_ENV: NodeEnvironment;
 
   @IsString()
   @IsNotEmpty()
@@ -27,6 +35,18 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   POSTGRES_DB: string;
+
+  @IsString()
+  @IsNotEmpty()
+  JWT_SECRET: string;
+
+  @IsString()
+  @IsNotEmpty()
+  JWT_EXPIRES_IN: string;
+
+  @IsInt()
+  @Min(1)
+  REFRESH_TOKEN_TTL_DAYS: number;
 }
 
 export function validate(config: Record<string, unknown>) {
