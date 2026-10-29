@@ -7,10 +7,14 @@ import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '../config/environment-variables.js';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './jwt-auth.guard.js';
+import { RefreshTokensService } from './refresh-tokens.service.js';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { RefreshToken } from './entities/refresh-token.entity.js';
 
 @Module({
   imports: [
     UsersModule,
+    TypeOrmModule.forFeature([RefreshToken]),
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService<EnvironmentVariables, true>) => ({
@@ -21,7 +25,7 @@ import { JwtAuthGuard } from './jwt-auth.guard.js';
       }),
     }),
   ],
-  providers: [AuthService, { provide: APP_GUARD, useClass: JwtAuthGuard }],
+  providers: [AuthService, { provide: APP_GUARD, useClass: JwtAuthGuard }, RefreshTokensService],
   controllers: [AuthController],
 })
 export class AuthModule {}

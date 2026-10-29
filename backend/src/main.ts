@@ -4,11 +4,13 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module.js';
 import type { EnvironmentVariables } from './config/environment-variables.js';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
 
+  app.use(cookieParser);
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 

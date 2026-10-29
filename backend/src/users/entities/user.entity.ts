@@ -22,10 +22,10 @@ export class User {
 
   @ApiProperty({ example: 'https://example.com/avatar.png' })
   @Column({ type: 'varchar', length: 255, nullable: true })
-  avatar_url: string;
+  avatar_url: string | null;
 
   @ApiProperty({ example: 'dark' })
-  @Column({ type: 'varchar', length: 10 })
+  @Column({ type: 'varchar', length: 10, default: 'dark' })
   theme: string;
 
   @ApiProperty({ example: '2026-07-16T10:30:00.000Z' })
