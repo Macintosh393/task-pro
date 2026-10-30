@@ -1,22 +1,24 @@
-import { Icon, type IconName } from '../Icon';
+import { type VariantProps } from 'class-variance-authority';
 import type { ComponentPropsWithRef } from 'react';
-export type ButtonProps = ComponentPropsWithRef<'button'> & {
-  variant?: 'primary' | 'secondary' | 'destructive' | 'ghost';
-  leadingIcon?: IconName;
-  fullWidth?: boolean;
-  size?: 'small' | 'medium';
-  loading?: boolean;
-};
-/** Loading keeps the original label and disables repeat activation. Native form behavior is opt-in. */
+import { Icon, type IconName } from '../Icon';
+import { cn } from '../cn';
+import { buttonVariants } from './button-variants';
+
+export type ButtonProps = ComponentPropsWithRef<'button'> &
+  Omit<VariantProps<typeof buttonVariants>, 'withIcon'> & {
+    leadingIcon?: IconName;
+    loading?: boolean;
+  };
+
 export function Button({
-  variant = 'primary',
-  size = 'medium',
+  variant,
+  size,
+  fullWidth,
   loading = false,
   leadingIcon,
-  fullWidth = false,
   disabled = false,
   type = 'button',
-  className = '',
+  className,
   children,
   ...props
 }: ButtonProps) {
@@ -26,9 +28,17 @@ export function Button({
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
-      className={`ui-button ui-button--${variant} ui-button--${size} ${leadingIcon ? 'ui-button--with-icon' : ''} ${fullWidth ? 'ui-button--full' : ''} ${className}`}
+      className={cn(
+        buttonVariants({ variant, size, fullWidth, withIcon: Boolean(leadingIcon) }),
+        className,
+      )}
     >
-      {loading && <span className="ui-spinner" aria-hidden="true" />}
+      {loading && (
+        <span
+          className="ui-spinner absolute start-[3px] size-3 animate-spin rounded-full border-2 border-current border-r-transparent motion-reduce:animate-none"
+          aria-hidden="true"
+        />
+      )}
       {leadingIcon && <Icon name={leadingIcon} size={leadingIcon === 'boxed-plus' ? 28 : 20} />}
       {children}
     </button>

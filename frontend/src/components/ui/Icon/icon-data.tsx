@@ -1,4 +1,3 @@
-// Geometry retained from the sealed Figma export; provenance: docs/ui-kit-assets.json.
 export const sourceIcons = {
   filter: {
     viewBox: '0 0 16 16',
@@ -305,6 +304,56 @@ export const sourceIcons = {
             />
           </g>
         </g>
+      </>
+    ),
+  },
+
+  plus: {
+    viewBox: '0 0 20 20',
+    paths: (
+      <>
+        <path
+          d="M10 4.16667V15.8333"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          stroke="currentColor"
+        />
+        <path
+          d="M4.16667 10H15.8333"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          stroke="currentColor"
+        />
+      </>
+    ),
+  },
+  trash: {
+    viewBox: '0 0 16 16',
+    paths: (
+      <>
+        <path
+          d="M6 2H10"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          stroke="currentColor"
+        />
+        <path
+          d="M2 4H14"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          stroke="currentColor"
+        />
+        <path
+          d="M12.6667 4L12.2661 10.0089C12.1917 11.1245 12.1545 11.6823 11.9722 12.1304C11.6412 12.9441 10.9703 13.5718 10.1364 13.8479C9.67715 14 9.1181 14 8 14C6.8819 14 6.32285 14 5.86357 13.8479C5.02972 13.5718 4.35878 12.9441 4.02779 12.1304C3.84549 11.6823 3.8083 11.1245 3.73392 10.0089L3.33333 4"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          stroke="currentColor"
+        />
       </>
     ),
   },

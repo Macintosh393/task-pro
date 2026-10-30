@@ -40,3 +40,11 @@
 За окремим дозволом користувача підготовлено [мінімальний UI-kit](../ui-kit.md): Text/Heading, Button/IconButton, Icon, Input/Textarea/FormField, Modal. Цей додаток не змінює Draft на Accepted і не закриває командні issues.
 
 Запропонований тестовий підхід: Vitest із jsdom та React DOM/act без React Testing Library; colocated CSF/args/controls/autodocs, native DOM play checks; реальні keyboard/focus/theme checks у GPU-disabled headless Playwright. jsdom не використовується як доказ dialog focus containment. Контракти, джерела, адаптації і межі QA описані в ui-kit.md. Потрібне командне review conventions перед спільним прийняттям.
+
+## Оновлення локальної реалізації, 2026-10-29
+
+Статус залишається Draft. Гілка `refactor/figma-tailwind-cva-ui-kit` переносить компонентні стилі на Tailwind 4 utilities та семантичний `@theme inline`. CVA визначає variants і defaults; `VariantProps` виводить їхні типи. `tailwind-merge` вирішує конфлікти utilities під час композиції Button, IconButton і LogoutButton.
+
+До локальної пропозиції додано окремі stories для 15 компонентів, MDX usage guide, a11y та Designs addons. Playwright і axe є dev dependencies. CI запускає lint, unit tests, builds, browser checks та порівняння screenshots у зафіксованому Linux image. Локальні visual-команди використовують той самий image digest та архітектуру.
+
+[Документація UI-kit](../ui-kit.md) містить джерела assets, адаптації, команди й поточні результати. Lint, unit tests, builds, 7 browser tests і 33 Linux screenshot comparisons пройшли. Командне погодження conventions і прийняття ADR залишаються відкритими.

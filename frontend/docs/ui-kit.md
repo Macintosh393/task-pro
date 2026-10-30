@@ -1,6 +1,6 @@
 # Спільний UI-kit — локальна пропозиція
 
-Реалізація для review у `ui-kit`, не прийняття ADR командою. Немає API, auth/business forms, карток/колонок, datepicker чи Stack/Grid. Імпорти: `src/components/ui`. Застосунок і Storybook завантажують один `src/index.css`; компонентні стилі не живуть у stories.
+Реалізація для review у `refactor/figma-tailwind-cva-ui-kit`. ADR залишається Draft. Немає API, auth/business forms, карток/колонок, datepicker чи Stack/Grid. Імпорти: `src/components/ui`. Застосунок і Storybook завантажують один `src/index.css`; компонентні стилі не живуть у stories.
 
 ## Контракти
 
@@ -10,7 +10,7 @@
 | Heading          | `level={1..6}` незалежно від `size="small"/"medium"/"large"`; native props/ref                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | Button           | Native button props/ref, `type="button"` за замовчуванням, явний `type="submit"` для форми. `variant="primary"/"secondary"/"destructive"/"ghost"`, `size="small"/"medium"`, `disabled`, `loading`. Loading зберігає label/розмір, додає progress mark та `aria-busy`, вимикає повторну активацію. Consumer відповідає за початок/завершення async стану.                                                                                                                                                                                                         |
 | IconButton       | Ті самі variants/states, обов’язкові `icon` і `aria-label`. Мінімальна hit area 44×44.                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| Icon             | TaskPro action/board icons, `size={10/16/18/20/24/28/32/68}`; `currentColor`. Без `label` декоративний; із `label` — `role="img"`. У вже названій кнопці не додавайте label іконці.                                                                                                                                                                                                                                                                                                                                                                              |
+| Icon             | TaskPro action/board icons, `size={10/16/18/20/24/28/32/68}`; `currentColor` для одноколірних glyphs, semantic tokens для logo/boxed-plus. Без `label` декоративний; із `label` — `role="img"`. У вже названій кнопці не додавайте label іконці.                                                                                                                                                                                                                                                                                                                                                                              |
 | FormField        | Один Input або Textarea, `label`, опційні `help`, `error`, `id`. Generated `useId` зв’язує label/help/error. Явний id передавайте FormField; child id усередині нього ігнорується.                                                                                                                                                                                                                                                                                                                                                                               |
 | Input / Textarea | Native props/ref, controlled або uncontrolled. Context додає id, invalid, об’єднує help/error з зовнішнім `aria-describedby`. Поза FormField consumer сам додає label або aria-label. Немає бізнес-валідації.                                                                                                                                                                                                                                                                                                                                                    |
 | Modal            | Controlled `open`, `onClose`, обов’язковий `title`, опційні `description`, `initialFocusRef`, `closeLabel`. Native `showModal()` забезпечує top layer та inert background; Tab/Shift+Tab edge wrapping утримує keyboard focus у shell. Початковий focus на heading або вказаний елемент усередині. Escape і close викликають onClose; parent має встановити open=false. Cleanup повертає focus, якщо trigger існує. Backdrop не закриває. Не використовуйте `form method="dialog"` і не викликайте dialog.close() самостійно: закривайте через controlled state. |
@@ -36,6 +36,8 @@ Backdrop не закриває Modal, щоб shell не нав’язував п
 
 ## Джерела та адаптації
 
+41 оригінальний asset у `src/assets/figma` збережено для provenance; SHA-256 і вихідний UI KIT записані в [маніфесті Figma](figma-assets.json). Raster plant використовується в reference story. Іконки рендерять inline SVG geometry з [ui-kit-assets.json](ui-kit-assets.json): одноколірні glyphs успадковують `currentColor`, logo і boxed-plus читають semantic tokens. Теми та hover/disabled/checked states керують кольором через CSS. Перемикання SVG images за назвами тем прибрано, оскільки воно ламало успадкування кольору. Нижче описано походження geometry та адаптацій.
+
 Original pack `/home/vlad/Documents/Codex/taskpro-next-spec`: FREEZE SHA-256 `8a34d3559079e645f69270d69c757b4885685f10a18e7273a79441588c2654ac`, перевірено 1025/1025 hashes без розбіжностей. Використано DESIGN.md, UI-kit context/screenshot `1058:10396`, close SVG `1058:4908`, наявний [theme contract](themes.md). Figma MCP, experimental implementation code та generated JSX не використовувалися як реалізація.
 
 - Source: Poppins 400/500/600; незмінені локальні TTF, upstream manifest і OFL у `src/assets/fonts`. Body 14px, small 12/16, dialog heading 18px/500/-0.36px; action/field 14px/-0.28px, 49px висота, 8px radius. Heading 16/24px, line heights, spacing shell і розміри варіантів — адаптації, не точні source компоненти.
@@ -56,28 +58,53 @@ Original pack `/home/vlad/Documents/Codex/taskpro-next-spec`: FREEZE SHA-256 `8a
 
 Colocated CSF stories мають shared args, meaningful variants/states, controls, API descriptions та autodocs; `UI/Overview` і TypeSet допомагають порівнювати ті самі primitives. Theme toolbar керує html data-theme. Play checks для click/loading використовують native DOM та bundled `storybook/test`; browser QA перевіряє реальну клавіатуру окремо. Не копіюємо палітру курсу чи старі package/API recipes.
 
-Test approach для локального review: Vitest + jsdom + `react-dom/client` / React `act`, без React Testing Library. jsdom — dev-only DOM environment; він не доводить native modal containment, browser layout чи keyboard default actions. Для цього є `scripts/ui-kit-browser.cjs` з Playwright, встановленим окремо від runtime/project dependencies. Docs addon 10.6.3 потрібен для реальних autodocs; CVA, clsx, icon/dialog runtime libraries не додаються. Існуючі lockfile versions не змінено.
+Vitest із jsdom та `react-dom/client` / React `act` перевіряє поведінку компонентів без React Testing Library. Native focus, layout і keyboard actions перевіряє project-owned Playwright. `@storybook/addon-a11y` показує axe-результати у Storybook; browser suite виконує axe для кожної story. Designs addon відкриває посилання на UI KIT, доступ до якого залежить від Figma permissions.
+
+Tailwind 4 використовує semantic tokens через `src/styles/tailwind-theme.css` і `@theme inline`. CVA зберігає variants/defaults, `VariantProps` виводить типи, а `cn` із `tailwind-merge` об'єднує utility classes. Стилі полів і focus ring спільні через `control-styles.ts`.
 
 З `frontend`, Node 24.22.1:
 
 ```sh
+nvm use
 npm ci
 npm run dev
 npm run storybook
-npm run build
-npm run build-storybook
 npm run lint
 npm test -- --run
+npm run build
+npm run build-storybook
+npm run test:ui:install
+npm run test:ui
+npm run test:ui:visual
 ```
 
-Storybook: http://127.0.0.1:6006, `UI/Overview` і окремі компоненти; Dark/Light/Violet у toolbar. Для static QA:
+Storybook відкривається на http://127.0.0.1:6006. Playwright сам запускає static server на порту 6008. `test:ui` збирає Storybook і виконує поведінкові та axe-перевірки. `test:ui:check` повторює ці перевірки на вже зібраному Storybook. `test:ui:ci` запускає весь Playwright suite, включно з visual tests, у pinned Linux environment після build. Каталог містить 77 stories, 18 story-файлів та одну MDX-сторінку; кожен із 15 UI-компонентів має власні stories. Theme toolbar перемикає Dark/Light/Violet; pinned examples зберігають свою тему.
 
-```sh
-python -m http.server 6008 --bind 127.0.0.1 --directory storybook-static
-NODE_PATH=/path/to/qa/node_modules PLAYWRIGHT_BROWSERS_PATH=/path/to/qa/browsers node scripts/ui-kit-browser.cjs
-```
+### Контракт visual baselines
 
-QA використовує headless Chromium з `--disable-gpu --disable-software-rasterizer`; не запускайте desktop browser для цих перевірок. `UI_KIT_URL` змінює loopback URL, `UI_KIT_QA_OUTPUT` — каталог screenshots/results (default `/tmp/taskpro-ui-kit-qa`). Playwright не є runtime dependency. Це локальна команда, CI browser provisioning ще не налаштовано.
+`npm run test:ui:visual` збирає Storybook і порівнює 33 screenshots у Docker. Runner фіксує `linux/amd64` і Playwright 1.64.1 Noble за digest; CI використовує той самий образ. Залежності беруться з локального `node_modules`, тому спочатку потрібен `npm ci`. Docker має бути запущений.
+
+`npm run test:ui:update` оновлює baselines у тому самому контейнері. Перегляньте PNG і diff перед commit. Baselines у `tests/browser/stories.spec.ts-snapshots/*-linux.png` не слід замінювати macOS screenshots. Перевірки фіксують viewport 900×900, device scale 1, reduced motion, locale en-US і timezone Europe/Kyiv; mobile має 320×600. Допуск порівняння становить 0.1% пікселів.
+
+CI у `.github/workflows/ui-kit.yml` запускає lint, unit tests, app/Storybook builds і повний Playwright suite. Reports і traces зберігаються як artifacts. Локальні результати знаходяться в `playwright-report/<platform>` і `test-results/<platform>`; contract captures та JSON звіт у підкаталозі `contracts`.
+
+## Перевірки рефакторингу, 2026-10-29
+
+- Node 24.22.1: lint, 13 тестів у 7 файлах, TypeScript, app build і Storybook build пройшли.
+- Перераховано 15 компонентів, 18 story-файлів, 77 stories та 33 Linux baselines. Усі 41 локальний asset відповідають SHA-256 у маніфесті.
+- `npm run test:ui` завершився успішно після запуску в середовищі з доступним loopback: 7 tests passed. Усі 77 stories пройшли render/play та axe з налаштуваннями Dark, Light і Violet; pinned examples зберігають власну тему. Відкриті modal пройшли окремі axe-перевірки в трьох темах. Runtime page errors не зафіксовано.
+- Keyboard, modal focus/return, disabled/loading, controlled fields, upload/fallback, native radio groups, source geometry/colors і 320px overflow checks пройшли в трьох темах. Звіт: `test-results/darwin/contracts/results.json`; Playwright report: `playwright-report/darwin/index.html`.
+- `npm run test:ui:visual` завершився успішно в pinned Docker image `linux/amd64`: 3 tests passed, усі 33 screenshot comparisons пройшли з допуском 0.1%. Наявні baselines не оновлювалися. Playwright report: `playwright-report/linux/index.html`.
+- Переглянуто desktop і 320px reference captures у Dark, Light та Violet, а також Light overview і Dark/Violet modal baselines. У переглянутих прикладах немає обрізаних чи накладених елементів. Попередні sandbox-помилки `EPERM` на порту 6008 та `permission denied` для Docker більше не блокують перевірку.
+- Storybook build попереджає про tooling chunks понад 500 kB. Screen-reader і Firefox/WebKit залишаються поза перевіреним обсягом.
+
+## Виправлення після review, 2026-10-29
+
+Іконки знову використовують inline SVG і semantic colors; browser regressions перевіряють painted stroke для hover, disabled, destructive і checked states. Logo, boxed-plus і avatar реагують на перевизначення токенів без зміни назви теми. Focus width/offset читаються з токенів; перевірено значення 3px/5px. FormField label і Modal description повернуто line-height 21px. Десять marker classes без consumers видалено.
+
+CI викликає `npm run test:ui:ci`. Harness імпортує chromium із прямої залежності `@playwright/test` і більше не дублює обхід stories. Кожна story має власний Playwright test, timeout і trace при помилці. Contract harness залишається subprocess із власним browser context; він не успадковує `use` settings або автоматичний trace Playwright fixture.
+
+Lint, 13 unit tests, TypeScript, app і Storybook builds пройшли. Фінальний запуск `test:ui:ci` у pinned `linux/amd64` image: 247 passed, включно з 77 stories × 3 theme settings, open-modal axe, 9 новими regression tests, contracts і 33 screenshot comparisons. Pinned examples зберігають власну тему. Перед цим переглянуто й оновлено 15 baselines із виправленими кольорами та line-height; фінальний run виконувався без snapshot updates. Report: `playwright-report/linux/index.html`.
 
 ## Початкові перевірки та межі — 2026-10-25
 
@@ -120,15 +147,15 @@ Browser verification is integrated into `scripts/ui-kit-browser.cjs` via `script
 - Visually inspected the reference screenshots in Dark, Light and Violet, including the narrow Violet layout. Captures and machine-readable results: `/tmp/taskpro-kit-design-qa/`. This is component-reference verification, not a full application or cross-browser accessibility audit.
 - Rechecked all 1025 sealed files and all 19 UI asset source hashes. Builds and browser checks ran under 8 GiB / 256-task / 15-minute limits; peak memory was 1.2 GiB for Storybook and 845 MiB for browser QA.
 
-## Component folder layout
+## Структура компонентів
 
-Each production component has one folder under `src/components/ui`, with its implementation, `index.ts`, CSS, and any component stories/tests/supporting data:
+Кожен компонент має каталог у `src/components/ui` з реалізацією, `index.ts`, stories та доречними tests/supporting files:
 
 ```text
 ui/
   Button/
     Button.tsx
-    Button.css
+    button-variants.ts
     Button.stories.tsx
     Button.test.tsx
     index.ts
@@ -140,14 +167,11 @@ ui/
     FormField.tsx
     field-context.ts
     ...
+  cn.ts
+  control-styles.ts
   index.ts
 ```
 
-Text/Heading, Avatar/AvatarUpload and PriorityControl/BoardIconPicker are separate components and folders. Public imports such as `import { Button } from '.../components/ui'` remain supported; component-folder imports also work. Internal dependencies use sibling component folders.
+Компонентних CSS-файлів немає. Utility classes живуть у компонентах і CVA; шрифти, palette, themes і Tailwind mapping залишаються у `src/styles`. Input і Textarea використовують `fieldStyles`, FormField надає їм field context. Cross-component examples живуть у `src/stories/ui-kit`. Імпорти через `src/components/ui` та окремі component folders підтримуються.
 
-`src/styles/ui-kit.css` imports the colocated component styles for both app and Storybook. Shared fonts/body defaults (`ui-foundation.css`), radio-group scaffolding (`choice-controls.css`), palette and theme tokens stay centralized. Input owns the shared `.ui-control` styles used by Textarea; Textarea owns its multiline overrides. FormField owns the field context used by both controls. Icon owns the sourced SVG inventory used by the brand/avatar components.
-
-Cross-component showcase stories live in `src/stories/ui-kit` with their reference-layout CSS. Story titles/IDs are unchanged. Existing component/composition tests are colocated with their primary component; `src/test/setupDomTest.ts` provides their shared DOM lifecycle. No UI behavior or API change is intended by this move.
-
-Folder-refactor validation: ESLint, TypeScript, all 13 tests (now colocated across seven test files including the existing service test), and app/Storybook builds passed. The extracted CSS selector/declaration sets match the pre-move styles.
-Browser verification also passed for all 51 stories in all three themes, including geometry/state and keyboard checks. Results and screenshots: `/tmp/taskpro-ui-folders-qa/`.
+Історична перевірка перенесення в component folders 2026-10-25 охоплювала lint, TypeScript, 13 тестів, app/Storybook builds і 51 story у трьох темах. Її результати не замінюють перевірку поточного Tailwind/CVA рефакторингу.

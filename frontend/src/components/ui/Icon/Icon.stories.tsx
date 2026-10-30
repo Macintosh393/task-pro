@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Icon, type IconName } from './Icon';
 import { sourceIcons } from './icon-data';
-const iconNames = [...Object.keys(sourceIcons), 'plus', 'close', 'trash'] as IconName[];
+const iconNames = [...Object.keys(sourceIcons), 'close'] as IconName[];
 const meta = {
   title: 'UI/Icon',
   component: Icon,
@@ -11,14 +11,14 @@ const meta = {
     docs: {
       description: {
         component:
-          'Sourced TaskPro SVG geometries. Color inherits from its semantic parent; label makes a standalone icon meaningful. Without label it is decorative.',
+          'TaskPro SVG glyphs inherit currentColor. Logo and boxed-plus use semantic color tokens. A label gives a standalone icon an accessible name; without it the icon is decorative.',
       },
     },
   },
   args: { name: 'plus', size: 20 },
   argTypes: {
     name: { control: 'select', options: iconNames },
-    size: { control: 'select', options: [16, 18, 20, 24] },
+    size: { control: 'select', options: [10, 16, 18, 20, 24, 28, 32, 68] },
     label: { control: 'text' },
   },
 } satisfies Meta<typeof Icon>;
@@ -29,7 +29,7 @@ export const Meaningful: Story = { args: { name: 'trash', label: 'Delete' } };
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: 16 }}>
-      {([16, 18, 20, 24] as const).map((size) => (
+      {([10, 16, 18, 20, 24, 28, 32, 68] as const).map((size) => (
         <Icon key={size} name="plus" size={size} label={`${size} pixel plus`} />
       ))}
     </div>

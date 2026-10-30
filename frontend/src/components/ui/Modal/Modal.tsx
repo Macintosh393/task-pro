@@ -10,7 +10,6 @@ export type ModalProps = {
   initialFocusRef?: RefObject<HTMLElement | null>;
   closeLabel?: string;
 };
-/** Controlled native dialog: native top layer plus keyboard edge wrapping. */
 export function Modal({
   open,
   onClose,
@@ -38,7 +37,7 @@ export function Modal({
   return (
     <dialog
       ref={dialogRef}
-      className="ui-modal"
+      className="ui-modal m-auto box-border max-h-[calc(100dvh-32px)] w-[min(480px,calc(100vw-32px))] max-w-none overflow-auto rounded-lg border border-control-border bg-surface-filters p-6 font-ui text-primary backdrop:bg-modal-backdrop [&_:focus-visible]:outline-(length:--focus-ring-width) [&_:focus-visible]:outline-solid [&_:focus-visible]:outline-focus-ring [&_:focus-visible]:outline-offset-(--focus-ring-offset)"
       aria-labelledby={`${id}-title`}
       aria-describedby={description ? `${id}-description` : undefined}
       onCancel={(event) => {
@@ -78,7 +77,7 @@ export function Modal({
         }
       }}
     >
-      <div className="ui-modal__header">
+      <div className="mb-4 flex items-start justify-between gap-4">
         <Heading id={`${id}-title`} tabIndex={-1} data-modal-heading>
           {title}
         </Heading>
@@ -91,7 +90,7 @@ export function Modal({
         />
       </div>
       {description && (
-        <p id={`${id}-description`} className="ui-modal__description">
+        <p id={`${id}-description`} className="mt-0 mb-4 text-sm/normal text-control-muted wrap-anywhere">
           {description}
         </p>
       )}

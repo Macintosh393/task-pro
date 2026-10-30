@@ -1,3 +1,5 @@
+import { cn } from '../cn';
+import { fieldStyles } from '../control-styles';
 import type { ComponentPropsWithRef } from 'react';
 import { useFieldProps } from '../FormField/field-context';
 export type InputProps = ComponentPropsWithRef<'input'>;
@@ -8,7 +10,7 @@ export function Input({ className = '', placeholder = ' ', ...props }: InputProp
       {...props}
       {...fieldProps}
       placeholder={placeholder}
-      className={`ui-control ${className}`}
+      className={cn(fieldStyles, className)}
     />
   );
 }

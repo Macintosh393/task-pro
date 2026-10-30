@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, fn } from 'storybook/test';
+import { expect, fn, userEvent } from 'storybook/test';
 import { Button } from './Button';
 const meta = {
   title: 'UI/Button',
@@ -45,14 +45,16 @@ export const Destructive: Story = { args: { variant: 'destructive', children: 'D
 export const Disabled: Story = { args: { disabled: true } };
 export const Loading: Story = { args: { loading: true } };
 export const Focus: Story = {
-  play: ({ canvasElement }) => {
-    canvasElement.querySelector('button')?.focus();
+  play: async ({ canvasElement }) => {
+    const button = canvasElement.querySelector('button')!;
+    button.focus();
+    await expect(button).toHaveFocus();
   },
 };
 export const Activation: Story = {
   play: async ({ canvasElement, args }) => {
     const button = canvasElement.querySelector('button')!;
-    button.click();
+    await userEvent.click(button);
     await expect(args.onClick).toHaveBeenCalledTimes(1);
     await expect(button.type).toBe('button');
   },
@@ -76,3 +78,5 @@ export const Create: Story = {
     ),
   ],
 };
+
+export const Small: Story = { args: { size: 'small' } };

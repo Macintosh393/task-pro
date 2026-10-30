@@ -1,0 +1,72 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks';
+import * as ButtonStories from '../components/ui/Button/Button.stories';
+import * as FieldStories from '../components/ui/Input/Input.stories';
+
+<Meta title="Foundation/Usage" />
+
+# Використання UI-kit
+
+Компоненти імпортуються з `src/components/ui`. Застосунок і Storybook завантажують
+один `src/index.css`. Перемикач Dark / Light / Violet змінює семантичні CSS-токени
+на `html`; Tailwind utilities використовують ці токени через `@theme inline`.
+
+## Кнопки та variants
+
+`Button` передає native props і ref. Тип за замовчуванням `button`; для submit
+задайте `type="submit"`. `loading` зберігає назву, додає `aria-busy` і блокує
+повторну активацію. `IconButton` потребує `aria-label`.
+
+<Canvas of={ButtonStories.Create} />
+<Controls of={ButtonStories.Primary} />
+
+Стилі варіантів, defaults і compound variants належать CVA. Типи props виводяться
+через `VariantProps`. `cn` об'єднує класи через `tailwind-merge`, тому композиція
+IconButton і LogoutButton не залежить від порядку CSS. Візуальні відмінності
+спільних компонентів додавайте до їхнього API. `className` у споживача призначений
+насамперед для розміщення.
+
+## Поля
+
+`FormField` обгортає один Input або Textarea і пов'язує label, help та error.
+Власний `id` передавайте FormField. Значення і validation залишаються у споживача.
+Standalone поле потребує власної доступної назви.
+
+<Canvas of={FieldStories.Controlled} />
+<Canvas of={FieldStories.Error} />
+
+## Вибір, upload і modal
+
+PriorityControl і BoardIconPicker є controlled native radio groups. Стрілки
+змінюють вибір усередині групи; її `name` можна задати для form submission.
+AvatarUpload повертає File і дозволяє повторно вибрати той самий файл. Перевірку
+формату, preview URL та його звільнення виконує споживач.
+
+Modal використовує native dialog. `open` і `onClose` належать споживачу.
+Escape і кнопка закриття повертають фокус до trigger; backdrop не закриває modal.
+`initialFocusRef` задає початковий фокус. Великі діалоги прокручуються в межах viewport.
+
+## Figma та доступність
+
+Design panel відкриває вихідний UI KIT. Потрібен доступ до Figma-файлу.
+Оригінальні SVG і raster assets збережені локально з SHA-256 у
+`docs/figma-assets.json`. Іконки використовують inline geometry з походженням у
+`docs/ui-kit-assets.json`. Одноколірні glyphs успадковують currentColor; logo і
+boxed-plus читають semantic tokens. Hover, disabled і checked states задає control.
+Accessible names задаються через label або назву control.
+
+Зберігаємо 302 × 49 Create, 28px boxed plus, 40 × 36 compact tile і 68px avatar.
+Інтерактивні області compact controls розширені до 44px. Placeholder, idle borders
+та violet hover адаптовані для читабельності; це задокументовані відхилення від Figma.
+
+## Перевірки
+
+`npm run test:ui:install` встановлює Chromium для локального запуску.
+`npm run test:ui` збирає Storybook, запускає сервер і перевіряє stories, axe,
+клавіатуру та геометрію. `npm run test:ui:visual` порівнює screenshots у Docker
+із Linux baselines. `npm run test:ui:update` оновлює їх у тому самому контейнері.
+Образ Playwright і архітектура linux/amd64 зафіксовані в runner; потрібен Docker.
+Baselines переглядають перед commit, їх оновлення не доводить правильність дизайну.
+Unit tests, lint і app build запускаються окремо.
+
+MSW і loaders потрібні для stories із запитами даних. Цей UI-kit отримує дані
+через props, тому мережеві mock handlers тут не потрібні.

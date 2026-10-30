@@ -1,3 +1,4 @@
+import { expect } from 'storybook/test';
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Input } from './Input';
@@ -46,8 +47,10 @@ export const Error: Story = {
   ),
 };
 export const Focus: Story = {
-  play: ({ canvasElement }) => {
-    canvasElement.querySelector('input')?.focus();
+  play: async ({ canvasElement }) => {
+    const field = canvasElement.querySelector('input')!;
+    field.focus();
+    await expect(field).toHaveFocus();
   },
 };
 export const Controlled: Story = {

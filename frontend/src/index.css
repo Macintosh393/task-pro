@@ -2,9 +2,14 @@
 
 @import './styles/palette.css';
 @import './styles/themes.css';
-@import './styles/ui-kit.css';
+@import './styles/ui-foundation.css';
+@import './styles/tailwind-theme.css';
 
 @layer base {
+  html:has(dialog.ui-modal[open]) {
+    overflow: hidden;
+  }
+
   body {
     background: var(--surface-canvas);
     color: var(--text-primary);

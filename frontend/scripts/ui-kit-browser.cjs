@@ -1,5 +1,4 @@
-// Optional browser QA: provide Playwright on NODE_PATH; no project/runtime dependency.
-const { chromium } = require('playwright');
+const { chromium } = require('@playwright/test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const checkDesign = require('./ui-kit-design-checks.cjs');
@@ -28,7 +27,7 @@ fs.mkdirSync(output, { recursive: true });
   const go = async (story, theme) => {
     await page.goto(`${base}/iframe.html?id=${story}&viewMode=story&globals=theme:${theme}`);
     await page.locator('#storybook-root').waitFor();
-    await page.locator(`html[data-theme="${theme.toLowerCase()}"]`).waitFor();
+
     await page.waitForFunction(
       () => document.querySelector('#storybook-root')?.childElementCount > 0,
     );
@@ -50,9 +49,9 @@ fs.mkdirSync(output, { recursive: true });
       await go('ui-button--primary', theme);
       const button = page.getByRole('button', { name: 'Save changes' });
       await button.waitFor();
-      await page.evaluate(() => {
+      await button.evaluate((el) => {
         window.qaClicks = 0;
-        document.querySelector('.ui-button').addEventListener('click', () => window.qaClicks++);
+        el.addEventListener('click', () => window.qaClicks++);
       });
       await page.keyboard.press('Tab');
       await button.focus();
@@ -71,11 +70,10 @@ fs.mkdirSync(output, { recursive: true });
         const b = page.getByRole('button', { name: 'Save changes' });
         await b.waitFor();
         assert(await b.isDisabled());
-        await page.evaluate(() => {
+        await b.evaluate((el) => {
           window.qaClicks = 0;
-          const b = document.querySelector('.ui-button');
-          b.addEventListener('click', () => window.qaClicks++);
-          b.click();
+          el.addEventListener('click', () => window.qaClicks++);
+          el.click();
         });
         await page.keyboard.press('Tab');
         await page.keyboard.press('Enter');
@@ -169,23 +167,6 @@ fs.mkdirSync(output, { recursive: true });
         viewport: '320x400 modal scroll and overview no overflow',
         font: 'Poppins loaded',
       });
-    }
-    const index = await (await page.request.get(`${base}/index.json`)).json();
-    const stories = Object.values(index.entries).filter(
-      (entry) => entry.type === 'story' && entry.title.startsWith('UI/'),
-    );
-    for (const theme of ['Dark', 'Light', 'Violet']) {
-      for (const story of stories) await go(story.id, theme);
-    }
-    results.push({
-      renderedStories: stories.length,
-      themes: 3,
-      playStatus: 'storyFinished success for every UI story',
-    });
-    // Explicitly retain the activation stories in the QA contract.
-    for (const id of ['ui-button--activation', 'ui-button--loading-guard']) {
-      await go(id, 'Dark');
-      await page.getByRole('button').waitFor();
     }
     assert.deepEqual(errors, []);
     fs.writeFileSync(

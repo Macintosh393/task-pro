@@ -1,15 +1,16 @@
+import { cva, type VariantProps } from 'class-variance-authority';
 import type { ComponentPropsWithRef } from 'react';
-export type TextProps = ComponentPropsWithRef<'p'> & {
-  as?: 'p' | 'span';
-  size?: 'small' | 'medium';
-  tone?: 'primary' | 'muted';
-};
-export function Text({
-  as: Tag = 'p',
-  size = 'medium',
-  tone = 'primary',
-  className = '',
-  ...props
-}: TextProps) {
-  return <Tag {...props} className={`ui-text ui-text--${size} ui-tone--${tone} ${className}`} />;
+import { cn } from '../cn';
+
+const textVariants = cva('m-0 font-normal tracking-[-0.02em] wrap-anywhere', {
+  variants: {
+    size: { small: 'text-xs/4', medium: 'text-sm/[21px]' },
+    tone: { primary: 'text-primary', muted: 'text-control-muted' },
+  },
+  defaultVariants: { size: 'medium', tone: 'primary' },
+});
+export type TextProps = ComponentPropsWithRef<'p'> &
+  VariantProps<typeof textVariants> & { as?: 'p' | 'span' };
+export function Text({ as: Tag = 'p', size, tone, className, ...props }: TextProps) {
+  return <Tag {...props} className={cn(textVariants({ size, tone }), className)} />;
 }

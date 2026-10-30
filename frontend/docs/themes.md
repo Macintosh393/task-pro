@@ -4,7 +4,7 @@
 
 ## Контракт
 
-`src/index.css` імпортує `src/styles/palette.css` і `src/styles/themes.css` для застосунку та `.storybook/preview.ts`. Storybook React/Vite використовує існуючий Vite config з Tailwind 4. Один `Foundation/Theme tokens` specimen демонструє поверхні, текст, рамку, акцент, priority і keyboard focus. Це не продуктова Card і не початок UI-kit. Його layout та system font технічні; відповідність типографіці Poppins не заявляємо.
+`src/index.css` імпортує `src/styles/palette.css` і `src/styles/themes.css` для застосунку та `.storybook/preview.ts`. Storybook React/Vite використовує існуючий Vite config з Tailwind 4. `Foundation/Theme tokens` читає назви токенів із `themes.css?raw` і показує їх як swatch grid зі спільним Poppins. Width/offset focus ring і shadow виключені, бо це не кольори. Окремого keyboard-focus specimen у цій story немає; focus перевіряють component stories та browser tests.
 
 Теми задаються **на html**: `document.documentElement.dataset.theme = 'dark'` (також `light`, `violet`). HTML застосунку починає з Dark; CSS має Dark fallback. Toolbar Dark / Light / Violet використовує `withThemeByDataAttribute` на html preview iframe. Менеджер Storybook має власний UI; теми застосовуються до preview. Немає app theme picker, storage або profileAPI policy.
 
@@ -50,9 +50,9 @@ Priority low #8fa1d0, medium #e09cb5, high #bedbb0; завжди додавай�
 - `--focus-ring*` — **derived**: 2px + 2px offset, white на dark/sidebar violet, #161616 на light/violet content. Компонента має вибрати відповідну роль і перевірити фактичну поверхню. Це не Figma active-field state.
 - UI-kit містить #7b7ede, але його призначення як Violet hover — адаптація. Попередній Green hover brightness 1.05 замінено source #9dc888 після UI-kit review; error #ff9b9b/#b42318 залишається адаптацією. На момент color-only основи ці API не були реалізовані; поточні компоненти, відхилення hover та перевірки описані в [ui-kit.md](ui-kit.md).
 - 40% opacity normal-field group не переноситься на filled/active fields. Auth #151515/#1f1f1f не означає три auth variants; auth компоненти та токени не входять у цю основу.
-- Poppins 400/500/600 спостерігається у джерелі, але font binaries/typography system не імпортовані в цьому color-only scope.
+- Poppins 400/500/600 завантажуються локально через `ui-foundation.css`; спільний шрифт використовується в застосунку та Storybook.
 
-Підхід до спільного CSS, themes/decorators та palette specimen натхненний [Steve Kinney — Building Design Systems in Storybook](https://stevekinney.com/courses/storybook); конфігурація адаптована за [Storybook React/Vite docs](https://storybook.js.org/docs/get-started/frameworks/react-vite). Курс і його UI-kit не копіюються; Chromatic/Figma integrations не додані.
+Підхід до спільного CSS, themes/decorators та palette specimen натхненний [Steve Kinney — Building Design Systems in Storybook](https://stevekinney.com/courses/storybook); конфігурація адаптована за [Storybook React/Vite docs](https://storybook.js.org/docs/get-started/frameworks/react-vite). Курс і його UI-kit не копіюються. Designs addon показує Figma reference; Chromatic не підключено, visual comparisons виконує Playwright.
 
 ## Виконані перевірки — 2026-10-25
 
@@ -64,4 +64,4 @@ Headless Chromium shell 141, Playwright 1.56.1, `--disable-gpu --disable-softwar
 
 ## UI-kit продовження
 
-Shared primitives, локальний Poppins, derived interaction tokens і перевірки: [ui-kit.md](ui-kit.md). Історичний color-only specimen залишається окремим; його system font не описує типографіку нових компонентів.
+Shared primitives, локальний Poppins, derived interaction tokens і перевірки: [ui-kit.md](ui-kit.md). `Foundation/Theme tokens` тепер використовує спільні Heading/Text та Poppins; результати первинного color-only scope вище збережено як історію.
