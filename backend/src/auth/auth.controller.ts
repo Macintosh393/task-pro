@@ -4,6 +4,7 @@ import { ApiNoContentResponse, ApiOkResponse, ApiUnauthorizedResponse } from '@n
 import { AuthService } from './auth.service.js';
 import { LoginDto } from './dto/login.dto.js';
 import { Public } from '../common/decorators/public.decorator.js';
+import { User } from '../users/entities/user.entity.js';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '../config/environment-variables.js';
 import type { CookieOptions, Request, Response } from 'express';
@@ -18,13 +19,15 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ description: 'Logged in successfully' })
+  @ApiOkResponse({ type: User, description: 'Logged in successfully' })
   @ApiUnauthorizedResponse({ description: 'Wrong login credentials' })
-  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) response: Response): Promise<void> {
-    const { accessToken, refreshToken } = await this.authService.login(loginDto);
+  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) response: Response): Promise<User> {
+    const { accessToken, refreshToken, user } = await this.authService.login(loginDto);
 
     this.setAccessCookie(response, accessToken);
     this.setRefreshCookie(response, refreshToken);
+
+    return user;
   }
 
   @Public()

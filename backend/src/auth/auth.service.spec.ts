@@ -66,7 +66,7 @@ describe('AuthService', () => {
   describe('login()', () => {
     const loginDto = { email: 'user@example.com', password: 'secret-password' };
 
-    it('should return accessToken and refreshToken on successful login', async () => {
+    it('should return accessToken, refreshToken, and user on successful login', async () => {
       usersService.findByEmail.mockResolvedValue(mockUser);
       (bcrypt.compare as ReturnType<typeof vi.fn>).mockResolvedValue(true);
       jwtService.signAsync.mockResolvedValue('access-token-value');
@@ -77,6 +77,7 @@ describe('AuthService', () => {
       expect(result).toEqual({
         accessToken: 'access-token-value',
         refreshToken: 'refresh-token-value',
+        user: mockUser,
       });
     });
 

@@ -47,6 +47,17 @@ function createMockRequest(cookies?: Record<string, unknown>): { cookies?: Recor
 // Tests
 // ---------------------------------------------------------------------------
 
+const mockUser = {
+  id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+  username: 'testuser',
+  email: 'user@example.com',
+  passwordHash: '$2a$10$hashedpasswordvalue',
+  avatar_url: null,
+  theme: 'dark',
+  createdAt: new Date('2026-07-16T10:30:00.000Z'),
+  updatedAt: new Date('2026-07-16T10:30:00.000Z'),
+};
+
 describe('AuthController', () => {
   let controller: AuthController;
   let authService: ReturnType<typeof createMockAuthService>;
@@ -69,15 +80,16 @@ describe('AuthController', () => {
   // -----------------------------------------------------------------------
   describe('login()', () => {
     const loginDto: LoginDto = { email: 'user@example.com', password: 's3cret' };
-    const tokens = { accessToken: 'access-jwt', refreshToken: 'refresh-jwt' };
+    const tokens = { accessToken: 'access-jwt', refreshToken: 'refresh-jwt', user: mockUser };
 
     beforeEach(() => {
       authService.login.mockResolvedValue(tokens);
     });
 
-    it('should set both accessToken and refreshToken cookies on response', async () => {
-      await controller.login(loginDto, res as unknown as Response);
+    it('should return user and set both accessToken and refreshToken cookies on response', async () => {
+      const result = await controller.login(loginDto, res as unknown as Response);
 
+      expect(result).toBe(mockUser);
       expect(res.cookie).toHaveBeenCalledTimes(2);
       expect(res.cookie).toHaveBeenNthCalledWith(1, 'accessToken', 'access-jwt', {
         httpOnly: true,
@@ -255,7 +267,7 @@ describe('AuthController', () => {
   // -----------------------------------------------------------------------
   describe('cookie security options (tested indirectly via login)', () => {
     const loginDto: LoginDto = { email: 'u@e.com', password: 'pw' };
-    const tokens = { accessToken: 'at', refreshToken: 'rt' };
+    const tokens = { accessToken: 'at', refreshToken: 'rt', user: mockUser };
 
     it('should set secure=true on both cookies in production', async () => {
       configService = createMockConfigService({ NODE_ENV: 'production' });
@@ -312,7 +324,7 @@ describe('AuthController', () => {
         authService as unknown as AuthService,
         configService as unknown as ConfigService<EnvironmentVariables, true>,
       );
-      authService.login.mockResolvedValue({ accessToken: 'a', refreshToken: 'r' });
+      authService.login.mockResolvedValue({ accessToken: 'a', refreshToken: 'r', user: mockUser });
 
       await controller.login(loginDto, res as unknown as Response);
 
@@ -329,7 +341,7 @@ describe('AuthController', () => {
         authService as unknown as AuthService,
         configService as unknown as ConfigService<EnvironmentVariables, true>,
       );
-      authService.login.mockResolvedValue({ accessToken: 'a', refreshToken: 'r' });
+      authService.login.mockResolvedValue({ accessToken: 'a', refreshToken: 'r', user: mockUser });
 
       await controller.login(loginDto, res as unknown as Response);
 

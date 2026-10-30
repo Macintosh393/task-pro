@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto.js';
 import { RefreshTokensService } from './refresh-tokens.service.js';
 import { TokenPair } from './token-pair.interface.js';
+import { LoginResult } from './login-result.interface.js';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,7 @@ export class AuthService {
     private readonly refreshTokensService: RefreshTokensService,
   ) {}
 
-  async login(loginDto: LoginDto): Promise<TokenPair> {
+  async login(loginDto: LoginDto): Promise<LoginResult> {
     const { email, password } = loginDto;
 
     const user = await this.usersService.findByEmail(email);
@@ -31,7 +32,7 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync({ sub: user.id });
     const refreshToken = await this.refreshTokensService.issue(user.id);
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, user };
   }
 
   async refresh(token: string): Promise<TokenPair> {
