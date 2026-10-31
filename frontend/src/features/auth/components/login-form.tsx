@@ -3,6 +3,12 @@ import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useAuth } from '../hooks/use-auth';
 import { FormField, Input, Button } from '../../../components/ui';
+import { loginSchema } from '../validation/login.schema';
+
+function getValidationMessage(schema: (typeof loginSchema.shape)[keyof typeof loginSchema.shape], value: string) {
+  const result = schema.safeParse(value);
+  return result.success ? undefined : result.error.issues[0]?.message;
+}
 
 export interface LoginFormProps {
   redirectTo?: string;
@@ -25,7 +31,6 @@ export function LoginForm({ redirectTo = '/home', className = '' }: LoginFormPro
         await login({
           email: value.email,
           password: value.password,
-          pass: value.password,
         });
         await navigate({ to: redirectTo });
       } catch (err: unknown) {
@@ -63,13 +68,8 @@ export function LoginForm({ redirectTo = '/home', className = '' }: LoginFormPro
       <form.Field
         name="email"
         validators={{
-          onChange: ({ value }) => {
-            if (!value) return 'Email is required';
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-              return 'Please enter a valid email address';
-            }
-            return undefined;
-          },
+          onChange: ({ value }) => getValidationMessage(loginSchema.shape.email, value),
+          onSubmit: ({ value }) => getValidationMessage(loginSchema.shape.email, value),
         }}
       >
         {(field) => {
@@ -95,13 +95,8 @@ export function LoginForm({ redirectTo = '/home', className = '' }: LoginFormPro
       <form.Field
         name="password"
         validators={{
-          onChange: ({ value }) => {
-            if (!value) return 'Password is required';
-            if (value.length < 6) {
-              return 'Password must be at least 6 characters';
-            }
-            return undefined;
-          },
+          onChange: ({ value }) => getValidationMessage(loginSchema.shape.password, value),
+          onSubmit: ({ value }) => getValidationMessage(loginSchema.shape.password, value),
         }}
       >
         {(field) => {

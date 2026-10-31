@@ -14,7 +14,7 @@ describe('auth.api', () => {
     vi.clearAllMocks();
   });
 
-  it('getCurrentUser calls /auth/me and returns user data', async () => {
+  it('getCurrentUser calls /users/me and returns user data', async () => {
     const mockUser = {
       id: 'u-1',
       username: 'testuser',
@@ -25,11 +25,11 @@ describe('auth.api', () => {
     vi.mocked(apiClient.get).mockResolvedValueOnce({ data: mockUser });
 
     const result = await getCurrentUser();
-    expect(apiClient.get).toHaveBeenCalledWith('/auth/me');
+    expect(apiClient.get).toHaveBeenCalledWith('/users/me');
     expect(result).toEqual(mockUser);
   });
 
-  it('loginApi sends normalized credentials to /auth/login', async () => {
+  it('loginApi sends credentials to /auth/login', async () => {
     const mockUser = {
       id: 'u-1',
       username: 'testuser',
@@ -43,7 +43,6 @@ describe('auth.api', () => {
     expect(apiClient.post).toHaveBeenCalledWith('/auth/login', {
       email: 'test@example.com',
       password: 'secretpassword',
-      pass: 'secretpassword',
     });
     expect(result).toEqual(mockUser);
   });

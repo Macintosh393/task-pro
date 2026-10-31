@@ -8,8 +8,7 @@ export interface User {
 
 export interface LoginCredentials {
   email: string;
-  password?: string;
-  pass?: string;
+  password: string;
 }
 
 export interface AuthContextType {

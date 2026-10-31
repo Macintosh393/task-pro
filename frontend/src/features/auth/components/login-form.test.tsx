@@ -85,8 +85,31 @@ describe('LoginForm Component', () => {
     expect(mockLogin).toHaveBeenCalledWith({
       email: 'user@example.com',
       password: 'mypassword123',
-      pass: 'mypassword123',
     });
     expect(mockNavigate).toHaveBeenCalledWith({ to: '/home' });
+  });
+
+  it('does not submit invalid credentials', async () => {
+    act(() => {
+      dom.root.render(<LoginForm />);
+    });
+
+    const emailInput = dom.host.querySelector('input[type="email"]') as HTMLInputElement;
+    const passwordInput = dom.host.querySelector('input[type="password"]') as HTMLInputElement;
+    const form = dom.host.querySelector('form') as HTMLFormElement;
+
+    act(() => {
+      setInputValue(emailInput, 'not-an-email');
+      setInputValue(passwordInput, 'short');
+    });
+
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(mockLogin).not.toHaveBeenCalled();
+    expect(dom.host.textContent).toContain('Please enter a valid email address');
+    expect(dom.host.textContent).toContain('Password must be at least 6 characters');
   });
 });
