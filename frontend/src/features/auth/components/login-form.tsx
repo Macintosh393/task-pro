@@ -52,73 +52,77 @@ export function LoginForm({ redirectTo = '/home', className = '' }: LoginFormPro
         e.stopPropagation();
         form.handleSubmit();
       }}
-      className={`flex w-full max-w-[344px] flex-col gap-4 ${className}`}
+      className={`flex w-full max-w-[344px] flex-col ${className}`}
     >
       {serverError && (
         <div
           role="alert"
           aria-live="polite"
-          className="rounded-lg border border-action-danger bg-action-danger/10 p-3 text-xs font-medium text-action-danger"
+          className="mb-4 rounded-lg border border-action-danger bg-action-danger/10 p-3 text-xs font-medium text-action-danger"
         >
           {serverError}
         </div>
       )}
 
-      {/* Email Field */}
-      <form.Field
-        name="email"
-        validators={{
-          onChange: ({ value }) => getValidationMessage(loginSchema.shape.email, value),
-          onSubmit: ({ value }) => getValidationMessage(loginSchema.shape.email, value),
-        }}
-      >
-        {(field) => {
-          const error = field.state.meta.errors[0]?.toString();
-          return (
-            <FormField label="Email" error={error}>
-              <Input
-                type="email"
-                id="login-email"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                onBlur={field.handleBlur}
-                placeholder="Enter your email"
-                autoComplete="email"
-                required
-              />
-            </FormField>
-          );
-        }}
-      </form.Field>
+      <div className="mb-10 flex items-center gap-4 font-ui text-sm/normal tracking-[-0.02em]">
+        <span className="text-text-caption">Registration</span>
+        <h1 className="m-0 font-medium text-primary">Log In</h1>
+      </div>
 
-      {/* Password Field */}
-      <form.Field
-        name="password"
-        validators={{
-          onChange: ({ value }) => getValidationMessage(loginSchema.shape.password, value),
-          onSubmit: ({ value }) => getValidationMessage(loginSchema.shape.password, value),
-        }}
-      >
-        {(field) => {
-          const error = field.state.meta.errors[0]?.toString();
-          return (
-            <FormField label="Password" error={error}>
-              <Input
-                type="password"
-                id="login-password"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                onBlur={field.handleBlur}
-                placeholder="Confirm a password"
-                autoComplete="current-password"
-                required
-              />
-            </FormField>
-          );
-        }}
-      </form.Field>
+      <div className="flex flex-col gap-3.5">
+        <form.Field
+          name="email"
+          validators={{
+            onChange: ({ value }) => getValidationMessage(loginSchema.shape.email, value),
+            onSubmit: ({ value }) => getValidationMessage(loginSchema.shape.email, value),
+          }}
+        >
+          {(field) => {
+            const error = field.state.meta.errors[0]?.toString();
+            return (
+              <FormField label="Email" labelClassName="sr-only" error={error}>
+                <Input
+                  type="email"
+                  id="login-email"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="Enter your email"
+                  autoComplete="email"
+                  required
+                />
+              </FormField>
+            );
+          }}
+        </form.Field>
 
-      {/* Submit Button */}
+        <form.Field
+          name="password"
+          validators={{
+            onChange: ({ value }) => getValidationMessage(loginSchema.shape.password, value),
+            onSubmit: ({ value }) => getValidationMessage(loginSchema.shape.password, value),
+          }}
+        >
+          {(field) => {
+            const error = field.state.meta.errors[0]?.toString();
+            return (
+              <FormField label="Password" labelClassName="sr-only" error={error}>
+                <Input
+                  type="password"
+                  id="login-password"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
+                  required
+                />
+              </FormField>
+            );
+          }}
+        </form.Field>
+      </div>
+
       <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
         {([canSubmit, isSubmitting]) => (
           <Button
@@ -128,7 +132,7 @@ export function LoginForm({ redirectTo = '/home', className = '' }: LoginFormPro
             fullWidth
             loading={Boolean(isSubmitting)}
             disabled={!canSubmit || Boolean(isSubmitting)}
-            className="mt-2"
+            className="mt-6"
           >
             {isSubmitting ? 'Logging In...' : 'Log In Now'}
           </Button>

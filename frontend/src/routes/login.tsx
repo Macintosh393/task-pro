@@ -1,6 +1,5 @@
 import { useSearch } from '@tanstack/react-router';
 import { LoginForm } from '../features/auth';
-import { Logo } from '../components/ui';
 
 interface LoginSearch {
   redirect?: string;
@@ -11,14 +10,14 @@ export function LoginPage() {
   const redirectTo = search.redirect || '/home';
 
   return (
-    <main className="flex min-h-screen w-full items-center justify-center bg-surface-canvas p-4 text-primary">
-      <div className="flex w-full max-w-[424px] flex-col items-center rounded-lg bg-surface-card p-6 shadow-sm sm:p-10">
-        <div className="mb-6 flex flex-col items-center gap-2">
-          <Logo />
-          <h1 className="font-ui text-lg font-semibold tracking-[-0.02em] text-primary">
-            Log In to TaskPro
-          </h1>
-        </div>
+    <main
+      className="flex min-h-dvh w-full items-center justify-center bg-surface-canvas p-4 text-primary"
+      style={{
+        backgroundImage:
+          'linear-gradient(180deg, var(--palette-neutral-100) 0%, var(--palette-green-300) 100%)',
+      }}
+    >
+      <div className="w-full max-w-[424px] rounded-lg bg-surface-card p-10 shadow-sm">
         <LoginForm redirectTo={redirectTo} />
       </div>
     </main>

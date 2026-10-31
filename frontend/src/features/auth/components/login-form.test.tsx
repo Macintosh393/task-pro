@@ -50,10 +50,17 @@ describe('LoginForm Component', () => {
     const emailInput = dom.host.querySelector('input[type="email"]') as HTMLInputElement;
     const passwordInput = dom.host.querySelector('input[type="password"]') as HTMLInputElement;
     const submitBtn = dom.host.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const labels = [...dom.host.querySelectorAll('label')];
 
     expect(emailInput).not.toBeNull();
     expect(passwordInput).not.toBeNull();
     expect(submitBtn).not.toBeNull();
+    expect(emailInput.placeholder).toBe('Enter your email');
+    expect(passwordInput.placeholder).toBe('Enter your password');
+    expect(labels.map((label) => label.textContent)).toEqual(['Email', 'Password']);
+    expect(labels.every((label) => label.classList.contains('sr-only'))).toBe(true);
+    expect(dom.host.querySelector('h1')?.textContent).toBe('Log In');
+    expect(dom.host.textContent).toContain('Registration');
     expect(submitBtn.textContent).toContain('Log In Now');
   });
 
