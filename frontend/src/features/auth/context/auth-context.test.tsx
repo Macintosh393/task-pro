@@ -28,7 +28,7 @@ describe('AuthProvider logout', () => {
       id: 'user-1',
       username: 'test',
       email: 'test@example.com',
-      avatar_url: null,
+      avatarUrl: null,
       theme: 'dark',
     });
     vi.mocked(logoutApi).mockResolvedValue();

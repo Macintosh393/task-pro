@@ -19,7 +19,7 @@ describe('auth.api', () => {
       id: 'u-1',
       username: 'testuser',
       email: 'test@example.com',
-      avatar_url: null,
+      avatarUrl: null,
       theme: 'dark',
     };
     vi.mocked(apiClient.get).mockResolvedValueOnce({ data: mockUser });
@@ -34,7 +34,7 @@ describe('auth.api', () => {
       id: 'u-1',
       username: 'testuser',
       email: 'test@example.com',
-      avatar_url: null,
+      avatarUrl: null,
       theme: 'dark',
     };
     vi.mocked(apiClient.post).mockResolvedValueOnce({ data: mockUser });
