@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import { getCurrentUser, loginApi, logoutApi } from '../api/auth.api';
 import type { AuthContextType, LoginCredentials } from '../types';
 import { AuthContext, AUTH_QUERY_KEY } from './auth-context-definition';
@@ -10,6 +11,7 @@ export interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const {
     data: user,
@@ -43,6 +45,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = async () => {
     await logoutMutation.mutateAsync();
+    await navigate({ to: '/login', search: { redirect: undefined }, replace: true });
   };
 
   const contextValue: AuthContextType = {
