@@ -7,12 +7,6 @@ import { AuthProvider } from './auth-context';
 import { getCurrentUser, logoutApi } from '../api/auth.api';
 import { setupDomTest } from '../../../test/setupDomTest';
 
-const mockNavigate = vi.fn();
-
-vi.mock('@tanstack/react-router', () => ({
-  useNavigate: () => mockNavigate,
-}));
-
 vi.mock('../api/auth.api', () => ({
   getCurrentUser: vi.fn(),
   loginApi: vi.fn(),
@@ -43,7 +37,9 @@ describe('AuthProvider logout', () => {
     });
   });
 
-  it('navigates to login after logout succeeds', async () => {
+  it('logs out and clears cached queries without requiring router context', async () => {
+    const clearQueryCache = vi.spyOn(queryClient, 'clear');
+
     await act(async () => {
       dom.root.render(
         <QueryClientProvider client={queryClient}>
@@ -59,10 +55,6 @@ describe('AuthProvider logout', () => {
     });
 
     expect(logoutApi).toHaveBeenCalledOnce();
-    expect(mockNavigate).toHaveBeenCalledWith({
-      to: '/login',
-      search: { redirect: undefined },
-      replace: true,
-    });
+    expect(clearQueryCache).toHaveBeenCalledOnce();
   });
 });

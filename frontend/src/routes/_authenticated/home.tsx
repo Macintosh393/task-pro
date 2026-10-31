@@ -1,8 +1,15 @@
 import { useAuth } from '../../features/auth';
 import { Button } from '../../components/ui';
+import { useNavigate } from '@tanstack/react-router';
 
 export function HomePage() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    await navigate({ to: '/login', search: { redirect: undefined }, replace: true });
+  };
 
   return (
     <div className="min-h-screen w-full bg-surface-canvas p-6 text-primary">
@@ -11,7 +18,7 @@ export function HomePage() {
           <h1 className="text-xl font-bold">Welcome back, {user?.username || 'User'}!</h1>
           <p className="text-sm text-text-description">{user?.email}</p>
         </div>
-        <Button variant="secondary" size="small" onClick={() => logout()}>
+        <Button variant="secondary" size="small" onClick={() => void handleLogout()}>
           Log Out
         </Button>
       </header>
