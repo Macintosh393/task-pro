@@ -5,14 +5,20 @@ import { LoginPage } from '../routes/login';
 import { HomePage } from '../routes/_authenticated/home';
 import { AuthenticatedLayout } from '../routes/_authenticated';
 
+function hasAuthenticatedUser(context: RouterContext): boolean {
+  const user = context.queryClient.getQueryData(AUTH_QUERY_KEY);
+  const queryState = context.queryClient.getQueryState(AUTH_QUERY_KEY);
+
+  return Boolean(user) && queryState?.status === 'success';
+}
+
 // 1. Index redirect
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   beforeLoad: ({ context }) => {
-    const isAuthenticated = Boolean(context.queryClient.getQueryData(AUTH_QUERY_KEY));
     throw redirect({
-      to: isAuthenticated ? '/home' : '/login',
+      to: hasAuthenticatedUser(context) ? '/home' : '/login',
     });
   },
 });
@@ -32,8 +38,7 @@ const authenticatedRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: '_authenticated',
   beforeLoad: ({ context, location }) => {
-    const isAuthenticated = Boolean(context.queryClient.getQueryData(AUTH_QUERY_KEY));
-    if (!isAuthenticated) {
+    if (!hasAuthenticatedUser(context)) {
       throw redirect({
         to: '/login',
         search: {
