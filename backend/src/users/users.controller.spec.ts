@@ -13,7 +13,7 @@ describe('UsersController', () => {
     username: 'testuser',
     email: 'test@example.com',
     passwordHash: 'hashed-password',
-    avatar_url: null,
+    avatarUrl: null,
     theme: 'dark',
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-02'),

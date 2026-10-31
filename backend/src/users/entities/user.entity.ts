@@ -21,8 +21,8 @@ export class User {
   passwordHash: string;
 
   @ApiProperty({ example: 'https://example.com/avatar.png' })
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  avatar_url: string | null;
+  @Column({ name: 'avatarUrl', type: 'varchar', length: 255, nullable: true })
+  avatarUrl: string | null;
 
   @ApiProperty({ example: 'dark' })
   @Column({ type: 'varchar', length: 10, default: 'dark' })

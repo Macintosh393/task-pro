@@ -12,7 +12,7 @@ describe('UsersService', () => {
     username: 'testuser',
     email: 'test@example.com',
     passwordHash: 'hashed-password',
-    avatar_url: null,
+    avatarUrl: null,
     theme: 'light',
     createdAt: new Date('2025-01-01'),
     updatedAt: new Date('2025-01-01'),

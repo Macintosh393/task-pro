@@ -52,7 +52,7 @@ const mockUser = {
   username: 'testuser',
   email: 'user@example.com',
   passwordHash: '$2a$10$hashedpasswordvalue',
-  avatar_url: null,
+  avatarUrl: null,
   theme: 'dark',
   createdAt: new Date('2026-07-16T10:30:00.000Z'),
   updatedAt: new Date('2026-07-16T10:30:00.000Z'),
