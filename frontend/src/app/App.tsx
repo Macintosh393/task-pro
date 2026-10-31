@@ -12,7 +12,7 @@ function InnerApp() {
     return <SessionLoader />;
   }
 
-  return <RouterProvider router={router} context={{ queryClient, auth }} />;
+  return <RouterProvider router={router} context={{ queryClient }} />;
 }
 
 export function App() {

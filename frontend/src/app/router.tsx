@@ -1,9 +1,6 @@
-import {
-  createRouter,
-  createRoute,
-  redirect,
-} from '@tanstack/react-router';
+import { createRouter, createRoute, redirect } from '@tanstack/react-router';
 import { rootRoute, type RouterContext } from '../routes/__root';
+import { AUTH_QUERY_KEY } from '../features/auth/context/auth-context-definition';
 import { LoginPage } from '../routes/login';
 import { HomePage } from '../routes/_authenticated/home';
 import { AuthenticatedLayout } from '../routes/_authenticated';
@@ -13,8 +10,9 @@ const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   beforeLoad: ({ context }) => {
+    const isAuthenticated = Boolean(context.queryClient.getQueryData(AUTH_QUERY_KEY));
     throw redirect({
-      to: context.auth.isAuthenticated ? '/home' : '/login',
+      to: isAuthenticated ? '/home' : '/login',
     });
   },
 });
@@ -34,7 +32,8 @@ const authenticatedRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: '_authenticated',
   beforeLoad: ({ context, location }) => {
-    if (!context.auth.isAuthenticated) {
+    const isAuthenticated = Boolean(context.queryClient.getQueryData(AUTH_QUERY_KEY));
+    if (!isAuthenticated) {
       throw redirect({
         to: '/login',
         search: {
@@ -63,7 +62,6 @@ export const router = createRouter({
   routeTree,
   context: {
     queryClient: undefined!,
-    auth: undefined!,
   },
 });
 
