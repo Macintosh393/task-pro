@@ -41,7 +41,13 @@ for (const viewport of viewports) {
     }) => {
       await page.setViewportSize(viewport);
       const errors: string[] = [];
+      const textureRequests: string[] = [];
       page.on('pageerror', (error) => errors.push(error.message));
+      page.on('request', (request) => {
+        if (/\/texture(?:-[^/]+)?\.png(?:\?|$)/.test(request.url())) {
+          textureRequests.push(request.url());
+        }
+      });
       await page.goto(
         `/iframe.html?id=pages-welcome--default&viewMode=story&globals=theme:${theme}`,
       );
@@ -79,14 +85,17 @@ for (const viewport of viewports) {
       expect((await login.boundingBox())?.height).toBeGreaterThanOrEqual(44);
       await expect(login).toHaveCSS('color', 'rgb(22, 22, 22)');
 
-      const texture = main.locator('img[src*="texture"]');
+      const texture = main.locator('.welcome-texture');
       if (viewport.width < 768) {
         await expect(texture).toBeHidden();
+        expect(textureRequests).toEqual([]);
       } else {
-        const textureBox = await texture.boundingBox();
-        expect(textureBox).toMatchObject({ x: 0, y: -54, width: 1600, height: 900 });
-        await expect(texture.locator('..')).toHaveCSS('mix-blend-mode', 'color-burn');
-        await expect(texture.locator('..')).toHaveCSS('opacity', '0.02');
+        await expect(texture).toHaveCSS('background-size', '1600px 900px');
+        await expect(texture).toHaveCSS('background-position', '0px -54px');
+        await expect(texture).toHaveCSS('background-repeat', 'no-repeat');
+        await expect(texture).toHaveCSS('mix-blend-mode', 'color-burn');
+        await expect(texture).toHaveCSS('opacity', '0.02');
+        expect(textureRequests).toHaveLength(1);
       }
 
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(viewport.width);

@@ -3,7 +3,6 @@ import { buttonVariants } from '../../components/ui/Button/button-variants';
 import { cn } from '../../components/ui/cn';
 import { focusRing } from '../../components/ui/control-styles';
 import illustration from '../../assets/welcome/illustration.png';
-import texture from '../../assets/welcome/texture.png';
 
 export function WelcomePage() {
   return (
@@ -12,17 +11,9 @@ export function WelcomePage() {
       aria-labelledby="welcome-title"
     >
       <div
-        className="pointer-events-none absolute inset-0 -z-1 hidden overflow-hidden opacity-[0.02] mix-blend-color-burn md:block"
+        className="welcome-texture pointer-events-none absolute inset-0 -z-1 hidden opacity-[0.02] mix-blend-color-burn md:block"
         aria-hidden="true"
-      >
-        <img
-          src={texture}
-          alt=""
-          width={1600}
-          height={900}
-          className="absolute top-[-54px] left-0 h-[900px] w-[1600px] max-w-none"
-        />
-      </div>
+      />
       <div className="flex w-full max-w-[335px] flex-col items-center md:max-w-[473px]">
         <img
           src={illustration}

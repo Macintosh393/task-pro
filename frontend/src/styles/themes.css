@@ -88,6 +88,15 @@
   content: '';
 }
 
+@media (min-width: 768px) {
+  .welcome-texture {
+    background-image: url('../assets/welcome/texture.png');
+    background-repeat: no-repeat;
+    background-position: 0 -54px;
+    background-size: 1600px 900px;
+  }
+}
+
 :root[data-theme='violet'] {
   --surface-canvas: var(--palette-violet-50);
   --surface-sidebar: var(--palette-violet-600);
