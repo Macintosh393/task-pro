@@ -53,6 +53,30 @@
   --focus-ring-sidebar: var(--palette-neutral-900);
 }
 
+:root {
+  --welcome-surface: var(--palette-neutral-100);
+  --welcome-ink: var(--palette-neutral-900);
+  --welcome-on-action: var(--palette-white);
+  --welcome-action-hover: var(--palette-neutral-800);
+  --welcome-background: linear-gradient(
+    180deg,
+    rgb(196 196 196 / 0%) 25%,
+    var(--palette-green-300) 92.188%
+  );
+}
+
+.welcome-page {
+  color-scheme: light;
+  --text-primary: var(--welcome-ink);
+  --text-sidebar: var(--welcome-ink);
+  --action-primary: var(--welcome-ink);
+  --action-on-primary: var(--welcome-on-action);
+  --action-hover: var(--welcome-action-hover);
+  --focus-ring: var(--welcome-ink);
+  background: var(--welcome-background), var(--welcome-surface);
+  color: var(--welcome-ink);
+}
+
 :root[data-theme='violet'] {
   --surface-canvas: var(--palette-violet-50);
   --surface-sidebar: var(--palette-violet-600);

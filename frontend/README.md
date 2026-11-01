@@ -1,6 +1,6 @@
 # Frontend
 
-Мінімальний frontend на React, Vite і TypeScript із placeholder-екраном, який перевіряє доступність backend.
+Frontend TaskPro на React, Vite і TypeScript. Стартова сторінка показує опис застосунку та переходи до реєстрації й входу.
 
 ## Вимоги
 
@@ -37,13 +37,25 @@ Build запускає перевірку TypeScript і створює productio
 ```text
 src/
 ├── components/
-│   └── Placeholder.tsx        # показує стан підключення до backend
+│   └── ui/                    # спільні UI-компоненти
+├── pages/
+│   └── WelcomePage/           # стартова сторінка та Storybook story
 ├── services/
 │   ├── healthService.ts       # запит до GET /api/health
 │   └── healthService.test.ts  # unit-тест health-сервісу
 ├── App.tsx                    # кореневий компонент
 └── main.tsx                   # точка входу та React Query provider
 ```
+
+## Стартова сторінка
+
+`App` показує `WelcomePage` без запитів до backend. Сторінка відтворює [desktop Start](https://www.figma.com/design/t0eIVx06rFihnswWhS8Q2V/?node-id=1058-3425), [tablet](https://www.figma.com/design/t0eIVx06rFihnswWhS8Q2V/?node-id=1058-6699) та [mobile](https://www.figma.com/design/t0eIVx06rFihnswWhS8Q2V/?node-id=1058-9325). Вихідні зображення й SVG збережені в `src/assets/welcome`; `manifest.json` містить node IDs та SHA-256. Від 768px використовується tablet/desktop композиція. На менших екранах контент має бічні відступи 20px; на низьких екранах сторінка прокручується.
+
+Кольори welcome-сторінки фіксовані за макетом. `.welcome-page` перевизначає semantic tokens лише для своїх дочірніх компонентів і не змінює вибрану тему на `html`. Hover CTA та keyboard focus є адаптаціями до інтерактивної сторінки; Log In має область натискання 44px зі збереженою позицією тексту.
+
+Посилання Registration і Log In ведуть на `/register` та `/login`. Форми й маршрутизатор додаються окремими auth-змінами. Під час їх інтеграції потрібно показувати `WelcomePage` для гостя на `/`, замінити перенаправлення гостя з `/` на `/login` і підключити окрему сторінку реєстрації до `/register`. До інтеграції ця гілка перевіряє адреси та native link navigation, але не реалізує auth-форми.
+
+У Storybook сторінка доступна як `Pages/Welcome/Default`. Після `npm run build-storybook` команда `npx playwright test welcome.spec.ts` перевіряє геометрію трьох макетів, збереження кольорів у Dark/Light/Violet, axe, фокус і переходи з клавіатури.
 
 ## Storybook і теми
 
