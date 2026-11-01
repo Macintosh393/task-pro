@@ -54,7 +54,7 @@ Priority low #8fa1d0, medium #e09cb5, high #bedbb0; завжди додавай�
 - 40% opacity normal-field group не переноситься на filled/active fields. Auth #151515/#1f1f1f не означає три auth variants; auth компоненти та токени не входять у цю основу.
 - Poppins 400/500/600 завантажуються локально через `ui-foundation.css`; спільний шрифт використовується в застосунку та Storybook.
 
-Підхід до спільного CSS, themes/decorators та palette specimen натхненний [Steve Kinney — Building Design Systems in Storybook](https://stevekinney.com/courses/storybook); конфігурація адаптована за [Storybook React/Vite docs](https://storybook.js.org/docs/get-started/frameworks/react-vite). Курс і його UI-kit не копіюються. Designs addon показує Figma reference; Chromatic не підключено, visual comparisons виконує Playwright.
+Конфігурація використовує інтеграцію [Storybook React/Vite](https://storybook.js.org/docs/get-started/frameworks/react-vite). Designs addon показує Figma reference; Chromatic не підключено, visual comparisons виконує Playwright.
 
 ## Виконані перевірки — 2026-10-25
 
