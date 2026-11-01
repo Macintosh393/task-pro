@@ -19,6 +19,8 @@
 - **Vite:** забезпечує локальний dev server і production build React-застосунку. У development frontend і NestJS запускаються окремо; у production NestJS віддаватиме зібраний frontend разом з API.
 - **Storybook і Vitest:** Storybook обрано для ізольованої розробки та перегляду UI-компонентів, Vitest — для frontend-тестів. React Testing Library не використовуємо; конкретний підхід до тестування взаємодій React-компонентів ще потрібно погодити.
 
+Межі сторінок і форм входу та реєстрації запропоновано в [ADR-002](frontend/docs/adr/002-separate-login-and-signup.md). Статус залишається `proposed` до командного review. [Індекс ADR](frontend/docs/adr/README.md).
+
 ## Backend
 
 | Параметр | Значення |
