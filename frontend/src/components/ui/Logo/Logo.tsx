@@ -26,7 +26,11 @@ export function Logo({ className = '', variant = 'sidebar', ...props }: LogoProp
       ) : (
         <Icon name="logo" size={32} />
       )}
-      Task Pro
+      {variant === 'welcome' ? (
+        <span className="w-[112px] md:w-[160px]">Task Pro</span>
+      ) : (
+        'Task Pro'
+      )}
     </span>
   );
 }

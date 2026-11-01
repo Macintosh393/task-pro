@@ -139,6 +139,26 @@ test('Welcome stays scrollable at 320px and increased text size', async ({ page 
   await page.evaluate(() => {
     document.documentElement.style.fontSize = '200%';
   });
+  const description = page.locator('main p');
+  const textMetrics = await description.evaluate((text) => {
+    const styles = getComputedStyle(text);
+    return {
+      fontSize: parseFloat(styles.fontSize),
+      lineHeight: parseFloat(styles.lineHeight),
+      height: text.getBoundingClientRect().height,
+      scrollHeight: text.scrollHeight,
+      overflowY: styles.overflowY,
+    };
+  });
+  expect(textMetrics.fontSize).toBe(28);
+  expect(textMetrics.lineHeight).toBeGreaterThanOrEqual(textMetrics.fontSize);
+  expect(textMetrics.lineHeight / textMetrics.fontSize).toBeCloseTo(18 / 14);
+  expect(textMetrics.height).toBeGreaterThanOrEqual(textMetrics.scrollHeight - 2);
+  expect(textMetrics.overflowY).toBe('visible');
+  const registration = page.getByRole('link', { name: 'Registration', exact: true });
+  const descriptionBox = await description.boundingBox();
+  const actionBox = await registration.boundingBox();
+  expect(descriptionBox!.y + descriptionBox!.height).toBeLessThan(actionBox!.y);
   await login.scrollIntoViewIfNeeded();
   await expect(login).toBeInViewport();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320);

@@ -34,7 +34,7 @@ export function WelcomePage() {
         <Heading level={1} id="welcome-title" className="mt-3.5 flex md:mt-6">
           <Logo variant="welcome" />
         </Heading>
-        <Text className="mt-6 text-center leading-[18px]">
+        <Text className="mt-6 text-center leading-[1.2857142857]">
           Supercharge your productivity and take control of your tasks with Task Pro - Don't wait,
           start achieving your goals now!
         </Text>
@@ -46,7 +46,7 @@ export function WelcomePage() {
             href="/register"
             className={cn(
               buttonVariants({ fullWidth: true }),
-              'hover:bg-action-hover active:shadow-[inset_0_0_0_2px_currentColor]',
+              'px-4 hover:bg-action-hover active:shadow-[inset_0_0_0_2px_currentColor]',
             )}
           >
             Registration
