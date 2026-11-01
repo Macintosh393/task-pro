@@ -8,7 +8,7 @@
 
 Теми задаються **на html**: `document.documentElement.dataset.theme = 'dark'` (також `light`, `violet`). HTML застосунку починає з Dark; CSS має Dark fallback. Toolbar Dark / Light / Violet використовує `withThemeByDataAttribute` на html preview iframe. Менеджер Storybook має власний UI; теми застосовуються до preview. Немає app theme picker, storage або profileAPI policy.
 
-Компоненти споживають семантичні ролі, наприклад `background: var(--surface-card); color: var(--text-primary); border-color: var(--border-subtle)`. У TSX використовуйте Tailwind semantic utilities на кшталт `bg-surface-card text-primary` або arbitrary utilities для наявних токенів. [Правила стилізації](../../AGENTS.md) визначені на рівні репозиторію. Не вставляйте raw hex чи palette tokens безпосередньо в продуктову компоненту. Sidebar використовує `--text-sidebar` на `--surface-sidebar`, а не content text.
+Компоненти споживають семантичні ролі, наприклад `background: var(--surface-card); color: var(--text-primary); border-color: var(--border-subtle)`. У TSX використовуйте Tailwind semantic utilities на кшталт `bg-surface-card text-primary` або arbitrary utilities для наявних токенів. Семантичні utilities визначає `src/styles/tailwind-theme.css` через `@theme inline`. [Правила стилізації](../../AGENTS.md) визначені на рівні репозиторію. Не вставляйте raw hex чи palette tokens безпосередньо в продуктову компоненту. Sidebar використовує `--text-sidebar` на `--surface-sidebar`, а не content text.
 
 Palette — сирі кольори; themes — рольове відображення. Назви семантичних токенів **наші**, це не оригінальні Figma variable names. Додаючи роль: перевірте конкретний source node, додайте palette value лише за потреби, визначте роль в усіх трьох темах, запишіть provenance або derived/open, перевірте контраст на фактичній поверхні. Не підміняйте рольовий alpha глобальним opacity.
 
@@ -16,7 +16,7 @@ Palette — сирі кольори; themes — рольове відображ�
 
 ## Джерела
 
-Оригінальний незмінений export: `/home/vlad/Documents/Codex/taskpro-next-spec/`. `DESIGN.md`, розділ **Theme and typography contract**, і `design-pack/captures.json` — індекс 48 captures. FREEZE SHA-256: `8a34d3559079e645f69270d69c757b4885685f10a18e7273a79441588c2654ac`; під час цієї роботи перевірено всі 1025 hashes без розбіжностей. Використані тільки color/token data та provenance; generated JSX і business code не копіювалися. Live Figma MCP не використовувався.
+Історичне джерело: локальний export TaskPro 1.0-rc3, який мав шлях `/home/vlad/Documents/Codex/taskpro-next-spec/`. Export і перелічені нижче capture-файли не входять до репозиторію. Для перегляду вихідного дизайну використовуйте посилання в [маніфесті Figma](figma-assets.json); походження geometry та адаптації записані в [ui-kit-assets.json](ui-kit-assets.json). `DESIGN.md`, розділ **Theme and typography contract**, і `design-pack/captures.json` — індекс 48 captures. FREEZE SHA-256: `8a34d3559079e645f69270d69c757b4885685f10a18e7273a79441588c2654ac`; під час первинної роботи перевірено всі 1025 hashes без розбіжностей. Використані тільки color/token data та provenance; generated JSX і business code не копіювалися. Live Figma MCP не використовувався.
 
 Шляхи нижче відносні до export:
 
