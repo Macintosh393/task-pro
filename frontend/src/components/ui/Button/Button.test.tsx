@@ -25,7 +25,12 @@ describe('Button contract (#10)', () => {
     expect(button.value).toBe('save');
     expect(ref.current).toBe(button);
   });
-  it.each([{ disabled: true }, { loading: true }])('blocks activation when %o', (props) => {
+  it.each([
+    { disabled: true },
+    { loading: true },
+    { variant: 'neutral' as const, size: 'large' as const, disabled: true },
+    { variant: 'neutral' as const, size: 'large' as const, loading: true },
+  ])('blocks activation when %o', (props) => {
     const click = vi.fn();
     act(() =>
       dom.root.render(
@@ -41,6 +46,27 @@ describe('Button contract (#10)', () => {
     expect(button.textContent).toBe('Save');
     expect(button.getAttribute('aria-busy')).toBe(props.loading ? 'true' : null);
   });
+  it.each([undefined, 'boxed-plus'] as const)(
+    'keeps the neutral label with icon %s',
+    (leadingIcon) => {
+      act(() =>
+        dom.root.render(
+          <Button variant="neutral" size="large" leadingIcon={leadingIcon}>
+            Registration
+          </Button>,
+        ),
+      );
+      const button = dom.host.querySelector('button')!;
+      expect(button.textContent).toBe('Registration');
+      expect(button.disabled).toBe(false);
+      expect(button.querySelector('svg')?.getAttribute('aria-hidden')).toBe(
+        leadingIcon ? 'true' : undefined,
+      );
+      expect(button.querySelector('svg')?.getAttribute('width')).toBe(
+        leadingIcon ? '28' : undefined,
+      );
+    },
+  );
   it('submits only when explicitly asked', () => {
     const submit = vi.fn();
     act(() =>

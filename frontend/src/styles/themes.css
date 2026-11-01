@@ -54,10 +54,9 @@
 }
 
 :root {
-  --welcome-surface: var(--palette-neutral-100);
-  --welcome-ink: var(--palette-neutral-900);
-  --welcome-on-action: var(--palette-white);
-  --welcome-action-hover: var(--palette-neutral-800);
+  --action-neutral: var(--palette-neutral-900);
+  --action-on-neutral: var(--palette-white);
+  --action-neutral-hover: var(--palette-neutral-800);
   --welcome-background: linear-gradient(
     180deg,
     rgb(196 196 196) 25%,
@@ -68,14 +67,11 @@
 
 .welcome-page {
   color-scheme: light;
-  --text-primary: var(--welcome-ink);
-  --text-sidebar: var(--welcome-ink);
-  --action-primary: var(--welcome-ink);
-  --action-on-primary: var(--welcome-on-action);
-  --action-hover: var(--welcome-action-hover);
-  --focus-ring: var(--welcome-ink);
-  background: var(--welcome-surface);
-  color: var(--welcome-ink);
+  --text-primary: var(--palette-neutral-900);
+  --text-sidebar: var(--palette-neutral-900);
+  --focus-ring: var(--palette-neutral-900);
+  background: var(--palette-neutral-100);
+  color: var(--palette-neutral-900);
 }
 
 .welcome-page::before {

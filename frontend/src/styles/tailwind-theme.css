@@ -13,6 +13,9 @@
   --color-text-caption: var(--text-caption);
   --color-text-sidebar-muted: var(--text-sidebar-muted);
   --color-border-filters: var(--border-filters);
+  --color-action-neutral: var(--action-neutral);
+  --color-action-on-neutral: var(--action-on-neutral);
+  --color-action-neutral-hover: var(--action-neutral-hover);
   --color-action-primary: var(--action-primary);
   --color-action-on-primary: var(--action-on-primary);
   --color-priority-low: var(--priority-low);

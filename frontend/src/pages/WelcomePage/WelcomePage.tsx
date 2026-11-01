@@ -36,8 +36,8 @@ export function WelcomePage() {
           <a
             href="/register"
             className={cn(
-              buttonVariants({ fullWidth: true }),
-              'px-4 hover:bg-action-hover active:shadow-[inset_0_0_0_2px_currentColor]',
+              buttonVariants({ variant: 'neutral', size: 'large', fullWidth: true }),
+              'px-4',
             )}
           >
             Registration

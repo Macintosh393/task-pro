@@ -7,9 +7,9 @@ const viewports = [
     width: 375,
     height: 812,
     imageSize: 124,
-    imageY: 211,
+    imageY: 207.5,
     logoWidth: 166,
-    ctaY: 517,
+    ctaY: 513.5,
     ctaWidth: 335,
   },
   {
@@ -17,9 +17,9 @@ const viewports = [
     width: 768,
     height: 1024,
     imageSize: 162,
-    imageY: 293,
+    imageY: 289.5,
     logoWidth: 222,
-    ctaY: 647,
+    ctaY: 643.5,
     ctaWidth: 344,
   },
   {
@@ -27,16 +27,16 @@ const viewports = [
     width: 1440,
     height: 770,
     imageSize: 162,
-    imageY: 166,
+    imageY: 162.5,
     logoWidth: 222,
-    ctaY: 520,
+    ctaY: 516.5,
     ctaWidth: 344,
   },
 ];
 
 for (const viewport of viewports) {
   for (const theme of ['Dark', 'Light', 'Violet']) {
-    test(`Welcome ${viewport.name} keeps source geometry and colors in ${theme}`, async ({
+    test(`Welcome ${viewport.name} keeps centered geometry and source colors in ${theme}`, async ({
       page,
     }) => {
       await page.setViewportSize(viewport);
@@ -78,7 +78,7 @@ for (const viewport of viewports) {
       await expect(registration).toHaveCSS('color', 'rgb(255, 255, 255)');
       const actionBox = await registration.boundingBox();
       expect(actionBox?.width).toBe(viewport.ctaWidth);
-      expect(actionBox?.height).toBe(49);
+      expect(actionBox?.height).toBe(56);
       expect(actionBox?.y).toBeCloseTo(viewport.ctaY, 0);
       const login = page.getByRole('link', { name: 'Log In', exact: true });
       await expect(login).toHaveAttribute('href', '/login');
