@@ -57,15 +57,7 @@ Backdrop не закриває Modal, щоб shell не нав’язував п
 
 ## Storybook і тести
 
-Підходи Steve Kinney використані концептуально та адаптовані до встановленого Storybook 10.6.3:
-[controls](https://stevekinney.com/courses/storybook/controls),
-[argTypes metadata](https://stevekinney.com/courses/storybook/arg-types),
-[play functions](https://stevekinney.com/courses/storybook/play-functions),
-[component tests](https://stevekinney.com/courses/storybook/testing-components-with-storybook),
-[themes](https://stevekinney.com/courses/storybook/adding-dark-mode-to-our-components),
-[hierarchy](https://stevekinney.com/courses/storybook/naming-and-hierarchy).
-
-Colocated CSF stories мають shared args, meaningful variants/states, controls, API descriptions та autodocs; `UI/Overview` і TypeSet допомагають порівнювати ті самі primitives. Theme toolbar керує html data-theme. Play checks для click/loading використовують native DOM та bundled `storybook/test`; browser QA перевіряє реальну клавіатуру окремо. Не копіюємо палітру курсу чи старі package/API recipes.
+Colocated CSF stories мають shared args, meaningful variants/states, controls, API descriptions та autodocs; `UI/Overview` і TypeSet допомагають порівнювати ті самі primitives. Theme toolbar керує html data-theme. Play checks для click/loading використовують native DOM та bundled `storybook/test`; browser QA перевіряє реальну клавіатуру окремо.
 
 Vitest із jsdom та `react-dom/client` / React `act` перевіряє поведінку компонентів без React Testing Library. Native focus, layout і keyboard actions перевіряє project-owned Playwright. `@storybook/addon-a11y` показує axe-результати у Storybook; browser suite виконує axe для кожної story. Designs addon відкриває посилання на UI KIT, доступ до якого залежить від Figma permissions.
 
