@@ -12,7 +12,7 @@ export function WelcomePage() {
       aria-labelledby="welcome-title"
     >
       <div
-        className="pointer-events-none absolute inset-0 -z-10 hidden overflow-hidden opacity-[0.02] mix-blend-color-burn md:block"
+        className="pointer-events-none absolute inset-0 -z-1 hidden overflow-hidden opacity-[0.02] mix-blend-color-burn md:block"
         aria-hidden="true"
       >
         <img

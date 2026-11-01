@@ -100,6 +100,42 @@ for (const viewport of viewports) {
   }
 }
 
+test('Welcome gradient preserves source color interpolation', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/iframe.html?id=pages-welcome--default&viewMode=story');
+  await page.getByRole('main', { name: 'Task Pro' }).waitFor();
+  const samples = await page.evaluate(
+    async (bytes) => {
+      const bitmap = await createImageBitmap(
+        new Blob([new Uint8Array(bytes)], { type: 'image/png' }),
+      );
+      const canvas = document.createElement('canvas');
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      const context = canvas.getContext('2d')!;
+      context.drawImage(bitmap, 0, 0);
+      const colors = [300, 400, 600].map((y) =>
+        Array.from(context.getImageData(1, y, 1, 1).data).slice(0, 3),
+      );
+      bitmap.close();
+      return colors;
+    },
+    Array.from(await page.screenshot()),
+  );
+  const sourceColors = [
+    [238, 238, 237],
+    [227, 231, 226],
+    [207, 222, 199],
+  ];
+  for (let point = 0; point < sourceColors.length; point++) {
+    for (let channel = 0; channel < 3; channel++) {
+      expect(Math.abs(samples[point][channel] - sourceColors[point][channel])).toBeLessThanOrEqual(
+        2,
+      );
+    }
+  }
+});
+
 test('Welcome links support keyboard navigation to the auth route contract', async ({ page }) => {
   await page.goto('/iframe.html?id=pages-welcome--default&viewMode=story');
   await page.getByRole('main', { name: 'Task Pro' }).waitFor();

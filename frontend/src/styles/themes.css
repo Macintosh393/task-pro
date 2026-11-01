@@ -60,9 +60,10 @@
   --welcome-action-hover: var(--palette-neutral-800);
   --welcome-background: linear-gradient(
     180deg,
-    rgb(196 196 196 / 0%) 25%,
+    rgb(196 196 196) 25%,
     var(--palette-green-300) 92.188%
   );
+  --welcome-background-mask: linear-gradient(180deg, transparent 25%, black 92.188%);
 }
 
 .welcome-page {
@@ -73,8 +74,18 @@
   --action-on-primary: var(--welcome-on-action);
   --action-hover: var(--welcome-action-hover);
   --focus-ring: var(--welcome-ink);
-  background: var(--welcome-background), var(--welcome-surface);
+  background: var(--welcome-surface);
   color: var(--welcome-ink);
+}
+
+.welcome-page::before {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background: var(--welcome-background);
+  mask-image: var(--welcome-background-mask);
+  pointer-events: none;
+  content: '';
 }
 
 :root[data-theme='violet'] {
