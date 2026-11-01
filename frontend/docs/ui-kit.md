@@ -1,6 +1,6 @@
-# Спільний UI-kit — локальна пропозиція
+# Спільний UI-kit
 
-Реалізація для review у `refactor/figma-tailwind-cva-ui-kit`. ADR залишається Draft. Немає API, auth/business forms, карток/колонок, datepicker чи Stack/Grid. Імпорти: `src/components/ui`. Застосунок і Storybook завантажують один `src/index.css`; компонентні стилі не живуть у stories.
+UI-kit інтегрований у `main` через [PR #71](https://github.com/Macintosh393/task-pro/pull/71) та [PR #75](https://github.com/Macintosh393/task-pro/pull/75). Цей документ описує поточну реалізацію. Статус архітектурної домовленості й порядок її прийняття визначає [ADR-001](adr/001-storybook-shared-ui-foundations.md). Немає API, auth/business forms, карток/колонок, datepicker чи Stack/Grid. Імпорти: `src/components/ui`. Застосунок і Storybook завантажують один `src/index.css`; компонентні стилі не живуть у stories.
 
 ## Контракти
 
@@ -32,13 +32,22 @@ Backdrop не закриває Modal, щоб shell не нав’язував п
 - [#11 — Input та стани форми](https://github.com/Macintosh393/task-pro/issues/11): один Input primitive з композицією FormField для label/hint/error; help є API-назвою hint. Textarea повторно використовує той самий контракт, не дублює бізнес-форму.
 - [#12 — мінімальний Icon](https://github.com/Macintosh393/task-pro/issues/12): три sourced assets, sizing/currentColor, named/decorative cases. IconButton — окремий компонент у ширшому дозволеному UI-kit scope, не розширення issue #12 на весь asset pipeline.
 
-Нових компонентів, які суперечать існуючим, не знайдено: до цього був лише Placeholder. Team review test conventions і Draft ADR залишається потрібним; локальна реалізація не закриває issues та не означає командного прийняття.
+Посилання на issues пояснюють походження контрактів. Стан виконання кожної задачі визначає її acceptance review; наявність реалізації не замінює погодження ADR-001.
+
+## Відкриті питання відповідності ТЗ
+
+[Початкове технічне завдання](https://drive.google.com/file/d/1HTm3phjY-qRvU_981xYtA0Aex9qvNulq/view) містить вимоги, які ще потрібно узгодити з реалізацією:
+
+- ТЗ вимагає SVG sprite; поточний Icon рендерить inline SVG paths. Потрібно виконати вимогу або окремо погодити й зафіксувати відхилення. Успадкування кольорів через CSS саме по собі не визначає спосіб зберігання іконок.
+- ТЗ передбачає закриття модального вікна через backdrop, якщо це не суперечить поведінці форми. Поточний Modal не закривається через backdrop і не має параметра для такої політики. Потрібно погодити типову поведінку та винятки, потім узгодити API, stories і перевірки.
+
+Прийняття ADR-001 не закриває ці питання й не затверджує відхилення від ТЗ.
 
 ## Джерела та адаптації
 
 41 оригінальний asset у `src/assets/figma` збережено для provenance; SHA-256 і вихідний UI KIT записані в [маніфесті Figma](figma-assets.json). Raster plant використовується в reference story. Іконки рендерять inline SVG geometry з [ui-kit-assets.json](ui-kit-assets.json): одноколірні glyphs успадковують `currentColor`, logo і boxed-plus читають semantic tokens. Теми та hover/disabled/checked states керують кольором через CSS. Перемикання SVG images за назвами тем прибрано, оскільки воно ламало успадкування кольору. Нижче описано походження geometry та адаптацій.
 
-Original pack `/home/vlad/Documents/Codex/taskpro-next-spec`: FREEZE SHA-256 `8a34d3559079e645f69270d69c757b4885685f10a18e7273a79441588c2654ac`, перевірено 1025/1025 hashes без розбіжностей. Використано DESIGN.md, UI-kit context/screenshot `1058:10396`, close SVG `1058:4908`, наявний [theme contract](themes.md). Figma MCP, experimental implementation code та generated JSX не використовувалися як реалізація.
+Історичний локальний archive TaskPro 1.0-rc3 мав шлях `/home/vlad/Documents/Codex/taskpro-next-spec`. Цей archive та його `DESIGN.md`, captures і `FREEZE.json` не входять до репозиторію; шлях не є інструкцією для налаштування. Посилання на вихідний дизайн доступне в [маніфесті Figma](figma-assets.json), а geometry та адаптації описані в [ui-kit-assets.json](ui-kit-assets.json). Під час первинної перевірки FREEZE мав SHA-256 `8a34d3559079e645f69270d69c757b4885685f10a18e7273a79441588c2654ac`, перевірено 1025/1025 hashes без розбіжностей. Використано DESIGN.md, UI-kit context/screenshot `1058:10396`, close SVG `1058:4908`, наявний [theme contract](themes.md). Figma MCP, experimental implementation code та generated JSX не використовувалися як реалізація.
 
 - Source: Poppins 400/500/600; незмінені локальні TTF, upstream manifest і OFL у `src/assets/fonts`. Body 14px, small 12/16, dialog heading 18px/500/-0.36px; action/field 14px/-0.28px, 49px висота, 8px radius. Heading 16/24px, line heights, spacing shell і розміри варіантів — адаптації, не точні source компоненти.
 - Source: існуючі surface/text/action colors через semantic tokens; оригінальні SVG path/viewBox із provenance у [ui-kit-assets.json](ui-kit-assets.json). Inline SVG зберігає geometry, використовує currentColor або semantic roles для багатоколірних logo/boxed-plus, видаляє export IDs, source opacity та зайві viewport clip paths. Немає вигаданого asset library.
