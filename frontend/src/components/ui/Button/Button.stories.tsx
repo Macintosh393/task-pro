@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Native button; type defaults to button. Loading preserves its label and blocks activation. Choose submit explicitly in forms. Colors use shared semantic tokens.',
+          'Native button; type defaults to button. Loading preserves its label and blocks activation. Choose submit explicitly in forms. Colors use shared semantic tokens. Neutral stays black in every theme; large has a 56px minimum height. Icons are independent of the variant.',
       },
     },
   },
@@ -25,10 +25,10 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['primary', 'secondary', 'destructive', 'ghost'],
+      options: ['primary', 'secondary', 'destructive', 'ghost', 'neutral'],
       description: 'Intent, not a theme name.',
     },
-    size: { control: 'select', options: ['small', 'medium'] },
+    size: { control: 'select', options: ['small', 'medium', 'large'] },
     loading: {
       control: 'boolean',
       description: 'Disables native activation and exposes aria-busy.',
@@ -80,3 +80,61 @@ export const Create: Story = {
 };
 
 export const Small: Story = { args: { size: 'small' } };
+
+export const Neutral: Story = {
+  args: { variant: 'neutral', size: 'large', children: 'Registration', fullWidth: true },
+  decorators: [
+    (Story) => (
+      <div style={{ width: 344, maxWidth: '100%' }}>
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const AddAnotherColumn: Story = {
+  args: {
+    variant: 'neutral',
+    size: 'large',
+    children: 'Add another column',
+    leadingIcon: 'boxed-plus',
+    fullWidth: true,
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ width: 334, maxWidth: '100%' }}>
+        <Story />
+      </div>
+    ),
+  ],
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/design/t0eIVx06rFihnswWhS8Q2V/?node-id=1058-2271',
+    },
+    docs: {
+      description: {
+        story:
+          '334×56 specimen with the existing 28px boxed-plus and 8px gap. Neutral uses #161616 for both this action and Registration; the column source uses #121212. Registration also uses 56px instead of its source 49px.',
+      },
+    },
+  },
+};
+
+export const NeutralDisabled: Story = {
+  ...AddAnotherColumn,
+  args: { ...AddAnotherColumn.args, disabled: true },
+  play: async ({ canvasElement, args }) => {
+    canvasElement.querySelector('button')!.click();
+    await expect(args.onClick).not.toHaveBeenCalled();
+  },
+};
+
+export const NeutralLoading: Story = {
+  ...AddAnotherColumn,
+  args: { ...AddAnotherColumn.args, loading: true },
+  play: async ({ canvasElement, args }) => {
+    canvasElement.querySelector('button')!.click();
+    await expect(args.onClick).not.toHaveBeenCalled();
+  },
+};

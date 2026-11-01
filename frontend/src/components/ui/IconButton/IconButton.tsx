@@ -20,9 +20,9 @@ const iconButtonVariants = cva(
 
 export type IconButtonProps = Omit<
   ButtonProps,
-  'children' | 'aria-label' | 'leadingIcon' | 'fullWidth'
+  'children' | 'aria-label' | 'leadingIcon' | 'fullWidth' | 'size'
 > &
-  Pick<VariantProps<typeof iconButtonVariants>, 'treatment'> & {
+  Pick<VariantProps<typeof iconButtonVariants>, 'treatment' | 'size'> & {
     icon: IconName;
     iconSize?: IconProps['size'];
     'aria-label': string;

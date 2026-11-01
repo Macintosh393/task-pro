@@ -1,9 +1,5 @@
-import Placeholder from './components/Placeholder';
+import { WelcomePage } from './pages/WelcomePage';
 
 export default function App() {
-  return (
-    <>
-      <Placeholder />
-    </>
-  );
+  return <WelcomePage />;
 }
