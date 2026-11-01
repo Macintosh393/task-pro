@@ -8,13 +8,13 @@
 
 Теми задаються **на html**: `document.documentElement.dataset.theme = 'dark'` (також `light`, `violet`). HTML застосунку починає з Dark; CSS має Dark fallback. Toolbar Dark / Light / Violet використовує `withThemeByDataAttribute` на html preview iframe. Менеджер Storybook має власний UI; теми застосовуються до preview. Немає app theme picker, storage або profileAPI policy.
 
-Компоненти споживають семантичні ролі, наприклад `background: var(--surface-card); color: var(--text-primary); border-color: var(--border-subtle)`. У Tailwind можна писати `bg-[var(--surface-card)] text-[var(--text-primary)]`. Не вставляйте raw hex чи palette tokens безпосередньо в продуктову компоненту. Sidebar використовує `--text-sidebar` на `--surface-sidebar`, а не content text.
+Компоненти споживають семантичні ролі, наприклад `background: var(--surface-card); color: var(--text-primary); border-color: var(--border-subtle)`. У Tailwind використовуйте відповідні семантичні utilities, наприклад `bg-surface-card text-primary`; їх визначає `src/styles/tailwind-theme.css` через `@theme inline`. Не вставляйте raw hex чи palette tokens безпосередньо в продуктову компоненту. Sidebar використовує `--text-sidebar` на `--surface-sidebar`, а не content text.
 
 Palette — сирі кольори; themes — рольове відображення. Назви семантичних токенів **наші**, це не оригінальні Figma variable names. Додаючи роль: перевірте конкретний source node, додайте palette value лише за потреби, визначте роль в усіх трьох темах, запишіть provenance або derived/open, перевірте контраст на фактичній поверхні. Не підміняйте рольовий alpha глобальним opacity.
 
 ## Джерела
 
-Оригінальний незмінений export: `/home/vlad/Documents/Codex/taskpro-next-spec/`. `DESIGN.md`, розділ **Theme and typography contract**, і `design-pack/captures.json` — індекс 48 captures. FREEZE SHA-256: `8a34d3559079e645f69270d69c757b4885685f10a18e7273a79441588c2654ac`; під час цієї роботи перевірено всі 1025 hashes без розбіжностей. Використані тільки color/token data та provenance; generated JSX і business code не копіювалися. Live Figma MCP не використовувався.
+Історичне джерело: локальний export TaskPro 1.0-rc3, який мав шлях `/home/vlad/Documents/Codex/taskpro-next-spec/`. Export і перелічені нижче capture-файли не входять до репозиторію. Для перегляду вихідного дизайну використовуйте посилання в [маніфесті Figma](figma-assets.json); походження geometry та адаптації записані в [ui-kit-assets.json](ui-kit-assets.json). `DESIGN.md`, розділ **Theme and typography contract**, і `design-pack/captures.json` — індекс 48 captures. FREEZE SHA-256: `8a34d3559079e645f69270d69c757b4885685f10a18e7273a79441588c2654ac`; під час первинної роботи перевірено всі 1025 hashes без розбіжностей. Використані тільки color/token data та provenance; generated JSX і business code не копіювалися. Live Figma MCP не використовувався.
 
 Шляхи нижче відносні до export:
 
@@ -52,7 +52,7 @@ Priority low #8fa1d0, medium #e09cb5, high #bedbb0; завжди додавай�
 - 40% opacity normal-field group не переноситься на filled/active fields. Auth #151515/#1f1f1f не означає три auth variants; auth компоненти та токени не входять у цю основу.
 - Poppins 400/500/600 завантажуються локально через `ui-foundation.css`; спільний шрифт використовується в застосунку та Storybook.
 
-Підхід до спільного CSS, themes/decorators та palette specimen натхненний [Steve Kinney — Building Design Systems in Storybook](https://stevekinney.com/courses/storybook); конфігурація адаптована за [Storybook React/Vite docs](https://storybook.js.org/docs/get-started/frameworks/react-vite). Курс і його UI-kit не копіюються. Designs addon показує Figma reference; Chromatic не підключено, visual comparisons виконує Playwright.
+Конфігурація використовує інтеграцію [Storybook React/Vite](https://storybook.js.org/docs/get-started/frameworks/react-vite). Designs addon показує Figma reference; Chromatic не підключено, visual comparisons виконує Playwright.
 
 ## Виконані перевірки — 2026-10-25
 
