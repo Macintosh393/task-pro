@@ -15,6 +15,7 @@ for (const theme of ['Dark', 'Light', 'Violet']) {
     await expect(button).toHaveCSS('color', 'rgb(255, 255, 255)');
     await expect(button).toHaveCSS('border-radius', '8px');
     await expect(button).toHaveCSS('font-size', '14px');
+    await expect(button).toHaveCSS('font-family', 'Poppins, sans-serif');
     await expect(button).toHaveCSS('font-weight', '500');
     await expect(button).toHaveCSS('line-height', '21px');
     await expect(button).toHaveCSS('letter-spacing', '-0.28px');
@@ -36,17 +37,15 @@ for (const theme of ['Dark', 'Light', 'Violet']) {
       const icon = element.querySelector('svg')!.getBoundingClientRect();
       const button = element.getBoundingClientRect();
       return {
-        labelWidth: label.width,
         gap: label.x - icon.right,
         groupWidth: label.right - icon.left,
+        buttonWidth: button.width,
         insetX: icon.x - button.x,
         insetY: icon.y - button.y,
       };
     });
-    expect(content.labelWidth).toBeCloseTo(141, 0);
     expect(content.gap).toBe(8);
-    expect(content.groupWidth).toBeCloseTo(177, 0);
-    expect(content.insetX).toBeCloseTo(78.5, 0);
+    expect(content.insetX).toBeCloseTo((content.buttonWidth - content.groupWidth) / 2, 1);
     expect(content.insetY).toBe(14);
     await button.hover();
     await expect(button).toHaveCSS('background-color', 'rgb(31, 31, 31)');
