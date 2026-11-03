@@ -19,7 +19,7 @@ backend/
 ### Основні компоненти
 
 - **AppModule** — кореневий модуль NestJS, який об'єднує контролери та провайдери застосунку.
-- **ConfigModule** з `@nestjs/config` — підключений у `AppModule` як глобальний модуль; завантажує змінні з `.env`. Поки без валідації значень.
+- **ConfigModule** з `@nestjs/config` — підключений у `AppModule` як глобальний модуль; завантажує змінні з `.env`. Перевіряє обов'язкові змінні середовища під час запуску.
 - **AppController** — приймає HTTP-запити та визначає маршрути.
 - **AppService** — місце для бізнес-логіки, яку використовують контролери.
 
@@ -31,11 +31,13 @@ backend/
 npm ci
 ```
 
-Створіть локальний `.env` на основі `.env.example` і за потреби задайте порт:
+Створіть локальний `.env` на основі `.env.example`:
 
-```env
-PORT=3000
+```bash
+cp .env.example .env
 ```
+
+Задайте підключення `POSTGRES_*`, `NODE_ENV`, `JWT_SECRET`, `ACCESS_TOKEN_TTL_MINUTES` і `REFRESH_TOKEN_TTL_DAYS`. Локальний frontend очікує backend на `PORT=3000`.
 
 Якщо `PORT` не задано, застосунок використовує порт `3000`.
 
@@ -65,7 +67,7 @@ docker compose down
 
 ## Міграції бази даних
 
-Перед роботою з міграціями запустіть PostgreSQL і перевірте налаштування підключення у `.env`. Файл `src/data-source.ts` завантажує ці змінні та шукає міграції у `src/migrations/*.ts`.
+Перед роботою з міграціями запустіть PostgreSQL і перевірте налаштування підключення у `.env`. Файл `src/data-source.ts` завантажує ці змінні та використовує скомпільовані міграції з `dist/migrations/*.js`. Команди міграцій спочатку запускають build.
 
 Згенерувати міграцію після змін у сутностях:
 
@@ -93,13 +95,17 @@ npm run migration:revert
 npm run start:dev
 ```
 
-Після запуску endpoint перевірки доступності відповідає за адресою `GET http://localhost:3000/api/health`:
-
-```json
-{ "status": 200 }
-```
+Після запуску `GET http://localhost:3000/api/health` повертає HTTP 204 без тіла.
 
 Невідомі API-маршрути повертають HTTP 404.
+
+## Автентифікація
+
+`POST /api/auth/register` приймає `name`, `email` і `password`. Поле `name` зберігається як `username` у спільній сутності User. Реєстрація повертає HTTP 201 і одразу створює сесію. `POST /api/auth/login` приймає `email` і `password` та повертає HTTP 200. Обидва маршрути видають однакову відповідь користувача без password hash і HttpOnly cookies `accessToken` та `refreshToken`.
+
+`GET /api/users/me` потребує access token. `POST /api/auth/refresh` оновлює cookies, а `POST /api/auth/logout` відкликає refresh token і очищає обидві cookies. У production cookies мають прапорець Secure.
+
+Для локальної перевірки після міграцій запустіть `npm test` та `npm run test:e2e`. E2E-команда використовує підключення до PostgreSQL з `.env`.
 
 ## Команди
 

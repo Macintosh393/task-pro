@@ -12,6 +12,8 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
+        neutral:
+          'border-transparent bg-action-neutral text-action-on-neutral leading-normal not-disabled:hover:bg-action-neutral-hover not-disabled:active:shadow-[inset_0_0_0_2px_currentColor] [--button-icon-surface:var(--action-on-neutral)] [--button-icon-ink:var(--action-neutral)]',
         primary:
           'border-transparent bg-action-primary text-action-on-primary enabled:hover:bg-action-hover',
         secondary:
@@ -21,7 +23,11 @@ export const buttonVariants = cva(
         ghost:
           'border-transparent bg-transparent text-icon-action enabled:hover:text-icon-action-active',
       },
-      size: { small: 'min-h-11 px-3.5 py-[9px]', medium: 'min-h-[49px] px-5 py-3' },
+      size: {
+        small: 'min-h-11 px-3.5 py-[9px]',
+        medium: 'min-h-[49px] px-5 py-3',
+        large: 'min-h-14 px-5 py-3',
+      },
       fullWidth: { true: 'w-full' },
       withIcon: { true: null },
     },

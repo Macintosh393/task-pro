@@ -1,6 +1,6 @@
 # Frontend
 
-Мінімальний frontend на React, Vite і TypeScript із placeholder-екраном, який перевіряє доступність backend.
+Frontend TaskPro на React, Vite і TypeScript. Гості починають зі стартової сторінки, а реєстрація та вхід відкривають захищену домашню сторінку.
 
 ## Вимоги
 
@@ -20,7 +20,7 @@ npm ci
 npm run dev
 ```
 
-Vite покаже адресу локального застосунку в терміналі. Для перевірки backend запустіть backend окремо на `http://localhost:3000`: запити з `/api` проксійовані туди через конфігурацію Vite.
+Vite покаже адресу локального застосунку в терміналі. Перед запуском застосунку налаштуйте `.env`, запустіть PostgreSQL і застосуйте міграції за [інструкцією backend](../backend/README.md#налаштування-та-запуск). Backend має працювати на `http://localhost:3000`, куди Vite проксіює запити з `/api`.
 
 ## Перевірки
 
@@ -30,20 +30,33 @@ npm run test
 npm run lint
 ```
 
-Build запускає перевірку TypeScript і створює production-збірку. Unit-тести виконуються через Vitest без React Testing Library; тести перевіряють health-сервіс і UI-компоненти. ESLint запускається командою `npm run lint`.
+Build запускає перевірку TypeScript і створює production-збірку. Unit-тести виконуються через Vitest без React Testing Library та перевіряють auth API, форми, session cache, маршрути й UI-компоненти. Для одноразового запуску використайте `npm test -- --run`. ESLint запускається командою `npm run lint`.
 
 ## Структура
 
 ```text
 src/
-├── components/
-│   └── Placeholder.tsx        # показує стан підключення до backend
-├── services/
-│   ├── healthService.ts       # запит до GET /api/health
-│   └── healthService.test.ts  # unit-тест health-сервісу
-├── App.tsx                    # кореневий компонент
-└── main.tsx                   # точка входу та React Query provider
+├── app/                       # providers, QueryClient і TanStack Router
+├── components/ui/             # спільні UI-компоненти
+├── features/auth/             # login, session state і current-user API
+├── pages/
+│   ├── RegisterPage.tsx       # окрема форма реєстрації
+│   └── WelcomePage/           # стартова сторінка та Storybook story
+├── routes/                    # login і захищена домашня сторінка
+├── services/authService.ts    # реєстрація через спільний API client
+├── App.tsx                    # експорт застосунку
+└── main.tsx                   # точка входу
 ```
+
+## Стартова сторінка
+
+`App` перевіряє сесію через `/api/users/me`. На `/` гість бачить `WelcomePage`, а користувач із чинною сесією переходить на `/home`. Сторінка відтворює [desktop Start](https://www.figma.com/design/t0eIVx06rFihnswWhS8Q2V/?node-id=1058-3425), [tablet](https://www.figma.com/design/t0eIVx06rFihnswWhS8Q2V/?node-id=1058-6699) та [mobile](https://www.figma.com/design/t0eIVx06rFihnswWhS8Q2V/?node-id=1058-9325). Вихідні зображення й SVG збережені в `src/assets/welcome`; `manifest.json` містить node IDs та SHA-256. Від 768px використовується tablet/desktop композиція. На менших екранах контент має бічні відступи 20px; на низьких екранах сторінка прокручується.
+
+Кольори welcome-сторінки фіксовані за макетом. `.welcome-page` перевизначає semantic tokens лише для своїх дочірніх компонентів і не змінює вибрану тему на `html`. Окремі RGB-градієнт та alpha mask зберігають інтерполяцію прозорого кольору Figma, зокрема проміжні відтінки фону. Texture підключено як CSS background від 768px, тому mobile не завантажує цей декоративний asset. Hover CTA та keyboard focus є адаптаціями до інтерактивної сторінки; Log In має область натискання 44px зі збереженою позицією тексту.
+
+Посилання Registration і Log In відкривають окремі форми на `/register` та `/login`. Обидві форми після успіху оновлюють спільний session cache і відкривають `/home`. Reload відновлює користувача через API, а прострочений access token запускає refresh і повтор запиту. Успішний вихід повертає на `/`.
+
+У Storybook сторінка доступна як `Pages/Welcome/Default`. Після `npm run build-storybook` команда `npx playwright test welcome.spec.ts` перевіряє геометрію трьох макетів, збереження кольорів у Dark/Light/Violet, axe, фокус і переходи з клавіатури.
 
 ## Storybook і теми
 

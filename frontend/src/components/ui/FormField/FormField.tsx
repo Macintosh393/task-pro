@@ -8,15 +8,27 @@ export type FormFieldProps = {
   error?: string;
   children: ReactNode;
   className?: string;
+  labelClassName?: string;
 };
-export function FormField({ id, label, help, error, children, className = '' }: FormFieldProps) {
+export function FormField({
+  id,
+  label,
+  help,
+  error,
+  children,
+  className = '',
+  labelClassName = '',
+}: FormFieldProps) {
   const generatedId = useId();
   const fieldId = id ?? generatedId;
   const describedBy =
     [help && `${fieldId}-help`, error && `${fieldId}-error`].filter(Boolean).join(' ') || undefined;
   return (
     <div className={cn('flex min-w-0 flex-col gap-1.5', className)}>
-      <label htmlFor={fieldId} className="text-sm/normal font-medium wrap-anywhere">
+      <label
+        htmlFor={fieldId}
+        className={cn('text-sm/normal font-medium wrap-anywhere', labelClassName)}
+      >
         {label}
       </label>
       <FieldContext value={{ id: fieldId, describedBy, invalid: Boolean(error) }}>
