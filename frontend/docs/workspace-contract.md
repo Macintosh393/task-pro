@@ -1,6 +1,6 @@
 # Контракт workspace
 
-`WorkspaceView` збирає ті самі компоненти для захищеного `/home` та локального `/dev/workspace`. Поточні Header, Sidebar і вміст дошки є початковими компонентами. Повні theme/profile controls, CRUD дошок, фільтри, колонки й картки належать окремим задачам.
+`WorkspaceView` збирає компоненти захищеного `/home` після входу. Поточні Header, Sidebar і вміст дошки є початковими компонентами. Повні theme/profile controls, CRUD дошок, фільтри, колонки й картки належать окремим задачам.
 
 ## Файли та відповідальність
 
@@ -9,10 +9,10 @@
 | `AppShell.tsx`                            | інтеграція              | Header/sidebar/content, responsive layout, drawer, фокус і scroll lock |
 | `WorkspaceView.tsx`, `workspace-types.ts` | інтеграція              | Композиція та спільні props                                            |
 | `WorkspaceHeader.tsx`                     | виконавець Header, #81  | Кнопка меню, дані користувача; наступні controls теми та профілю       |
-| `WorkspaceSidebar.tsx`                    | виконавець Sidebar, #82 | Список дошок, події вибору та виходу                                            |
+| `WorkspaceSidebar.tsx`                    | виконавець Sidebar, #82 | Список дошок, події вибору та виходу                                   |
 | `WorkspaceBoard.tsx`                      | виконавець Board, #25   | BoardHeader, bounded canvas і майбутня композиція колонок              |
 
-Auth container залишається у `src/routes/_authenticated/home.tsx`. Він передає чинного користувача й існуючий logout. Продуктовий `/home` зараз отримує порожній масив дошок. Джерело тестових даних для розробки лежить у `src/dev/workspace-fixtures.ts`, а controls і умовні колонки лише у `src/dev/WorkspacePreview.tsx`.
+Auth container залишається у `src/routes/_authenticated/home.tsx`. Він передає чинного користувача й існуючий onLogout callback. Продуктовий `/home` отримує порожній масив дошок, без тестових колонок або preview controls.
 
 Зміни спільних props, breakpoints, маршрутів, глобального theme state та меж overflow потребують узгодження між власниками. Деталі Header, Sidebar й Board змінюються у власних TSX файлах із Tailwind utilities без редагування `WorkspaceView`.
 
@@ -26,7 +26,7 @@ Auth container залишається у `src/routes/_authenticated/home.tsx`. �
 
 Header передає всі `menuButtonProps` справжньому `<button>` або спільному `Button`, який прокидає ref. Sidebar викликає `onSelectBoard(board.id)`, потім `closeNavigation()`. Компоненти не створюють власний drawer state. Поточний слот рендериться один раз, у desktop `<aside>` або мобільному `<dialog>`.
 
-Стилізація компонентів і DEV preview використовує лише Tailwind utilities за [правилом репозиторію](../../AGENTS.md). Class markers на кшталт `.workspace-canvas` залишаються стабільними селекторами для browser checks і не мають окремих CSS-визначень.
+Стилізація компонентів використовує лише Tailwind utilities за [правилом репозиторію](../../AGENTS.md). Class markers на кшталт `.workspace-canvas` залишаються стабільними селекторами для browser checks і не мають окремих CSS-визначень.
 
 Native `dialog.showModal()` блокує фон. Tailwind utility `overflow-hidden!` на `html` блокує scroll; effect прибирає лише доданий ним клас і зберігає попередні класи та inline overflow. AppShell замикає Tab/Shift+Tab між доступними controls, закриває drawer через Escape, backdrop, кнопку закриття та вибір дошки. Після закриття фокус повертається до меню. При переході відкритого drawer до desktop фокус отримує постійна навігація. Якщо сфокусований desktop Sidebar зникає при звуженні, фокус переходить до меню.
 
@@ -57,14 +57,14 @@ Native `dialog.showModal()` блокує фон. Tailwind utility `overflow-hidd
 | `onSelectBoard`      | `(boardId: string) => void` | Подія вибору для зовнішнього власника даних/маршруту |
 | `boardContent`       | `ReactNode?`                | Вміст canvas, за відсутності показує порожній стан   |
 
-`WorkspaceHeader` отримує `user`, `menuButtonProps`. `WorkspaceSidebar` отримує `boards`, `activeBoardId`, `onSelectBoard`, `onLogout`, `closeNavigation`. Кнопка виходу розташована внизу Sidebar і викликає `onLogout`, а потім `closeNavigation`. `WorkspaceBoard` отримує `title: string` та `children?: ReactNode`; майбутні колонки підключаються всередині цього компонента.
+`WorkspaceHeader` отримує `user`, `menuButtonProps`. `WorkspaceSidebar` отримує `boards`, `activeBoardId`, `onSelectBoard`, `onLogout`, `closeNavigation`. Кнопку виходу в Sidebar реалізує #82. Основа передає `onLogout` для підключення, але не рендерить кнопку; auth/API та UI-kit LogoutButton залишаються доступними. `WorkspaceBoard` отримує `title: string` та `children?: ReactNode`; майбутні колонки підключаються всередині цього компонента.
 
 За відсутнього або невідомого `activeBoardId` Sidebar не позначає активної дошки, заголовок має текст `Your workspace`. Поточний маршрут лише `/home`. `/home/$boardId` є пропозицією для наступної інтеграції списку й API, а не чинним маршрутом. Дані маршруту мають стати єдиним джерелом active item після погодження цього path.
 
-## Режим розробки
+## Робота в застосунку
 
-`App` перевіряє `/dev/workspace` лише всередині `import.meta.env.DEV` та ліниво завантажує preview перед монтуванням QueryClient/AuthProvider. Preview не перевіряє сесію і не робить API запитів. Production build видаляє цю гілку, fixture module та preview CSS. У production цей path є невідомим маршрутом звичайного застосунку.
+Вхід або реєстрація відкриває `/home` із порожньою основою. Потрібні запущені backend, PostgreSQL і чинна сесія. Команди та налаштування наведені в [Frontend README](../README.md#робота-над-workspace). Runtime fixture data, preview controls або auth bypass відсутні.
 
-Preview перемикає empty/populated fixtures і Dark/Light/Violet через окремі controls. Лише preview володіє локальним `activeBoardId` та тимчасово встановлює `html[data-theme]`. Після unmount він відновлює попереднє значення. Backend persistence теми та продуктовий theme owner залишаються у #35/#81.
+Browser checks використовують test-only API responses для поточного користувача й DOM content для overflow stress. Optional AppShell story перевіряє справжні callbacks вибору дошки на story-only даних. Ці дані не підключені до застосунку й не вимагають Storybook для щоденної роботи над `/home`.
 
-Команди запуску й перевірок наведені в [Frontend README](../README.md#розробка-workspace-без-api).
+Продуктове перемикання теми належить #81, backend persistence #35. Поточна основа споживає глобальні semantic tokens без окремого theme state.

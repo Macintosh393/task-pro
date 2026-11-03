@@ -1,5 +1,4 @@
 import { expect, test, type Page } from '@playwright/test';
-import { readFileSync, readdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 
 const user = {
@@ -9,6 +8,30 @@ const user = {
   avatarUrl: null,
   theme: 'dark',
 };
+
+async function openHome(page: Page) {
+  await page.route('**/api/users/me', (route) => route.fulfill({ status: 200, json: user }));
+  await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 401, json: {} }));
+  await page.goto('/home');
+  await expect(page.getByText(user.username, { exact: true })).toBeVisible();
+}
+
+async function addOverflowContent(page: Page) {
+  await page.getByRole('region', { name: 'Board canvas' }).evaluate((canvas) => {
+    const content = document.createElement('div');
+    Object.assign(content.style, { width: '2000px', height: '100%' });
+    const list = document.createElement('div');
+    list.dataset.testid = 'overflow-list';
+    list.tabIndex = 0;
+    Object.assign(list.style, { overflowY: 'auto', height: '100%' });
+    const tallContent = document.createElement('div');
+    tallContent.textContent = 'Test overflow content';
+    tallContent.style.height = '2000px';
+    list.append(tallContent);
+    content.append(list);
+    canvas.replaceChildren(content);
+  });
+}
 
 async function swipe(page: Page, selector: string, startX: number, endX: number) {
   const target = page.locator(selector);
@@ -20,52 +43,32 @@ async function swipe(page: Page, selector: string, startX: number, endX: number)
   });
 }
 
-test('preview needs no auth or API and shares board selection with the drawer', async ({
-  page,
-}) => {
-  const apiRequests: string[] = [];
-  page.on('request', (request) => {
-    if (new URL(request.url()).pathname.startsWith('/api/')) apiRequests.push(request.url());
-  });
-  await page.goto('/dev/workspace');
-  await expect(page.getByText('DEV fixtures')).toBeVisible();
+test('home drawer contains focus and blocks background interaction', async ({ page }) => {
+  await openHome(page);
+  await expect(page.getByText('Your boards and projects will appear here.')).toBeVisible();
   await page.getByRole('button', { name: 'Open navigation' }).click();
   const drawer = page.getByRole('dialog', { name: 'Workspace navigation' });
   const close = drawer.getByRole('button', { name: 'Close navigation' });
   await expect(close).toBeFocused();
   await page.keyboard.press('Shift+Tab');
-  await expect(drawer.getByRole('button', { name: 'Log out' })).toBeFocused();
+  await expect(close).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(close).toBeFocused();
   await page
-    .getByRole('combobox', { name: 'Theme', exact: true })
-    .evaluate((element: HTMLSelectElement) => element.focus());
+    .getByRole('region', { name: 'Board canvas' })
+    .evaluate((element: HTMLElement) => element.focus());
   await expect(close).toBeFocused();
   await expect(page.locator('html')).toHaveCSS('overflow', 'hidden');
-  await drawer.getByRole('button', { name: 'Neon Light Project' }).click();
+  await close.click();
   await expect(drawer).not.toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Neon Light Project' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Open navigation' })).toBeFocused();
   await expect(page.locator('html')).not.toHaveCSS('overflow', 'hidden');
-  await page.getByLabel('Populated').uncheck();
-  await expect(page.getByRole('heading', { name: 'Your workspace' })).toBeVisible();
-  expect(apiRequests).toEqual([]);
-});
-
-test('preview logout closes the mobile drawer', async ({ page }) => {
-  await page.goto('/dev/workspace');
-  await page.getByRole('button', { name: 'Open navigation' }).click();
-  const drawer = page.getByRole('dialog');
-  await drawer.getByRole('button', { name: 'Log out' }).click();
-  await expect(drawer).not.toBeVisible();
-  await expect(page.getByRole('status')).toHaveText('Preview logout selected');
-  await expect(page.getByRole('button', { name: 'Open navigation' })).toBeFocused();
 });
 
 for (const width of [375, 1440]) {
-  test(`sidebar remains scrollable with many boards at ${width}px`, async ({ page }) => {
+  test(`home sidebar remains scrollable with long content at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 600 });
-    await page.goto('/dev/workspace');
+    await openHome(page);
     if (width < 1440) {
       await page.getByRole('button', { name: 'Open navigation' }).click();
       await page.getByRole('button', { name: 'Close navigation' }).evaluate((element) => {
@@ -77,24 +80,27 @@ for (const width of [375, 1440]) {
         ? page.getByRole('dialog')
         : page.getByRole('complementary', { name: 'Workspace navigation' });
     await sidebar.getByRole('navigation', { name: 'My boards' }).evaluate((element) => {
-      const board = element.querySelector('button')!;
-      for (let index = 0; index < 30; index++) element.append(board.cloneNode(true));
+      const template = element.querySelector('p')!;
+      for (let index = 0; index < 30; index++) {
+        const item = template.cloneNode(true);
+        item.textContent = `Test board ${index + 1}`;
+        element.append(item);
+      }
     });
     const sizes = await sidebar.evaluate((element) => ({
       height: element.clientHeight,
       scrollHeight: element.scrollHeight,
     }));
     expect(sizes.scrollHeight).toBeGreaterThan(sizes.height);
-    const logout = sidebar.getByRole('button', { name: 'Log out' });
-    await logout.scrollIntoViewIfNeeded();
+    const lastItem = sidebar.getByText('Test board 30', { exact: true });
+    await lastItem.scrollIntoViewIfNeeded();
     await expect.poll(() => sidebar.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
-    await logout.click();
-    await expect(page.getByRole('status')).toHaveText('Preview logout selected');
+    await expect(lastItem).toBeVisible();
   });
 }
 
 test('drawer scroll lock preserves existing html classes and inline overflow', async ({ page }) => {
-  await page.goto('/dev/workspace');
+  await openHome(page);
   await page.locator('html').evaluate((element: HTMLElement) => {
     element.classList.add('prior-style');
     element.style.overflow = 'auto';
@@ -123,14 +129,19 @@ test('drawer scroll lock preserves existing html classes and inline overflow', a
 });
 
 test('focus trap skips sidebar controls removed from the Tab order', async ({ page }) => {
-  await page.goto('/dev/workspace');
+  await openHome(page);
   await page.getByRole('button', { name: 'Open navigation' }).click();
   const drawer = page.getByRole('dialog');
   const close = drawer.getByRole('button', { name: 'Close navigation' });
-  const lastBoardLink = drawer.getByRole('button', { name: 'Neon Light Project' });
-  const lastBoard = drawer.locator('button').last();
+  await drawer.evaluate((element) => {
+    const control = document.createElement('button');
+    control.textContent = 'Test focus control';
+    control.dataset.testid = 'focus-control';
+    element.append(control);
+  });
+  const lastControl = drawer.getByTestId('focus-control');
   for (const mode of ['tabindex', 'visibility', 'inert', 'disabled', 'hidden']) {
-    await lastBoard.evaluate((element: HTMLButtonElement, mode) => {
+    await lastControl.evaluate((element: HTMLButtonElement, mode) => {
       if (mode === 'tabindex') element.tabIndex = -1;
       if (mode === 'visibility') element.style.visibility = 'hidden';
       if (mode === 'inert') element.inert = true;
@@ -139,10 +150,10 @@ test('focus trap skips sidebar controls removed from the Tab order', async ({ pa
     }, mode);
     await close.focus();
     await page.keyboard.press('Shift+Tab');
-    await expect(lastBoardLink).toBeFocused();
+    await expect(close).toBeFocused();
     await page.keyboard.press('Tab');
     await expect(close).toBeFocused();
-    await lastBoard.evaluate((element: HTMLButtonElement) => {
+    await lastControl.evaluate((element: HTMLButtonElement) => {
       element.removeAttribute('tabindex');
       element.style.visibility = '';
       element.inert = false;
@@ -153,7 +164,7 @@ test('focus trap skips sidebar controls removed from the Tab order', async ({ pa
 });
 
 test('a queued close event preserves a drawer that has already reopened', async ({ page }) => {
-  await page.goto('/dev/workspace');
+  await openHome(page);
   const menu = page.getByRole('button', { name: 'Open navigation' });
   const drawer = page.getByRole('dialog');
   await menu.click();
@@ -168,10 +179,11 @@ test('a queued close event preserves a drawer that has already reopened', async 
   await expect(menu).toBeFocused();
 });
 
-test('Escape, backdrop, button and edge swipe close or open navigation without capturing board scroll', async ({
+test('Escape, backdrop, button and edge swipe work without capturing canvas scroll', async ({
   page,
 }) => {
-  await page.goto('/dev/workspace');
+  await openHome(page);
+  await addOverflowContent(page);
   const menu = page.getByRole('button', { name: 'Open navigation' });
   const drawer = page.getByRole('dialog');
   await menu.click();
@@ -183,7 +195,7 @@ test('Escape, backdrop, button and edge swipe close or open navigation without c
   await expect(drawer).not.toBeVisible();
   await expect(menu).toBeFocused();
   await menu.click();
-  await page.getByRole('button', { name: 'Close navigation' }).click();
+  await drawer.getByRole('button', { name: 'Close navigation' }).click();
   await expect(drawer).not.toBeVisible();
   await swipe(page, '.app-shell__swipe-edge', 2, 110);
   await expect(drawer).toBeVisible();
@@ -199,17 +211,16 @@ test('Escape, backdrop, button and edge swipe close or open navigation without c
     .toBe(300);
 });
 
-test('resize releases modal state and moves focus to the persistent navigation', async ({
-  page,
-}) => {
-  await page.goto('/dev/workspace');
+test('resize releases modal state and transfers navigation focus', async ({ page }) => {
+  await openHome(page);
   await page.getByRole('button', { name: 'Open navigation' }).click();
   await page.setViewportSize({ width: 1440, height: 770 });
   await expect(page.locator('dialog')).not.toHaveAttribute('open');
-  await expect(page.getByRole('complementary', { name: 'Workspace navigation' })).toBeFocused();
+  const sidebar = page.getByRole('complementary', { name: 'Workspace navigation' });
+  await expect(sidebar).toBeFocused();
   await expect(page.locator('html')).not.toHaveCSS('overflow', 'hidden');
   await expect(page.getByRole('navigation', { name: 'My boards' })).toHaveCount(1);
-  await page.getByRole('button', { name: 'Project office', exact: true }).focus();
+  await sidebar.focus();
   await page.setViewportSize({ width: 768, height: 1024 });
   const menu = page.getByRole('button', { name: 'Open navigation' });
   await expect(menu).toHaveAttribute('aria-expanded', 'false');
@@ -221,9 +232,11 @@ test('resize releases modal state and moves focus to the persistent navigation',
 });
 
 for (const width of [300, 320, 375, 768, 1440]) {
-  test(`bounded workspace and independent scroll at ${width}px`, async ({ page }) => {
+  test(`home bounds independent content scroll at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: width === 300 ? 300 : 600 });
-    await page.goto('/dev/workspace');
+    await openHome(page);
+    await expect(page.getByText('Your boards and projects will appear here.')).toBeVisible();
+    await addOverflowContent(page);
     const dimensions = await page.evaluate(() => ({
       width: innerWidth,
       scrollWidth: document.documentElement.scrollWidth,
@@ -237,15 +250,15 @@ for (const width of [300, 320, 375, 768, 1440]) {
     await page.locator('.workspace-canvas').evaluate((element) => {
       element.scrollLeft = 500;
     });
-    const list = page.locator('.workspace-preview__list').first();
+    const list = page.getByTestId('overflow-list').first();
     const canvasPosition = await page.locator('.workspace-canvas').boundingBox();
     const sidebarPosition =
       width >= 1440 ? await page.locator('.app-shell__sidebar').boundingBox() : null;
-    const listDimensions = await list.evaluate((element) => ({
+    const sizes = await list.evaluate((element) => ({
       height: element.clientHeight,
       scrollHeight: element.scrollHeight,
     }));
-    expect(listDimensions.scrollHeight).toBeGreaterThan(listDimensions.height);
+    expect(sizes.scrollHeight).toBeGreaterThan(sizes.height);
     await list.evaluate((element) => {
       element.scrollTop = 500;
     });
@@ -258,75 +271,67 @@ for (const width of [300, 320, 375, 768, 1440]) {
       expect(await page.locator('.app-shell__sidebar').boundingBox()).toEqual(sidebarPosition);
     expect(await page.locator('.app-shell__header').boundingBox()).toEqual(header);
     expect(await page.locator('.workspace-board__heading').boundingBox()).toEqual(heading);
-    await page.getByLabel('Populated').uncheck();
+    await page.reload();
     await expect(page.getByText('Your boards and projects will appear here.')).toBeVisible();
+    await expect(page.getByTestId('overflow-list')).toHaveCount(0);
   });
 }
 
 for (const theme of ['dark', 'light', 'violet']) {
-  test(`workspace accessibility in ${theme}`, async ({ page }) => {
-    await page.goto('/dev/workspace');
-    await page.getByRole('combobox', { name: 'Theme', exact: true }).selectOption(theme);
+  test(`home accessibility in ${theme}`, async ({ page }) => {
+    await openHome(page);
+    await page.locator('html').evaluate((element, value) => {
+      element.dataset.theme = value;
+    }, theme);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.getByRole('button', { name: 'Open navigation' }).click();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.keyboard.press('Escape');
-    await page.getByLabel('Populated').uncheck();
+    await page.setViewportSize({ width: 1440, height: 770 });
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   });
 }
 
 for (const width of [375, 1440]) {
-  test(`protected home preserves user display, reload and sidebar logout at ${width}px`, async ({
-    page,
-  }) => {
+  test(`protected empty home preserves user display and reload at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 812 });
-    let authenticated = true;
-    await page.route('**/api/users/me', (route) =>
-      route.fulfill({ status: authenticated ? 200 : 401, json: authenticated ? user : {} }),
-    );
-    await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 401, json: {} }));
-    await page.route('**/api/auth/logout', (route) => {
-      authenticated = false;
-      return route.fulfill({ status: 204 });
-    });
-    await page.goto('/home');
-    await expect(page.getByText(user.username, { exact: true })).toBeVisible();
+    await openHome(page);
     await expect(page.getByText(user.email, { exact: true })).toBeVisible();
-    await expect(page.getByText('DEV fixtures')).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Your workspace', exact: true })).toBeVisible();
     await page.reload();
     await expect(page.getByText(user.username, { exact: true })).toBeVisible();
-    await expect(page.locator('header').getByRole('button', { name: 'Log out' })).toHaveCount(0);
     if (width < 1440) await page.getByRole('button', { name: 'Open navigation' }).click();
     const navigation =
       width < 1440
         ? page.getByRole('dialog')
         : page.getByRole('complementary', { name: 'Workspace navigation' });
-    const logout = navigation.getByRole('button', { name: 'Log out' });
-    const bounds = await logout.boundingBox();
-    const container = await navigation.boundingBox();
-    expect(bounds).not.toBeNull();
-    expect(container).not.toBeNull();
-    expect(container!.y + container!.height - (bounds!.y + bounds!.height)).toBeLessThanOrEqual(25);
-    await logout.click();
-    await expect(page).toHaveURL('http://127.0.0.1:5175/');
-    await page.goto('/home');
-    await expect(page).toHaveURL(/\/login/);
-    await expect(page.getByRole('heading', { name: 'Your workspace' })).toHaveCount(0);
+    await expect(
+      navigation.getByRole('navigation', { name: 'My boards' }).getByRole('button'),
+    ).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Log out', exact: true })).toHaveCount(0);
+    await expect(page.getByText('Your boards will appear here.')).toBeVisible();
   });
 }
 
-test('production excludes development route, fixtures and preview assets', async ({ page }) => {
-  const assets = readdirSync('dist/assets')
-    .filter((name) => name.endsWith('.js'))
-    .map((name) => readFileSync(`dist/assets/${name}`, 'utf8'))
-    .join('\n');
-  expect(assets).not.toContain('/dev/workspace');
-  expect(assets).not.toContain('Preview user');
-  expect(assets).not.toContain('DEV fixtures');
-  expect(assets).not.toContain('Column fixture');
-  await page.route('**/api/**', (route) => route.fulfill({ status: 401, json: {} }));
-  await page.goto('http://127.0.0.1:4175/dev/workspace');
-  await expect(page.getByText('DEV fixtures')).toHaveCount(0);
-  await expect(page.getByText('Not Found', { exact: true })).toBeVisible();
+test('guest cannot access the home foundation', async ({ page }) => {
+  await page.route(
+    (url) => url.pathname.startsWith('/api/'),
+    (route) => route.fulfill({ status: 401, json: {} }),
+  );
+  await page.goto('/home');
+  await expect(page).toHaveURL(/\/login/);
+  await expect(page.getByRole('heading', { name: 'Log In', exact: true })).toBeVisible();
+  await expect(page.locator('.app-shell')).toHaveCount(0);
+});
+
+test('removed development workspace is unknown in dev and production', async ({ page }) => {
+  await page.route(
+    (url) => url.pathname.startsWith('/api/'),
+    (route) => route.fulfill({ status: 401, json: {} }),
+  );
+  for (const origin of ['http://127.0.0.1:5175', 'http://127.0.0.1:4175']) {
+    await page.goto(`${origin}/dev/workspace`);
+    await expect(page.getByText('Not Found', { exact: true })).toBeVisible();
+    await expect(page.locator('.app-shell')).toHaveCount(0);
+  }
 });

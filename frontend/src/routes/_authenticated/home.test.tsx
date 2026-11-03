@@ -2,10 +2,12 @@
 import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { HomePage } from './home';
+import type { WorkspaceViewProps } from '../../components/workspace/workspace-types';
 import { setupDomTest } from '../../test/setupDomTest';
 
 const mockLogout = vi.fn();
 const mockNavigate = vi.fn();
+const mockView = vi.fn<(props: WorkspaceViewProps) => null>(() => null);
 const dom = setupDomTest();
 
 vi.mock('../../features/auth', () => ({
@@ -22,7 +24,11 @@ vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-describe('HomePage logout', () => {
+vi.mock('../../components/workspace/WorkspaceView', () => ({
+  WorkspaceView: (props: WorkspaceViewProps) => mockView(props),
+}));
+
+describe('HomePage logout callback', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -33,9 +39,7 @@ describe('HomePage logout', () => {
     });
 
     await act(async () => {
-      Array.from(dom.host.querySelectorAll('button'))
-        .find((button) => button.textContent === 'Log out')
-        ?.click();
+      mockView.mock.calls.at(-1)![0].onLogout();
     });
 
     expect(mockLogout).toHaveBeenCalledOnce();

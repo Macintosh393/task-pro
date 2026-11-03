@@ -20,17 +20,13 @@ npm ci
 npm run dev
 ```
 
-Vite покаже адресу локального застосунку в терміналі. Для роботи над Header, Sidebar і Board відкрийте `/dev/workspace`, backend і логін не потрібні. Доступні стани та перевірки описані в [розробці workspace без API](#розробка-workspace-без-api).
+Vite покаже адресу локального застосунку в терміналі. Для роботи застосунку налаштуйте `.env`, запустіть PostgreSQL і застосуйте міграції за [інструкцією backend](../backend/README.md#налаштування-та-запуск). Backend має працювати на `http://localhost:3000`, куди Vite проксіює запити з `/api`.
 
-Для повного застосунку з автентифікацією налаштуйте `.env`, запустіть PostgreSQL і застосуйте міграції за [інструкцією backend](../backend/README.md#налаштування-та-запуск). Backend має працювати на `http://localhost:3000`, куди Vite проксіює запити з `/api`.
+## Робота над workspace
 
-## Розробка workspace без API
+Відкрийте застосунок, зареєструйтеся або увійдіть. Після входу `/home` показує спільну порожню основу з Header, Sidebar і областю дошки. Для цього потрібні backend, база даних і чинна сесія. Тестових дошок, колонок та окремого preview-маршруту в застосунку немає.
 
-Після `npm ci` запустіть `npm run dev` і відкрийте `/dev/workspace` на адресі Vite. Для цієї сторінки backend, база даних і логін не потрібні. Вона показує ті самі AppShell, Header, Sidebar і Board, які використовує `/home`, із позначеними DEV fixtures. Controls перемикають порожній/заповнений стан і тему. Browser viewport перемикає desktop Sidebar та мобільний drawer.
-
-Змінюйте файл свого компонента за [контрактом workspace](docs/workspace-contract.md). Header, Sidebar і Board мають окремі TSX файли зі стилями у Tailwind utility classes. Тестові дошки лежать у `src/dev/workspace-fixtures.ts`; production `/home` показує порожній workspace до інтеграції API. Storybook залишається доступним для UI-kit і додаткового ізольованого перегляду.
-
-Перевірте зміни у звичайному застосунку:
+Змінюйте файл свого компонента за [контрактом workspace](docs/workspace-contract.md). Header, Sidebar і Board мають окремі TSX файли з Tailwind utilities. Кнопку виходу в Sidebar реалізує #82; чинні auth callback/API та UI-kit LogoutButton доступні для підключення. Storybook залишається додатковим ізольованим переглядом UI-kit і компонентних контрактів.
 
 ```bash
 npm run lint
@@ -38,7 +34,7 @@ npm test -- --run
 npm run test:workspace
 ```
 
-`test:workspace` збирає production app, запускає dev/preview Vite на портах 5175/4175 і перевіряє drawer, клавіатуру, resize, overflow, теми, auth/logout та відсутність DEV fixtures у production. Перед першим browser-запуском виконайте `npm run test:ui:install`. Порти 5175 і 4175 мають бути вільними. Сторінка `/dev/workspace` доступна лише через dev-сервер; `npm run preview` віддає production build.
+`test:workspace` збирає production app, запускає dev/preview Vite на портах 5175/4175 та перевіряє захищений `/home`, drawer, клавіатуру, resize, overflow, теми й auth navigation. API responses та додатковий overflow content створюються тільки в browser tests. У продукті mocks немає. Перед першим browser-запуском виконайте `npm run test:ui:install`; порти 5175 і 4175 мають бути вільними.
 
 ## Перевірки
 
@@ -72,7 +68,7 @@ src/
 
 Кольори welcome-сторінки фіксовані за макетом. `.welcome-page` перевизначає semantic tokens лише для своїх дочірніх компонентів і не змінює вибрану тему на `html`. Окремі RGB-градієнт та alpha mask зберігають інтерполяцію прозорого кольору Figma, зокрема проміжні відтінки фону. Texture підключено як CSS background від 768px, тому mobile не завантажує цей декоративний asset. Hover CTA та keyboard focus є адаптаціями до інтерактивної сторінки; Log In має область натискання 44px зі збереженою позицією тексту.
 
-Посилання Registration і Log In відкривають окремі форми на `/register` та `/login`. Обидві форми після успіху оновлюють спільний session cache і відкривають `/home`. Reload відновлює користувача через API, а прострочений access token запускає refresh і повтор запиту. Успішний вихід повертає на `/`.
+Посилання Registration і Log In відкривають окремі форми на `/register` та `/login`. Обидві форми після успіху оновлюють спільний session cache і відкривають `/home`. Reload відновлює користувача через API, а прострочений access token запускає refresh і повтор запиту. Callback успішного виходу повертає на `/`; його UI підключить Sidebar #82.
 
 У Storybook сторінка доступна як `Pages/Welcome/Default`. Після `npm run build-storybook` команда `npx playwright test welcome.spec.ts` перевіряє геометрію трьох макетів, збереження кольорів у Dark/Light/Violet, axe, фокус і переходи з клавіатури.
 

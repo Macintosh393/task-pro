@@ -1,11 +1,10 @@
-import { Button, Icon, Logo, LogoutButton } from '../ui';
+import { Button, Icon, Logo } from '../ui';
 import type { WorkspaceViewProps } from './workspace-types';
 
 export function WorkspaceSidebar({
   boards,
   activeBoardId,
   onSelectBoard,
-  onLogout,
   closeNavigation,
 }: Pick<WorkspaceViewProps, 'boards' | 'activeBoardId' | 'onSelectBoard' | 'onLogout'> & {
   closeNavigation: () => void;
@@ -38,13 +37,6 @@ export function WorkspaceSidebar({
           ))
         )}
       </nav>
-      <LogoutButton
-        className="mt-auto self-start"
-        onClick={() => {
-          onLogout();
-          closeNavigation();
-        }}
-      />
     </div>
   );
 }
