@@ -37,3 +37,38 @@ for (const initialPath of ['/register', '/login']) {
     expect(authRequests).toEqual([]);
   });
 }
+
+for (const destination of ['/login', '/register']) {
+  test(`Welcome preserves the document when opening ${destination}`, async ({ page }) => {
+    await page.route('**/api/users/me', (route) => route.fulfill({ status: 401, json: {} }));
+    await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 401, json: {} }));
+    await page.goto('/?redirect=%2Fhome');
+    await expect(page.getByRole('heading', { name: 'Task Pro', exact: true })).toBeVisible();
+    const identity = await page.evaluate(() => {
+      const marker = crypto.randomUUID();
+      Reflect.set(window, 'welcomeTransitionDocument', marker);
+      return { marker, timeOrigin: performance.timeOrigin };
+    });
+    const documents: string[] = [];
+    const authRequests: string[] = [];
+    page.on('request', (request) => {
+      if (request.resourceType() === 'document') documents.push(request.url());
+      const path = new URL(request.url()).pathname;
+      if (path === '/api/users/me' || path === '/api/auth/refresh') authRequests.push(path);
+    });
+    const name = destination === '/login' ? 'Log In' : 'Registration';
+    const link = page.getByRole('link', { name, exact: true });
+    await expect(link).toHaveAttribute('href', destination);
+    await link.click();
+    await expect(page).toHaveURL(`http://127.0.0.1:5175${destination}`);
+    await expect(page.locator('form')).toBeVisible();
+    expect(
+      await page.evaluate(() => ({
+        marker: Reflect.get(window, 'welcomeTransitionDocument'),
+        timeOrigin: performance.timeOrigin,
+      })),
+    ).toEqual(identity);
+    expect(documents).toEqual([]);
+    expect(authRequests).toEqual([]);
+  });
+}

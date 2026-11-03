@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router';
 import { Heading, Logo, Text } from '../../components/ui';
 import { buttonVariants } from '../../components/ui/Button/button-variants';
 import { cn } from '../../components/ui/cn';
@@ -33,24 +34,26 @@ export function WelcomePage() {
           aria-label="Get started"
           className="mt-12 flex w-full flex-col items-center md:w-[344px]"
         >
-          <a
-            href="/register"
+          <Link
+            to="/register"
+            search={{}}
             className={cn(
               buttonVariants({ variant: 'neutral', size: 'large', fullWidth: true }),
               'px-4',
             )}
           >
             Registration
-          </a>
-          <a
-            href="/login"
+          </Link>
+          <Link
+            to="/login"
+            search={{ redirect: undefined }}
             className={cn(
               '-mb-3 mt-[3px] inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-sm/[21px] font-medium tracking-[-0.02em] hover:underline',
               focusRing,
             )}
           >
             Log In
-          </a>
+          </Link>
         </nav>
       </div>
     </main>
