@@ -51,7 +51,7 @@ describe('authenticated route guard', () => {
 
     await router.navigate({ to: '/' });
 
-    expect(router.state.location.pathname).toBe('/login');
+    expect(router.state.location.pathname).toBe('/');
 
     await router.navigate({ to: '/home' });
 

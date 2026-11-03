@@ -8,7 +8,7 @@ export function HomePage() {
 
   const handleLogout = async () => {
     await logout();
-    await navigate({ to: '/login', search: { redirect: undefined }, replace: true });
+    await navigate({ to: '/', replace: true });
   };
 
   return (

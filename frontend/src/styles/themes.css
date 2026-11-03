@@ -53,6 +53,46 @@
   --focus-ring-sidebar: var(--palette-neutral-900);
 }
 
+:root {
+  --action-neutral: var(--palette-neutral-900);
+  --action-on-neutral: var(--palette-white);
+  --action-neutral-hover: var(--palette-neutral-800);
+  --welcome-background: linear-gradient(
+    180deg,
+    rgb(196 196 196) 25%,
+    var(--palette-green-300) 92.188%
+  );
+  --welcome-background-mask: linear-gradient(180deg, transparent 25%, black 92.188%);
+}
+
+.welcome-page {
+  color-scheme: light;
+  --text-primary: var(--palette-neutral-900);
+  --text-sidebar: var(--palette-neutral-900);
+  --focus-ring: var(--palette-neutral-900);
+  background: var(--palette-neutral-100);
+  color: var(--palette-neutral-900);
+}
+
+.welcome-page::before {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background: var(--welcome-background);
+  mask-image: var(--welcome-background-mask);
+  pointer-events: none;
+  content: '';
+}
+
+@media (min-width: 768px) {
+  .welcome-texture {
+    background-image: url('../assets/welcome/texture.png');
+    background-repeat: no-repeat;
+    background-position: 0 -54px;
+    background-size: 1600px 900px;
+  }
+}
+
 :root[data-theme='violet'] {
   --surface-canvas: var(--palette-violet-50);
   --surface-sidebar: var(--palette-violet-600);

@@ -12,6 +12,8 @@
 
 Palette — сирі кольори; themes — рольове відображення. Назви семантичних токенів **наші**, це не оригінальні Figma variable names. Додаючи роль: перевірте конкретний source node, додайте palette value лише за потреби, визначте роль в усіх трьох темах, запишіть provenance або derived/open, перевірте контраст на фактичній поверхні. Не підміняйте рольовий alpha глобальним opacity.
 
+`--action-neutral`, `--action-on-neutral` і `--action-neutral-hover` мають однакові значення в усіх темах: #161616, #ffffff і #1f1f1f. Neutral Button локально відображає foreground/background на `--button-icon-surface`/`--button-icon-ink`, не змінюючи theme colors інших boxed-plus consumers. Джерела та погоджені відхилення: [чорна кнопка](ui-kit.md#чорна-кнопка).
+
 ## Джерела
 
 Оригінальний незмінений export: `/home/vlad/Documents/Codex/taskpro-next-spec/`. `DESIGN.md`, розділ **Theme and typography contract**, і `design-pack/captures.json` — індекс 48 captures. FREEZE SHA-256: `8a34d3559079e645f69270d69c757b4885685f10a18e7273a79441588c2654ac`; під час цієї роботи перевірено всі 1025 hashes без розбіжностей. Використані тільки color/token data та provenance; generated JSX і business code не копіювалися. Live Figma MCP не використовувався.

@@ -27,7 +27,7 @@ describe('HomePage logout', () => {
     vi.clearAllMocks();
   });
 
-  it('navigates to login after logout succeeds', async () => {
+  it('navigates to the welcome page after logout succeeds', async () => {
     await act(async () => {
       dom.root.render(<HomePage />);
     });
@@ -38,8 +38,7 @@ describe('HomePage logout', () => {
 
     expect(mockLogout).toHaveBeenCalledOnce();
     expect(mockNavigate).toHaveBeenCalledWith({
-      to: '/login',
-      search: { redirect: undefined },
+      to: '/',
       replace: true,
     });
   });

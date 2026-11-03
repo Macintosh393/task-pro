@@ -1,0 +1,37 @@
+{
+  "fileKey": "t0eIVx06rFihnswWhS8Q2V",
+  "frames": {
+    "desktop": "1058:3425",
+    "tablet": "1058:6699",
+    "mobile": "1058:9325"
+  },
+  "capturedAt": "2026-11-01",
+  "assets": [
+    {
+      "file": "illustration.png",
+      "nodeId": "1058:3430",
+      "sha256": "968e449d27d97fd9c5fdc743d86b266c5bf7a2ac8c3d6bd74ce48a781dc06d6d"
+    },
+    {
+      "file": "logo-desktop.svg",
+      "nodeId": "1058:3432",
+      "sha256": "c6b0f3cae787afc162a712033b878846db9e0f67022add7b5447e4e842843fe0",
+      "width": "48",
+      "height": "48",
+      "viewBox": "0 0 48 48"
+    },
+    {
+      "file": "logo-mobile.svg",
+      "nodeId": "1058:9330",
+      "sha256": "9aeda078f7c087de96ac534e9a658123dc10dbf1371adb4c602e22c603359c1c",
+      "width": "40",
+      "height": "40",
+      "viewBox": "0 0 40 40"
+    },
+    {
+      "file": "texture.png",
+      "nodeId": "1058:3427",
+      "sha256": "dfc5b21422279ed1905055bec9a5ad67fa4278c9ecc403df9ccb985358f130e9"
+    }
+  ]
+}
