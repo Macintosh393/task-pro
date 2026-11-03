@@ -26,7 +26,7 @@ Vite покаже адресу локального застосунку в те
 
 Відкрийте застосунок, зареєструйтеся або увійдіть. Після входу `/home` показує спільну порожню основу з Header, Sidebar і областю дошки. Для цього потрібні backend, база даних і чинна сесія. Тестових дошок, колонок та окремого preview-маршруту в застосунку немає.
 
-Змінюйте файл свого компонента за [контрактом workspace](docs/workspace-contract.md). Header, Sidebar і Board мають окремі TSX файли з Tailwind utilities. Кнопку виходу в Sidebar реалізує #82; чинні auth callback/API та UI-kit LogoutButton доступні для підключення. Storybook залишається додатковим ізольованим переглядом UI-kit і компонентних контрактів.
+Header, Sidebar і Board мають окремі TSX файли з Tailwind utilities. [Контракт workspace](docs/workspace-contract.md) описує поточні props, layout і overflow. Storybook залишається додатковим ізольованим переглядом UI-kit і компонентів.
 
 ```bash
 npm run lint
@@ -68,7 +68,7 @@ src/
 
 Кольори welcome-сторінки фіксовані за макетом. `.welcome-page` перевизначає semantic tokens лише для своїх дочірніх компонентів і не змінює вибрану тему на `html`. Окремі RGB-градієнт та alpha mask зберігають інтерполяцію прозорого кольору Figma, зокрема проміжні відтінки фону. Texture підключено як CSS background від 768px, тому mobile не завантажує цей декоративний asset. Hover CTA та keyboard focus є адаптаціями до інтерактивної сторінки; Log In має область натискання 44px зі збереженою позицією тексту.
 
-Посилання Registration і Log In відкривають окремі форми на `/register` та `/login`. Обидві форми після успіху оновлюють спільний session cache і відкривають `/home`. Reload відновлює користувача через API, а прострочений access token запускає refresh і повтор запиту. Callback успішного виходу повертає на `/`; його UI підключить Sidebar #82.
+Посилання Registration і Log In відкривають окремі форми на `/register` та `/login`. Обидві форми після успіху оновлюють спільний session cache і відкривають `/home`. Reload відновлює користувача через API, а прострочений access token запускає refresh і повтор запиту.
 
 У Storybook сторінка доступна як `Pages/Welcome/Default`. Після `npm run build-storybook` команда `npx playwright test welcome.spec.ts` перевіряє геометрію трьох макетів, збереження кольорів у Dark/Light/Violet, axe, фокус і переходи з клавіатури.
 

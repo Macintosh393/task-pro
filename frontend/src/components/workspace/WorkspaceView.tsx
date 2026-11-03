@@ -4,31 +4,15 @@ import { WorkspaceSidebar } from './WorkspaceSidebar';
 import { WorkspaceBoard } from './WorkspaceBoard';
 import type { WorkspaceViewProps } from './workspace-types';
 
-export function WorkspaceView({
-  user,
-  onLogout,
-  boards,
-  activeBoardId,
-  onSelectBoard,
-  boardContent,
-}: WorkspaceViewProps) {
-  const activeBoard = boards.find((board) => board.id === activeBoardId);
+export function WorkspaceView({ user }: WorkspaceViewProps) {
   return (
     <AppShell
       header={({ menuButtonProps }) => (
         <WorkspaceHeader user={user} menuButtonProps={menuButtonProps} />
       )}
-      sidebar={({ closeNavigation }) => (
-        <WorkspaceSidebar
-          boards={boards}
-          activeBoardId={activeBoardId}
-          onSelectBoard={onSelectBoard}
-          onLogout={onLogout}
-          closeNavigation={closeNavigation}
-        />
-      )}
+      sidebar={() => <WorkspaceSidebar />}
     >
-      <WorkspaceBoard title={activeBoard?.title ?? 'Your workspace'}>{boardContent}</WorkspaceBoard>
+      <WorkspaceBoard />
     </AppShell>
   );
 }
