@@ -1,3 +1,4 @@
+import { registerUser, type RegisterData } from '../../../services/authService';
 import type { ReactNode } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getCurrentUser, loginApi, logoutApi } from '../api/auth.api';
@@ -29,6 +30,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     },
   });
 
+  const registerMutation = useMutation({
+    mutationFn: registerUser,
+    onSuccess: (userData) => {
+      queryClient.setQueryData(AUTH_QUERY_KEY, userData);
+    },
+  });
+
   const logoutMutation = useMutation({
     mutationFn: logoutApi,
     onSuccess: () => {
@@ -41,6 +49,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await loginMutation.mutateAsync(credentials);
   };
 
+  const register = async (data: RegisterData) => {
+    await registerMutation.mutateAsync(data);
+  };
+
   const logout = async () => {
     await logoutMutation.mutateAsync();
   };
@@ -50,6 +62,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isLoading,
     isAuthenticated: Boolean(user) && !isError,
     login,
+    register,
     logout,
   };
 

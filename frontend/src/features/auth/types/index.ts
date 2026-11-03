@@ -1,3 +1,5 @@
+import type { RegisterData } from '../../../services/authService';
+
 export interface User {
   id: string;
   username: string;
@@ -16,5 +18,6 @@ export interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
 }

@@ -2,6 +2,7 @@ import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res, UnauthorizedExc
 import { ApiNoContentResponse, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service.js';
+import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { Public } from '../common/decorators/public.decorator.js';
 import { User } from '../users/entities/user.entity.js';
@@ -15,6 +16,17 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly config: ConfigService<EnvironmentVariables, true>,
   ) {}
+
+  @Public()
+  @Post('register')
+  async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) response: Response): Promise<User> {
+    const { accessToken, refreshToken, user } = await this.authService.register(dto);
+
+    this.setAccessCookie(response, accessToken);
+    this.setRefreshCookie(response, refreshToken);
+
+    return user;
+  }
 
   @Public()
   @Post('login')

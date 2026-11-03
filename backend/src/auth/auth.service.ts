@@ -3,6 +3,8 @@ import * as bcrypt from 'bcryptjs';
 
 import { UsersService } from '../users/users.service.js';
 import { JwtService } from '@nestjs/jwt';
+import { RegisterDto } from './dto/register.dto.js';
+import { User } from '../users/entities/user.entity.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RefreshTokensService } from './refresh-tokens.service.js';
 import { TokenPair } from './token-pair.interface.js';
@@ -15,6 +17,23 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly refreshTokensService: RefreshTokensService,
   ) {}
+
+  async register(dto: RegisterDto): Promise<LoginResult> {
+    const user = await this.usersService.create({
+      username: dto.name.trim(),
+      email: dto.email.trim().toLowerCase(),
+      passwordHash: await bcrypt.hash(dto.password, 12),
+    });
+
+    return this.createSession(user);
+  }
+
+  private async createSession(user: User): Promise<LoginResult> {
+    const accessToken = await this.jwtService.signAsync({ sub: user.id });
+    const refreshToken = await this.refreshTokensService.issue(user.id);
+
+    return { accessToken, refreshToken, user };
+  }
 
   async login(loginDto: LoginDto): Promise<LoginResult> {
     const { email, password } = loginDto;
@@ -29,10 +48,7 @@ export class AuthService {
       throw new UnauthorizedException('Wrong email or password');
     }
 
-    const accessToken = await this.jwtService.signAsync({ sub: user.id });
-    const refreshToken = await this.refreshTokensService.issue(user.id);
-
-    return { accessToken, refreshToken, user };
+    return this.createSession(user);
   }
 
   async refresh(token: string): Promise<TokenPair> {

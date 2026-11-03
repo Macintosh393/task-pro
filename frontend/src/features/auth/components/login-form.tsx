@@ -65,7 +65,7 @@ export function LoginForm({ redirectTo = '/home', className = '' }: LoginFormPro
       )}
 
       <div className="mb-10 flex items-center gap-4 font-ui text-sm/normal tracking-[-0.02em]">
-        <span className="text-text-caption">Registration</span>
+        <a href="/register" className="text-text-caption">Registration</a>
         <h1 className="m-0 font-medium text-primary">Log In</h1>
       </div>
 
