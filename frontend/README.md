@@ -22,6 +22,22 @@ npm run dev
 
 Vite покаже адресу локального застосунку в терміналі. Перед запуском застосунку налаштуйте `.env`, запустіть PostgreSQL і застосуйте міграції за [інструкцією backend](../backend/README.md#налаштування-та-запуск). Backend має працювати на `http://localhost:3000`, куди Vite проксіює запити з `/api`.
 
+## Розробка workspace без API
+
+Після `npm ci` запустіть `npm run dev` і відкрийте `/dev/workspace` на адресі Vite. Для цієї сторінки backend, база даних і логін не потрібні. Вона показує ті самі AppShell, Header, Sidebar і Board, які використовує `/home`, із позначеними DEV fixtures. Controls перемикають порожній/заповнений стан і тему. Browser viewport перемикає desktop Sidebar та мобільний drawer.
+
+Змінюйте файл свого компонента за [контрактом workspace](docs/workspace-contract.md). Header, Sidebar і Board мають окремі TSX/CSS файли. Тестові дошки лежать у `src/dev/workspace-fixtures.ts`; production `/home` показує порожній workspace до інтеграції API. Storybook залишається доступним для UI-kit і додаткового ізольованого перегляду.
+
+Перевірте зміни у звичайному застосунку:
+
+```bash
+npm run lint
+npm test -- --run
+npm run test:workspace
+```
+
+`test:workspace` збирає production app, запускає dev/preview Vite на портах 5175/4175 і перевіряє drawer, клавіатуру, resize, overflow, теми, auth/logout та відсутність DEV fixtures у production. Перед першим browser-запуском виконайте `npm run test:ui:install`. Порти 5175 і 4175 мають бути вільними. Сторінка `/dev/workspace` доступна лише через dev-сервер; `npm run preview` віддає production build.
+
 ## Перевірки
 
 ```bash

@@ -22,5 +22,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", ".storybook/preview.ts", "tests/browser"]
+  "include": ["src", ".storybook/preview.ts", "tests/browser", "tests/workspace"]
 }

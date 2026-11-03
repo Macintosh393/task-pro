@@ -1,0 +1,60 @@
+.workspace-preview {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.workspace-preview__controls {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 8px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 12px;
+}
+.workspace-preview__controls label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.workspace-preview__controls select {
+  color: var(--text-primary);
+  background: var(--surface-card);
+}
+.workspace-preview > .app-shell {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}
+.workspace-preview__columns {
+  display: flex;
+  gap: 24px;
+  height: 100%;
+  padding-bottom: 12px;
+}
+.workspace-preview__column {
+  display: flex;
+  flex: 0 0 334px;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+.workspace-preview__column h2 {
+  padding: 16px;
+  margin: 0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--surface-column-heading);
+}
+.workspace-preview__list {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+.workspace-preview__list p {
+  padding: 40px 24px;
+  margin: 0 0 8px;
+  border-radius: 8px;
+  background: var(--surface-card);
+}

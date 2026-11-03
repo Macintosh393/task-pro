@@ -33,7 +33,9 @@ describe('HomePage logout', () => {
     });
 
     await act(async () => {
-      dom.host.querySelector('button')?.click();
+      Array.from(dom.host.querySelectorAll('button'))
+        .find((button) => button.textContent === 'Log Out')
+        ?.click();
     });
 
     expect(mockLogout).toHaveBeenCalledOnce();
