@@ -16,13 +16,14 @@ export function WorkspaceView({
   return (
     <AppShell
       header={({ menuButtonProps }) => (
-        <WorkspaceHeader user={user} onLogout={onLogout} menuButtonProps={menuButtonProps} />
+        <WorkspaceHeader user={user} menuButtonProps={menuButtonProps} />
       )}
       sidebar={({ closeNavigation }) => (
         <WorkspaceSidebar
           boards={boards}
           activeBoardId={activeBoardId}
           onSelectBoard={onSelectBoard}
+          onLogout={onLogout}
           closeNavigation={closeNavigation}
         />
       )}

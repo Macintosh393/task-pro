@@ -123,7 +123,7 @@ export function AppShell({ header, sidebar, children }: AppShellProps) {
         ref={dialogRef}
         id={navigationId}
         aria-label="Workspace navigation"
-        className="app-shell__drawer fixed top-0 right-auto bottom-0 left-0 m-0 h-dvh max-h-none w-[min(225px,100vw-44px)] max-w-none overflow-y-auto overscroll-contain border-0 bg-surface-sidebar p-0 text-sidebar backdrop:bg-modal-backdrop min-[768px]:w-[260px]"
+        className="app-shell__drawer fixed top-0 right-auto bottom-0 left-0 m-0 h-dvh max-h-none w-[min(225px,100vw-44px)] max-w-none overflow-y-auto overscroll-contain border-0 bg-surface-sidebar p-0 text-sidebar backdrop:bg-modal-backdrop open:flex open:flex-col min-[768px]:w-[260px]"
         onKeyDown={(event) => {
           if (event.key !== 'Tab' || event.defaultPrevented) return;
           const controls = Array.from(
@@ -186,7 +186,7 @@ export function AppShell({ header, sidebar, children }: AppShellProps) {
             <Button
               variant="ghost"
               size="small"
-              className="app-shell__close mx-3 mt-2 text-sidebar enabled:hover:text-sidebar"
+              className="app-shell__close mx-3 mt-2 shrink-0 self-start text-sidebar enabled:hover:text-sidebar"
               onClick={closeNavigation}
             >
               Close navigation

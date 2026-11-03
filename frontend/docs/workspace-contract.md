@@ -9,7 +9,7 @@
 | `AppShell.tsx`                            | інтеграція              | Header/sidebar/content, responsive layout, drawer, фокус і scroll lock |
 | `WorkspaceView.tsx`, `workspace-types.ts` | інтеграція              | Композиція та спільні props                                            |
 | `WorkspaceHeader.tsx`                     | виконавець Header, #81  | Кнопка меню, дані користувача; наступні controls теми та профілю       |
-| `WorkspaceSidebar.tsx`                    | виконавець Sidebar, #82 | Список дошок і події вибору                                            |
+| `WorkspaceSidebar.tsx`                    | виконавець Sidebar, #82 | Список дошок, події вибору та виходу                                            |
 | `WorkspaceBoard.tsx`                      | виконавець Board, #25   | BoardHeader, bounded canvas і майбутня композиція колонок              |
 
 Auth container залишається у `src/routes/_authenticated/home.tsx`. Він передає чинного користувача й існуючий logout. Продуктовий `/home` зараз отримує порожній масив дошок. Джерело тестових даних для розробки лежить у `src/dev/workspace-fixtures.ts`, а controls і умовні колонки лише у `src/dev/WorkspacePreview.tsx`.
@@ -57,7 +57,7 @@ Native `dialog.showModal()` блокує фон. Tailwind utility `overflow-hidd
 | `onSelectBoard`      | `(boardId: string) => void` | Подія вибору для зовнішнього власника даних/маршруту |
 | `boardContent`       | `ReactNode?`                | Вміст canvas, за відсутності показує порожній стан   |
 
-`WorkspaceHeader` отримує `user`, `onLogout`, `menuButtonProps`. `WorkspaceSidebar` отримує `boards`, `activeBoardId`, `onSelectBoard`, `closeNavigation`. `WorkspaceBoard` отримує `title: string` та `children?: ReactNode`; майбутні колонки підключаються всередині цього компонента.
+`WorkspaceHeader` отримує `user`, `menuButtonProps`. `WorkspaceSidebar` отримує `boards`, `activeBoardId`, `onSelectBoard`, `onLogout`, `closeNavigation`. Кнопка виходу розташована внизу Sidebar і викликає `onLogout`, а потім `closeNavigation`. `WorkspaceBoard` отримує `title: string` та `children?: ReactNode`; майбутні колонки підключаються всередині цього компонента.
 
 За відсутнього або невідомого `activeBoardId` Sidebar не позначає активної дошки, заголовок має текст `Your workspace`. Поточний маршрут лише `/home`. `/home/$boardId` є пропозицією для наступної інтеграції списку й API, а не чинним маршрутом. Дані маршруту мають стати єдиним джерелом active item після погодження цього path.
 

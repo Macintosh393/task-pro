@@ -34,7 +34,7 @@ describe('HomePage logout', () => {
 
     await act(async () => {
       Array.from(dom.host.querySelectorAll('button'))
-        .find((button) => button.textContent === 'Log Out')
+        .find((button) => button.textContent === 'Log out')
         ?.click();
     });
 

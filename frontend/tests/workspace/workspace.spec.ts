@@ -34,7 +34,7 @@ test('preview needs no auth or API and shares board selection with the drawer', 
   const close = drawer.getByRole('button', { name: 'Close navigation' });
   await expect(close).toBeFocused();
   await page.keyboard.press('Shift+Tab');
-  await expect(drawer.getByRole('button', { name: 'Neon Light Project' })).toBeFocused();
+  await expect(drawer.getByRole('button', { name: 'Log out' })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(close).toBeFocused();
   await page
@@ -52,6 +52,47 @@ test('preview needs no auth or API and shares board selection with the drawer', 
   expect(apiRequests).toEqual([]);
 });
 
+test('preview logout closes the mobile drawer', async ({ page }) => {
+  await page.goto('/dev/workspace');
+  await page.getByRole('button', { name: 'Open navigation' }).click();
+  const drawer = page.getByRole('dialog');
+  await drawer.getByRole('button', { name: 'Log out' }).click();
+  await expect(drawer).not.toBeVisible();
+  await expect(page.getByRole('status')).toHaveText('Preview logout selected');
+  await expect(page.getByRole('button', { name: 'Open navigation' })).toBeFocused();
+});
+
+for (const width of [375, 1440]) {
+  test(`sidebar remains scrollable with many boards at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 600 });
+    await page.goto('/dev/workspace');
+    if (width < 1440) {
+      await page.getByRole('button', { name: 'Open navigation' }).click();
+      await page.getByRole('button', { name: 'Close navigation' }).evaluate((element) => {
+        element.style.lineHeight = '48px';
+      });
+    }
+    const sidebar =
+      width < 1440
+        ? page.getByRole('dialog')
+        : page.getByRole('complementary', { name: 'Workspace navigation' });
+    await sidebar.getByRole('navigation', { name: 'My boards' }).evaluate((element) => {
+      const board = element.querySelector('button')!;
+      for (let index = 0; index < 30; index++) element.append(board.cloneNode(true));
+    });
+    const sizes = await sidebar.evaluate((element) => ({
+      height: element.clientHeight,
+      scrollHeight: element.scrollHeight,
+    }));
+    expect(sizes.scrollHeight).toBeGreaterThan(sizes.height);
+    const logout = sidebar.getByRole('button', { name: 'Log out' });
+    await logout.scrollIntoViewIfNeeded();
+    await expect.poll(() => sidebar.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+    await logout.click();
+    await expect(page.getByRole('status')).toHaveText('Preview logout selected');
+  });
+}
+
 test('drawer scroll lock preserves existing html classes and inline overflow', async ({ page }) => {
   await page.goto('/dev/workspace');
   await page.locator('html').evaluate((element: HTMLElement) => {
@@ -64,12 +105,10 @@ test('drawer scroll lock preserves existing html classes and inline overflow', a
   await page.keyboard.press('Escape');
   await expect(page.locator('html')).toHaveCSS('overflow', 'auto');
   expect(
-    await page
-      .locator('html')
-      .evaluate((element: HTMLElement) => ({
-        priorClass: element.classList.contains('prior-style'),
-        overflow: element.style.overflow,
-      })),
+    await page.locator('html').evaluate((element: HTMLElement) => ({
+      priorClass: element.classList.contains('prior-style'),
+      overflow: element.style.overflow,
+    })),
   ).toEqual({ priorClass: true, overflow: 'auto' });
   await page.locator('html').evaluate((element) => element.classList.add('overflow-hidden!'));
   await menu.click();
@@ -88,7 +127,7 @@ test('focus trap skips sidebar controls removed from the Tab order', async ({ pa
   await page.getByRole('button', { name: 'Open navigation' }).click();
   const drawer = page.getByRole('dialog');
   const close = drawer.getByRole('button', { name: 'Close navigation' });
-  const firstBoard = drawer.getByRole('button', { name: 'Project office', exact: true });
+  const lastBoardLink = drawer.getByRole('button', { name: 'Neon Light Project' });
   const lastBoard = drawer.locator('button').last();
   for (const mode of ['tabindex', 'visibility', 'inert', 'disabled', 'hidden']) {
     await lastBoard.evaluate((element: HTMLButtonElement, mode) => {
@@ -100,7 +139,7 @@ test('focus trap skips sidebar controls removed from the Tab order', async ({ pa
     }, mode);
     await close.focus();
     await page.keyboard.press('Shift+Tab');
-    await expect(firstBoard).toBeFocused();
+    await expect(lastBoardLink).toBeFocused();
     await page.keyboard.press('Tab');
     await expect(close).toBeFocused();
     await lastBoard.evaluate((element: HTMLButtonElement) => {
@@ -176,7 +215,7 @@ test('resize releases modal state and moves focus to the persistent navigation',
   await expect(menu).toHaveAttribute('aria-expanded', 'false');
   await expect(menu).toBeFocused();
   await page.keyboard.press('Tab');
-  await expect(page.getByRole('button', { name: 'Log Out' })).toBeFocused();
+  await expect(page.getByRole('region', { name: 'Board canvas' })).toBeFocused();
   await menu.click();
   await expect(page.getByRole('dialog')).toBeVisible();
 });
@@ -237,28 +276,45 @@ for (const theme of ['dark', 'light', 'violet']) {
   });
 }
 
-test('protected home preserves user display, reload and logout', async ({ page }) => {
-  let authenticated = true;
-  await page.route('**/api/users/me', (route) =>
-    route.fulfill({ status: authenticated ? 200 : 401, json: authenticated ? user : {} }),
-  );
-  await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 401, json: {} }));
-  await page.route('**/api/auth/logout', (route) => {
-    authenticated = false;
-    return route.fulfill({ status: 204 });
+for (const width of [375, 1440]) {
+  test(`protected home preserves user display, reload and sidebar logout at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 812 });
+    let authenticated = true;
+    await page.route('**/api/users/me', (route) =>
+      route.fulfill({ status: authenticated ? 200 : 401, json: authenticated ? user : {} }),
+    );
+    await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 401, json: {} }));
+    await page.route('**/api/auth/logout', (route) => {
+      authenticated = false;
+      return route.fulfill({ status: 204 });
+    });
+    await page.goto('/home');
+    await expect(page.getByText(user.username, { exact: true })).toBeVisible();
+    await expect(page.getByText(user.email, { exact: true })).toBeVisible();
+    await expect(page.getByText('DEV fixtures')).toHaveCount(0);
+    await page.reload();
+    await expect(page.getByText(user.username, { exact: true })).toBeVisible();
+    await expect(page.locator('header').getByRole('button', { name: 'Log out' })).toHaveCount(0);
+    if (width < 1440) await page.getByRole('button', { name: 'Open navigation' }).click();
+    const navigation =
+      width < 1440
+        ? page.getByRole('dialog')
+        : page.getByRole('complementary', { name: 'Workspace navigation' });
+    const logout = navigation.getByRole('button', { name: 'Log out' });
+    const bounds = await logout.boundingBox();
+    const container = await navigation.boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(container).not.toBeNull();
+    expect(container!.y + container!.height - (bounds!.y + bounds!.height)).toBeLessThanOrEqual(25);
+    await logout.click();
+    await expect(page).toHaveURL('http://127.0.0.1:5175/');
+    await page.goto('/home');
+    await expect(page).toHaveURL(/\/login/);
+    await expect(page.getByRole('heading', { name: 'Your workspace' })).toHaveCount(0);
   });
-  await page.goto('/home');
-  await expect(page.getByText(user.username, { exact: true })).toBeVisible();
-  await expect(page.getByText(user.email, { exact: true })).toBeVisible();
-  await expect(page.getByText('DEV fixtures')).toHaveCount(0);
-  await page.reload();
-  await expect(page.getByText(user.username, { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Log Out' }).click();
-  await expect(page).toHaveURL('http://127.0.0.1:5175/');
-  await page.goto('/home');
-  await expect(page).toHaveURL(/\/login/);
-  await expect(page.getByRole('heading', { name: 'Your workspace' })).toHaveCount(0);
-});
+}
 
 test('production excludes development route, fixtures and preview assets', async ({ page }) => {
   const assets = readdirSync('dist/assets')

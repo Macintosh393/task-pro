@@ -4,9 +4,8 @@ import type { WorkspaceViewProps } from './workspace-types';
 
 export function WorkspaceHeader({
   user,
-  onLogout,
   menuButtonProps,
-}: Pick<WorkspaceViewProps, 'user' | 'onLogout'> & { menuButtonProps: NavigationButtonProps }) {
+}: Pick<WorkspaceViewProps, 'user'> & { menuButtonProps: NavigationButtonProps }) {
   return (
     <>
       <Button
@@ -26,9 +25,6 @@ export function WorkspaceHeader({
           {user.email}
         </span>
       </div>
-      <Button variant="secondary" size="small" onClick={onLogout}>
-        Log Out
-      </Button>
     </>
   );
 }
