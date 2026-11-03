@@ -2,6 +2,12 @@
 import { act } from 'react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { LoginForm } from './login-form';
+import {
+  createMemoryHistory,
+  createRootRoute,
+  createRouter,
+  RouterProvider,
+} from '@tanstack/react-router';
 import { setupDomTest } from '../../../test/setupDomTest';
 
 const mockLogin = vi.fn();
@@ -17,11 +23,24 @@ vi.mock('../hooks/use-auth', () => ({
   }),
 }));
 
-vi.mock('@tanstack/react-router', () => ({
+vi.mock('@tanstack/react-router', async () => ({
+  ...(await vi.importActual<typeof import('@tanstack/react-router')>('@tanstack/react-router')),
   useNavigate: () => mockNavigate,
 }));
 
 const dom = setupDomTest();
+
+async function renderForm(redirectTo?: string) {
+  const routeTree = createRootRoute({ component: () => <LoginForm redirectTo={redirectTo} /> });
+  const router = createRouter({
+    routeTree,
+    history: createMemoryHistory({ initialEntries: ['/'] }),
+  });
+  await router.load();
+  await act(async () => {
+    dom.root.render(<RouterProvider router={router} />);
+  });
+}
 
 function setInputValue(input: HTMLInputElement, value: string) {
   const nativeSetter = Object.getOwnPropertyDescriptor(
@@ -42,10 +61,8 @@ describe('LoginForm Component', () => {
     vi.clearAllMocks();
   });
 
-  it('renders email input, password input, and submit button', () => {
-    act(() => {
-      dom.root.render(<LoginForm />);
-    });
+  it('renders email input, password input, and submit button', async () => {
+    await renderForm();
 
     const emailInput = dom.host.querySelector('input[type="email"]') as HTMLInputElement;
     const passwordInput = dom.host.querySelector('input[type="password"]') as HTMLInputElement;
@@ -67,9 +84,7 @@ describe('LoginForm Component', () => {
   it('allows entering credentials and submits the form', async () => {
     mockLogin.mockResolvedValueOnce(undefined);
 
-    act(() => {
-      dom.root.render(<LoginForm redirectTo="/home" />);
-    });
+    await renderForm('/home');
 
     const emailInput = dom.host.querySelector('input[type="email"]') as HTMLInputElement;
     const passwordInput = dom.host.querySelector('input[type="password"]') as HTMLInputElement;
@@ -85,7 +100,6 @@ describe('LoginForm Component', () => {
 
     await act(async () => {
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-      // Allow async microtasks
       await new Promise((r) => setTimeout(r, 0));
     });
 
@@ -97,9 +111,7 @@ describe('LoginForm Component', () => {
   });
 
   it('does not submit invalid credentials', async () => {
-    act(() => {
-      dom.root.render(<LoginForm />);
-    });
+    await renderForm();
 
     const emailInput = dom.host.querySelector('input[type="email"]') as HTMLInputElement;
     const passwordInput = dom.host.querySelector('input[type="password"]') as HTMLInputElement;
