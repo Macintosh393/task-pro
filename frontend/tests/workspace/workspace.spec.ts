@@ -52,6 +52,37 @@ test('preview needs no auth or API and shares board selection with the drawer', 
   expect(apiRequests).toEqual([]);
 });
 
+test('drawer scroll lock preserves existing html classes and inline overflow', async ({ page }) => {
+  await page.goto('/dev/workspace');
+  await page.locator('html').evaluate((element: HTMLElement) => {
+    element.classList.add('prior-style');
+    element.style.overflow = 'auto';
+  });
+  const menu = page.getByRole('button', { name: 'Open navigation' });
+  await menu.click();
+  await expect(page.locator('html')).toHaveCSS('overflow', 'hidden');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('html')).toHaveCSS('overflow', 'auto');
+  expect(
+    await page
+      .locator('html')
+      .evaluate((element: HTMLElement) => ({
+        priorClass: element.classList.contains('prior-style'),
+        overflow: element.style.overflow,
+      })),
+  ).toEqual({ priorClass: true, overflow: 'auto' });
+  await page.locator('html').evaluate((element) => element.classList.add('overflow-hidden!'));
+  await menu.click();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).not.toBeVisible();
+  await expect(page.locator('html')).toHaveCSS('overflow', 'hidden');
+  expect(
+    await page
+      .locator('html')
+      .evaluate((element) => element.classList.contains('overflow-hidden!')),
+  ).toBe(true);
+});
+
 test('focus trap skips sidebar controls removed from the Tab order', async ({ page }) => {
   await page.goto('/dev/workspace');
   await page.getByRole('button', { name: 'Open navigation' }).click();

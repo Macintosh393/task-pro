@@ -4,17 +4,17 @@
 
 ## Файли та відповідальність
 
-| Файли в `src/components/workspace/`            | Власник змін            | Відповідальність                                                       |
-| ---------------------------------------------- | ----------------------- | ---------------------------------------------------------------------- |
-| `AppShell.tsx`, `AppShell.css`                 | інтеграція              | Header/sidebar/content, responsive layout, drawer, фокус і scroll lock |
-| `WorkspaceView.tsx`, `workspace-types.ts`      | інтеграція              | Композиція та спільні props                                            |
-| `WorkspaceHeader.tsx`, `WorkspaceHeader.css`   | виконавець Header, #81  | Кнопка меню, дані користувача; наступні controls теми та профілю       |
-| `WorkspaceSidebar.tsx`, `WorkspaceSidebar.css` | виконавець Sidebar, #82 | Список дошок і події вибору                                            |
-| `WorkspaceBoard.tsx`, `WorkspaceBoard.css`     | виконавець Board, #25   | BoardHeader, bounded canvas і майбутня композиція колонок              |
+| Файли в `src/components/workspace/`       | Власник змін            | Відповідальність                                                       |
+| ----------------------------------------- | ----------------------- | ---------------------------------------------------------------------- |
+| `AppShell.tsx`                            | інтеграція              | Header/sidebar/content, responsive layout, drawer, фокус і scroll lock |
+| `WorkspaceView.tsx`, `workspace-types.ts` | інтеграція              | Композиція та спільні props                                            |
+| `WorkspaceHeader.tsx`                     | виконавець Header, #81  | Кнопка меню, дані користувача; наступні controls теми та профілю       |
+| `WorkspaceSidebar.tsx`                    | виконавець Sidebar, #82 | Список дошок і події вибору                                            |
+| `WorkspaceBoard.tsx`                      | виконавець Board, #25   | BoardHeader, bounded canvas і майбутня композиція колонок              |
 
 Auth container залишається у `src/routes/_authenticated/home.tsx`. Він передає чинного користувача й існуючий logout. Продуктовий `/home` зараз отримує порожній масив дошок. Джерело тестових даних для розробки лежить у `src/dev/workspace-fixtures.ts`, а controls і умовні колонки лише у `src/dev/WorkspacePreview.tsx`.
 
-Зміни спільних props, breakpoints, маршрутів, глобального theme state та меж overflow потребують узгодження між власниками. Деталі Header, Sidebar й Board змінюються у власних TSX/CSS файлах без редагування `WorkspaceView`.
+Зміни спільних props, breakpoints, маршрутів, глобального theme state та меж overflow потребують узгодження між власниками. Деталі Header, Sidebar й Board змінюються у власних TSX файлах із Tailwind utilities без редагування `WorkspaceView`.
 
 ## `AppShell`
 
@@ -26,7 +26,9 @@ Auth container залишається у `src/routes/_authenticated/home.tsx`. �
 
 Header передає всі `menuButtonProps` справжньому `<button>` або спільному `Button`, який прокидає ref. Sidebar викликає `onSelectBoard(board.id)`, потім `closeNavigation()`. Компоненти не створюють власний drawer state. Поточний слот рендериться один раз, у desktop `<aside>` або мобільному `<dialog>`.
 
-Native `dialog.showModal()` блокує фон. AppShell замикає Tab/Shift+Tab між доступними controls, закриває drawer через Escape, backdrop, кнопку закриття та вибір дошки. Після закриття фокус повертається до меню. При переході відкритого drawer до desktop фокус отримує постійна навігація. Якщо сфокусований desktop Sidebar зникає при звуженні, фокус переходить до меню.
+Стилізація компонентів і DEV preview використовує лише Tailwind utilities за [правилом репозиторію](../../AGENTS.md). Class markers на кшталт `.workspace-canvas` залишаються стабільними селекторами для browser checks і не мають окремих CSS-визначень.
+
+Native `dialog.showModal()` блокує фон. Tailwind utility `overflow-hidden!` на `html` блокує scroll; effect прибирає лише доданий ним клас і зберігає попередні класи та inline overflow. AppShell замикає Tab/Shift+Tab між доступними controls, закриває drawer через Escape, backdrop, кнопку закриття та вибір дошки. Після закриття фокус повертається до меню. При переході відкритого drawer до desktop фокус отримує постійна навігація. Якщо сфокусований desktop Sidebar зникає при звуженні, фокус переходить до меню.
 
 Свайп праворуч починається в окремій смузі 20px біля лівого краю під Header. Зміщення понад 60px при вертикальному відхиленні менш як 40px відкриває навігацію. Свайп ліворуч усередині drawer закриває його за тими самими порогами. Обробники не встановлені на Board canvas; його горизонтальні жести зберігаються.
 

@@ -1,4 +1,3 @@
-import './WorkspaceBoard.css';
 import type { ReactNode } from 'react';
 
 export interface WorkspaceBoardProps {
@@ -8,12 +7,24 @@ export interface WorkspaceBoardProps {
 
 export function WorkspaceBoard({ title, children }: WorkspaceBoardProps) {
   return (
-    <section className="workspace-board" aria-label="Board workspace">
-      <div className="workspace-board__heading">
-        <h1>{title}</h1>
+    <section
+      className="workspace-board flex h-full min-h-0 min-w-0 flex-col"
+      aria-label="Board workspace"
+    >
+      <div className="workspace-board__heading shrink-0 pb-[26px] min-[1440px]:pb-2">
+        <h1 className="m-0 text-sm/6 font-medium wrap-anywhere min-[768px]:text-lg/7">{title}</h1>
       </div>
-      <div className="workspace-canvas" tabIndex={0} role="region" aria-label="Board canvas">
-        {children ?? <p className="workspace-empty">Your boards and projects will appear here.</p>}
+      <div
+        className="workspace-canvas min-h-0 min-w-0 flex-1 overflow-auto overscroll-x-contain focus-visible:outline-(length:--focus-ring-width) focus-visible:outline-solid focus-visible:outline-focus-ring focus-visible:outline-offset-[-2px]"
+        tabIndex={0}
+        role="region"
+        aria-label="Board canvas"
+      >
+        {children ?? (
+          <p className="workspace-empty m-auto max-w-[480px] py-6 text-[14px] text-text-description">
+            Your boards and projects will appear here.
+          </p>
+        )}
       </div>
     </section>
   );

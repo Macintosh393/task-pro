@@ -2,6 +2,8 @@
 
 Реалізація для review у `refactor/figma-tailwind-cva-ui-kit`. ADR залишається Draft. Немає API, auth/business forms, карток/колонок, datepicker чи Stack/Grid. Імпорти: `src/components/ui`. Застосунок і Storybook завантажують один `src/index.css`; компонентні стилі не живуть у stories.
 
+Правила стилізації компонентів і сторінок визначає [кореневий AGENTS.md](../../AGENTS.md). Стилі розміщуються у Tailwind utility classes разом із TSX, з responsive/state та arbitrary variants.
+
 ## Контракти
 
 | Компонент        | API / поведінка                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |

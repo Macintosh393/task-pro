@@ -7,7 +7,6 @@ import {
   type ReactNode,
 } from 'react';
 import { Button } from '../ui';
-import './AppShell.css';
 
 export type NavigationButtonProps = ComponentPropsWithRef<'button'>;
 
@@ -41,6 +40,16 @@ export function AppShell({ header, sidebar, children }: AppShellProps) {
   }, [navigationOpen, desktop]);
 
   useEffect(() => {
+    if (!navigationOpen || desktop) return;
+    const root = document.documentElement;
+    const alreadyLocked = root.classList.contains('overflow-hidden!');
+    root.classList.add('overflow-hidden!');
+    return () => {
+      if (!alreadyLocked) root.classList.remove('overflow-hidden!');
+    };
+  }, [navigationOpen, desktop]);
+
+  useEffect(() => {
     const media = window.matchMedia?.(desktopQuery);
     if (!media) return;
     const handleChange = (event: MediaQueryListEvent) => {
@@ -60,19 +69,19 @@ export function AppShell({ header, sidebar, children }: AppShellProps) {
   }, []);
 
   return (
-    <div className="app-shell">
+    <div className="app-shell flex h-dvh w-full overflow-hidden bg-surface-canvas text-primary">
       {desktop && (
         <aside
           ref={sidebarRef}
           tabIndex={-1}
           aria-label="Workspace navigation"
-          className="app-shell__sidebar"
+          className="app-shell__sidebar min-h-0 basis-[260px] grow-0 shrink-0 overflow-y-auto bg-surface-sidebar text-sidebar"
         >
           {sidebar({ closeNavigation })}
         </aside>
       )}
-      <div className="app-shell__workspace">
-        <header className="app-shell__header">
+      <div className="app-shell__workspace flex min-h-0 min-w-0 flex-1 flex-col">
+        <header className="app-shell__header flex min-h-[60px] shrink-0 items-center gap-2 bg-surface-header px-5 py-2 min-[768px]:min-h-[68px] min-[768px]:px-8 min-[1440px]:px-6">
           {header({
             menuButtonProps: {
               ref: menuRef,
@@ -85,11 +94,13 @@ export function AppShell({ header, sidebar, children }: AppShellProps) {
             },
           })}
         </header>
-        <main className="app-shell__content">{children}</main>
+        <main className="app-shell__content min-h-0 min-w-0 flex-1 overflow-hidden px-5 pt-3.5 pb-5 min-[768px]:px-8 min-[768px]:pt-[26px] min-[768px]:pb-8 min-[1440px]:px-6 min-[1440px]:pt-2.5 min-[1440px]:pb-2">
+          {children}
+        </main>
       </div>
       {!desktop && (
         <div
-          className="app-shell__swipe-edge"
+          className="app-shell__swipe-edge fixed top-[60px] bottom-0 left-0 z-1 w-5 touch-pan-y min-[768px]:top-[68px]"
           aria-hidden="true"
           onTouchStart={(event) => {
             const touch = event.touches[0];
@@ -112,7 +123,7 @@ export function AppShell({ header, sidebar, children }: AppShellProps) {
         ref={dialogRef}
         id={navigationId}
         aria-label="Workspace navigation"
-        className="app-shell__drawer"
+        className="app-shell__drawer fixed top-0 right-auto bottom-0 left-0 m-0 h-dvh max-h-none w-[min(225px,100vw-44px)] max-w-none overflow-y-auto overscroll-contain border-0 bg-surface-sidebar p-0 text-sidebar backdrop:bg-modal-backdrop min-[768px]:w-[260px]"
         onKeyDown={(event) => {
           if (event.key !== 'Tab' || event.defaultPrevented) return;
           const controls = Array.from(
@@ -175,7 +186,7 @@ export function AppShell({ header, sidebar, children }: AppShellProps) {
             <Button
               variant="ghost"
               size="small"
-              className="app-shell__close"
+              className="app-shell__close mx-3 mt-2 text-sidebar enabled:hover:text-sidebar"
               onClick={closeNavigation}
             >
               Close navigation

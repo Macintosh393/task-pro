@@ -8,7 +8,7 @@
 
 Теми задаються **на html**: `document.documentElement.dataset.theme = 'dark'` (також `light`, `violet`). HTML застосунку починає з Dark; CSS має Dark fallback. Toolbar Dark / Light / Violet використовує `withThemeByDataAttribute` на html preview iframe. Менеджер Storybook має власний UI; теми застосовуються до preview. Немає app theme picker, storage або profileAPI policy.
 
-Компоненти споживають семантичні ролі, наприклад `background: var(--surface-card); color: var(--text-primary); border-color: var(--border-subtle)`. У Tailwind можна писати `bg-[var(--surface-card)] text-[var(--text-primary)]`. Не вставляйте raw hex чи palette tokens безпосередньо в продуктову компоненту. Sidebar використовує `--text-sidebar` на `--surface-sidebar`, а не content text.
+Компоненти споживають семантичні ролі, наприклад `background: var(--surface-card); color: var(--text-primary); border-color: var(--border-subtle)`. У TSX використовуйте Tailwind semantic utilities на кшталт `bg-surface-card text-primary` або arbitrary utilities для наявних токенів. [Правила стилізації](../../AGENTS.md) визначені на рівні репозиторію. Не вставляйте raw hex чи palette tokens безпосередньо в продуктову компоненту. Sidebar використовує `--text-sidebar` на `--surface-sidebar`, а не content text.
 
 Palette — сирі кольори; themes — рольове відображення. Назви семантичних токенів **наші**, це не оригінальні Figma variable names. Додаючи роль: перевірте конкретний source node, додайте palette value лише за потреби, визначте роль в усіх трьох темах, запишіть provenance або derived/open, перевірте контраст на фактичній поверхні. Не підміняйте рольовий alpha глобальним opacity.
 

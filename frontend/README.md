@@ -28,7 +28,7 @@ Vite покаже адресу локального застосунку в те
 
 Після `npm ci` запустіть `npm run dev` і відкрийте `/dev/workspace` на адресі Vite. Для цієї сторінки backend, база даних і логін не потрібні. Вона показує ті самі AppShell, Header, Sidebar і Board, які використовує `/home`, із позначеними DEV fixtures. Controls перемикають порожній/заповнений стан і тему. Browser viewport перемикає desktop Sidebar та мобільний drawer.
 
-Змінюйте файл свого компонента за [контрактом workspace](docs/workspace-contract.md). Header, Sidebar і Board мають окремі TSX/CSS файли. Тестові дошки лежать у `src/dev/workspace-fixtures.ts`; production `/home` показує порожній workspace до інтеграції API. Storybook залишається доступним для UI-kit і додаткового ізольованого перегляду.
+Змінюйте файл свого компонента за [контрактом workspace](docs/workspace-contract.md). Header, Sidebar і Board мають окремі TSX файли зі стилями у Tailwind utility classes. Тестові дошки лежать у `src/dev/workspace-fixtures.ts`; production `/home` показує порожній workspace до інтеграції API. Storybook залишається доступним для UI-kit і додаткового ізольованого перегляду.
 
 Перевірте зміни у звичайному застосунку:
 
