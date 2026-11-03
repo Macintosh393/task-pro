@@ -15,10 +15,8 @@ describe('AppController', () => {
   });
 
   describe('health', () => {
-    it('should return { status: 200 }', () => {
-      expect(appController.getHealth()).toEqual({
-        status: 200,
-      });
+    it('should return undefined (204 No Content)', () => {
+      expect(appController.getHealth()).toBeUndefined();
     });
   });
 });
