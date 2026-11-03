@@ -1,6 +1,6 @@
 import { useForm } from '@tanstack/react-form';
 import { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '../hooks/use-auth';
 import { FormField, Input, Button } from '../../../components/ui';
 import { loginSchema } from '../validation/login.schema';
@@ -68,9 +68,9 @@ export function LoginForm({ redirectTo = '/home', className = '' }: LoginFormPro
       )}
 
       <div className="mb-10 flex items-center gap-4 font-ui text-sm/normal tracking-[-0.02em]">
-        <a href="/register" className="text-text-caption">
+        <Link to="/register" search={{}} className="text-text-caption">
           Registration
-        </a>
+        </Link>
         <h1 className="m-0 font-medium text-primary">Log In</h1>
       </div>
 

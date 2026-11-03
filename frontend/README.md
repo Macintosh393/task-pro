@@ -20,7 +20,21 @@ npm ci
 npm run dev
 ```
 
-Vite покаже адресу локального застосунку в терміналі. Перед запуском застосунку налаштуйте `.env`, запустіть PostgreSQL і застосуйте міграції за [інструкцією backend](../backend/README.md#налаштування-та-запуск). Backend має працювати на `http://localhost:3000`, куди Vite проксіює запити з `/api`.
+Vite покаже адресу локального застосунку в терміналі. Для роботи застосунку налаштуйте `.env`, запустіть PostgreSQL і застосуйте міграції за [інструкцією backend](../backend/README.md#налаштування-та-запуск). Backend має працювати на `http://localhost:3000`, куди Vite проксіює запити з `/api`.
+
+## Робота над workspace
+
+Відкрийте застосунок, зареєструйтеся або увійдіть. Після входу `/home` показує спільну порожню основу з Header, Sidebar і областю дошки. Для цього потрібні backend, база даних і чинна сесія. Тестових дошок, колонок та окремого preview-маршруту в застосунку немає.
+
+Header, Sidebar і Board мають окремі TSX файли з Tailwind utilities. [Контракт workspace](docs/workspace-contract.md) описує поточні props, layout і overflow. Storybook залишається додатковим ізольованим переглядом UI-kit і компонентів.
+
+```bash
+npm run lint
+npm test -- --run
+npm run test:workspace
+```
+
+`test:workspace` збирає production app, запускає dev/preview Vite на портах 5175/4175 та перевіряє захищений `/home`, drawer, клавіатуру, resize, overflow, теми й auth navigation. API responses та додатковий overflow content створюються тільки в browser tests. У продукті mocks немає. Перед першим browser-запуском виконайте `npm run test:ui:install`; порти 5175 і 4175 мають бути вільними.
 
 ## Перевірки
 
@@ -54,7 +68,7 @@ src/
 
 Кольори welcome-сторінки фіксовані за макетом. `.welcome-page` перевизначає semantic tokens лише для своїх дочірніх компонентів і не змінює вибрану тему на `html`. Окремі RGB-градієнт та alpha mask зберігають інтерполяцію прозорого кольору Figma, зокрема проміжні відтінки фону. Texture підключено як CSS background від 768px, тому mobile не завантажує цей декоративний asset. Hover CTA та keyboard focus є адаптаціями до інтерактивної сторінки; Log In має область натискання 44px зі збереженою позицією тексту.
 
-Посилання Registration і Log In відкривають окремі форми на `/register` та `/login`. Обидві форми після успіху оновлюють спільний session cache і відкривають `/home`. Reload відновлює користувача через API, а прострочений access token запускає refresh і повтор запиту. Успішний вихід повертає на `/`.
+Посилання Registration і Log In відкривають окремі форми на `/register` та `/login`. Обидві форми після успіху оновлюють спільний session cache і відкривають `/home`. Reload відновлює користувача через API, а прострочений access token запускає refresh і повтор запиту.
 
 У Storybook сторінка доступна як `Pages/Welcome/Default`. Після `npm run build-storybook` команда `npx playwright test welcome.spec.ts` перевіряє геометрію трьох макетів, збереження кольорів у Dark/Light/Violet, axe, фокус і переходи з клавіатури.
 

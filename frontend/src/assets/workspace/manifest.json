@@ -1,0 +1,19 @@
+{
+  "fileKey": "t0eIVx06rFihnswWhS8Q2V",
+  "assets": [
+    {
+      "file": "menu.svg",
+      "nodeId": "1058:9685",
+      "width": "24",
+      "height": "24",
+      "sha256": "62ce769ac9f1b9427ef2ffe32dfb5ced1991406d464099f9f1367bc66987c1c0"
+    },
+    {
+      "file": "menu-tablet.svg",
+      "nodeId": "1058:7804",
+      "width": "32",
+      "height": "32",
+      "sha256": "c6d6f362576177d4ebca78777949e3a14ca9626fc384432efcb18e5f0d5dec5c"
+    }
+  ]
+}

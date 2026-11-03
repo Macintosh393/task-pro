@@ -160,20 +160,14 @@ test('Welcome links support keyboard navigation to the auth route contract', asy
   await expect(login).toBeFocused();
   await page.keyboard.press('Shift+Tab');
   await expect(registration).toBeFocused();
-  await page.route('**/register', (route) =>
-    route.fulfill({ status: 200, contentType: 'text/plain', body: 'Registration route' }),
-  );
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/register$/);
+  await expect(page.getByRole('main', { name: 'Registration route', exact: true })).toBeVisible();
 
   await page.goto('/iframe.html?id=pages-welcome--default&viewMode=story');
   await login.waitFor();
   await login.focus();
-  await page.route('**/login', (route) =>
-    route.fulfill({ status: 200, contentType: 'text/plain', body: 'Login route' }),
-  );
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByRole('main', { name: 'Login route', exact: true })).toBeVisible();
 });
 
 test('Welcome stays scrollable at 320px and increased text size', async ({ page }) => {

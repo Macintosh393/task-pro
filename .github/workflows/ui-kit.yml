@@ -34,6 +34,7 @@ jobs:
       - run: npm run lint
       - run: npm test -- --run
       - run: npm run build
+      - run: npx playwright test --config playwright.workspace.config.ts
       - run: npm run build-storybook
       - run: npm run test:ui:ci
       - uses: actions/upload-artifact@v4

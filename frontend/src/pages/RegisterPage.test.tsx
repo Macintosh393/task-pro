@@ -2,15 +2,36 @@
 import axios from 'axios';
 import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  createMemoryHistory,
+  createRootRoute,
+  createRouter,
+  RouterProvider,
+} from '@tanstack/react-router';
 import { setupDomTest } from '../test/setupDomTest';
 const registerUser = vi.fn();
 const navigate = vi.fn();
 import { RegisterPage } from './RegisterPage';
 
 vi.mock('../features/auth', () => ({ useAuth: () => ({ register: registerUser }) }));
-vi.mock('@tanstack/react-router', () => ({ useNavigate: () => navigate }));
+vi.mock('@tanstack/react-router', async () => ({
+  ...(await vi.importActual<typeof import('@tanstack/react-router')>('@tanstack/react-router')),
+  useNavigate: () => navigate,
+}));
 
 const dom = setupDomTest();
+
+async function renderPage() {
+  const routeTree = createRootRoute({ component: RegisterPage });
+  const router = createRouter({
+    routeTree,
+    history: createMemoryHistory({ initialEntries: ['/'] }),
+  });
+  await router.load();
+  await act(async () => {
+    dom.root.render(<RouterProvider router={router} />);
+  });
+}
 
 const user = {
   id: 'user-123',
@@ -48,10 +69,8 @@ describe('RegisterPage', () => {
     vi.resetAllMocks();
   });
 
-  it('renders registration fields', () => {
-    act(() => {
-      dom.root.render(<RegisterPage />);
-    });
+  it('renders registration fields', async () => {
+    await renderPage();
 
     const inputs = dom.host.querySelectorAll('input');
 
@@ -65,9 +84,7 @@ describe('RegisterPage', () => {
   it('submits registration data', async () => {
     vi.mocked(registerUser).mockResolvedValue(user);
 
-    act(() => {
-      dom.root.render(<RegisterPage />);
-    });
+    await renderPage();
 
     fillForm();
     await submitForm();
@@ -82,9 +99,7 @@ describe('RegisterPage', () => {
   it('shows a success message after registration', async () => {
     vi.mocked(registerUser).mockResolvedValue(user);
 
-    act(() => {
-      dom.root.render(<RegisterPage />);
-    });
+    await renderPage();
 
     fillForm();
     await submitForm();
@@ -102,9 +117,7 @@ describe('RegisterPage', () => {
 
     vi.mocked(registerUser).mockRejectedValue(error);
 
-    act(() => {
-      dom.root.render(<RegisterPage />);
-    });
+    await renderPage();
 
     fillForm();
     await submitForm();
@@ -113,10 +126,8 @@ describe('RegisterPage', () => {
     expect(dom.host.textContent).toContain('Email is already registered.');
   });
 
-  it('toggles password visibility', () => {
-    act(() => {
-      dom.root.render(<RegisterPage />);
-    });
+  it('toggles password visibility', async () => {
+    await renderPage();
 
     const toggle = dom.host.querySelector<HTMLButtonElement>('[aria-label="Show password"]')!;
 

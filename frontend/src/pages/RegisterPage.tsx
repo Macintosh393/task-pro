@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useState } from 'react';
 import { Button, FormField, Input } from '../components/ui';
-import { useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '../features/auth';
 import eyeIcon from '../assets/eye.svg';
 import './RegisterPage.css';
@@ -51,9 +51,9 @@ export function RegisterPage() {
       <section className="register-card" aria-label="Registration">
         <div className="register-tabs">
           <h1 className="register-tab-active">Registration</h1>
-          <a href="/login" className="register-tab">
+          <Link to="/login" search={{ redirect: undefined }} className="register-tab">
             Log In
-          </a>
+          </Link>
         </div>
 
         <form className="register-form" onSubmit={handleSubmit}>
