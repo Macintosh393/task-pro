@@ -19,10 +19,7 @@ const user = {
 };
 
 function fillInput(input: HTMLInputElement, value: string) {
-  const setter = Object.getOwnPropertyDescriptor(
-    HTMLInputElement.prototype,
-    'value',
-  )?.set;
+  const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
 
   setter?.call(input, value);
   input.dispatchEvent(new Event('input', { bubbles: true }));
@@ -42,9 +39,7 @@ async function submitForm() {
   const form = dom.host.querySelector('form')!;
 
   await act(async () => {
-    form.dispatchEvent(
-      new Event('submit', { bubbles: true, cancelable: true }),
-    );
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
   });
 }
 
@@ -123,9 +118,7 @@ describe('RegisterPage', () => {
       dom.root.render(<RegisterPage />);
     });
 
-    const toggle = dom.host.querySelector<HTMLButtonElement>(
-      '[aria-label="Show password"]',
-    )!;
+    const toggle = dom.host.querySelector<HTMLButtonElement>('[aria-label="Show password"]')!;
 
     const passwordInput = dom.host.querySelectorAll('input')[2];
 

@@ -12,6 +12,13 @@ describe('authenticated route guard', () => {
     router.update({ context: { queryClient } });
   });
 
+  it('keeps welcome and registration available to guests', async () => {
+    await router.navigate({ to: '/' });
+    expect(router.state.location.pathname).toBe('/');
+    await router.navigate({ to: '/register' });
+    expect(router.state.location.pathname).toBe('/register');
+  });
+
   it('allows immediate navigation after login updates the user cache', async () => {
     queryClient.setQueryData(AUTH_QUERY_KEY, {
       id: 'user-1',

@@ -51,7 +51,9 @@ export function RegisterPage() {
       <section className="register-card" aria-label="Registration">
         <div className="register-tabs">
           <h1 className="register-tab-active">Registration</h1>
-          <a href="/login" className="register-tab">Log In</a>
+          <a href="/login" className="register-tab">
+            Log In
+          </a>
         </div>
 
         <form className="register-form" onSubmit={handleSubmit}>

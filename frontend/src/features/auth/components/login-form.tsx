@@ -5,7 +5,10 @@ import { useAuth } from '../hooks/use-auth';
 import { FormField, Input, Button } from '../../../components/ui';
 import { loginSchema } from '../validation/login.schema';
 
-function getValidationMessage(schema: (typeof loginSchema.shape)[keyof typeof loginSchema.shape], value: string) {
+function getValidationMessage(
+  schema: (typeof loginSchema.shape)[keyof typeof loginSchema.shape],
+  value: string,
+) {
   const result = schema.safeParse(value);
   return result.success ? undefined : result.error.issues[0]?.message;
 }
@@ -65,7 +68,9 @@ export function LoginForm({ redirectTo = '/home', className = '' }: LoginFormPro
       )}
 
       <div className="mb-10 flex items-center gap-4 font-ui text-sm/normal tracking-[-0.02em]">
-        <a href="/register" className="text-text-caption">Registration</a>
+        <a href="/register" className="text-text-caption">
+          Registration
+        </a>
         <h1 className="m-0 font-medium text-primary">Log In</h1>
       </div>
 
