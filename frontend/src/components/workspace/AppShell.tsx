@@ -114,15 +114,26 @@ export function AppShell({ header, sidebar, children }: AppShellProps) {
         aria-label="Workspace navigation"
         className="app-shell__drawer"
         onKeyDown={(event) => {
-          if (event.key !== 'Tab') return;
+          if (event.key !== 'Tab' || event.defaultPrevented) return;
           const controls = Array.from(
             event.currentTarget.querySelectorAll<HTMLElement>(
-              'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
+              'a[href], button, input, select, textarea, summary, [tabindex], [contenteditable="true"]',
             ),
-          ).filter((element) => element.getClientRects().length > 0);
+          ).filter(
+            (element) =>
+              element.tabIndex >= 0 &&
+              !element.matches(':disabled, input[type="hidden"]') &&
+              !element.closest('[hidden], [inert]') &&
+              getComputedStyle(element).visibility === 'visible' &&
+              element.getClientRects().length > 0,
+          );
           const first = controls[0];
           const last = controls[controls.length - 1];
-          if (event.shiftKey && document.activeElement === first) {
+          if (
+            event.shiftKey &&
+            (document.activeElement === first ||
+              !controls.includes(document.activeElement as HTMLElement))
+          ) {
             event.preventDefault();
             last?.focus();
           } else if (!event.shiftKey && document.activeElement === last) {

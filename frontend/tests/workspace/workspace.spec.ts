@@ -52,6 +52,52 @@ test('preview needs no auth or API and shares board selection with the drawer', 
   expect(apiRequests).toEqual([]);
 });
 
+test('focus trap skips sidebar controls removed from the Tab order', async ({ page }) => {
+  await page.goto('/dev/workspace');
+  await page.getByRole('button', { name: 'Open navigation' }).click();
+  const drawer = page.getByRole('dialog');
+  const close = drawer.getByRole('button', { name: 'Close navigation' });
+  const firstBoard = drawer.getByRole('button', { name: 'Project office', exact: true });
+  const lastBoard = drawer.locator('button').last();
+  for (const mode of ['tabindex', 'visibility', 'inert', 'disabled', 'hidden']) {
+    await lastBoard.evaluate((element: HTMLButtonElement, mode) => {
+      if (mode === 'tabindex') element.tabIndex = -1;
+      if (mode === 'visibility') element.style.visibility = 'hidden';
+      if (mode === 'inert') element.inert = true;
+      if (mode === 'disabled') element.disabled = true;
+      if (mode === 'hidden') element.hidden = true;
+    }, mode);
+    await close.focus();
+    await page.keyboard.press('Shift+Tab');
+    await expect(firstBoard).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(close).toBeFocused();
+    await lastBoard.evaluate((element: HTMLButtonElement) => {
+      element.removeAttribute('tabindex');
+      element.style.visibility = '';
+      element.inert = false;
+      element.disabled = false;
+      element.hidden = false;
+    });
+  }
+});
+
+test('a queued close event preserves a drawer that has already reopened', async ({ page }) => {
+  await page.goto('/dev/workspace');
+  const menu = page.getByRole('button', { name: 'Open navigation' });
+  const drawer = page.getByRole('dialog');
+  await menu.click();
+  await drawer.getByRole('button', { name: 'Close navigation' }).click();
+  await menu.click();
+  await expect(drawer).toBeVisible();
+  await drawer.dispatchEvent('close');
+  await expect(drawer).toBeVisible();
+  await expect(menu).toHaveAttribute('aria-expanded', 'true');
+  await page.keyboard.press('Escape');
+  await expect(drawer).not.toBeVisible();
+  await expect(menu).toBeFocused();
+});
+
 test('Escape, backdrop, button and edge swipe close or open navigation without capturing board scroll', async ({
   page,
 }) => {
