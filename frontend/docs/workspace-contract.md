@@ -45,7 +45,11 @@ Native `dialog.showModal()` блокує фон. Tailwind utility `overflow-hidd
 
 ## `WorkspaceView` та компоненти
 
-`WorkspaceUser` містить `username: string` і `email: string`. Єдиний prop `WorkspaceView` має назву `user` і тип `WorkspaceUser`. `WorkspaceHeader` отримує `user` та `menuButtonProps`. `WorkspaceSidebar` і `WorkspaceBoard` не мають props.
+AppHeader показує Theme та кнопку профілю з `username` і `avatarUrl` (опційний/null → placeholder). Email не відображається в шапці. `onEditProfile` — точка підключення #32–34; редактор профілю тут не реалізований.
+
+`WorkspaceView` приймає єдиний controlled `activeBoard?: { id: string; title: string } | null`, типовий стан — null. BoardHeader читає назву з цього prop; локальної копії вибраної дошки немає. До #36 `/home` залишається порожнім із заголовком Your workspace. `onOpenFilters` — точка підключення #49; Filters disabled без дошки або обробника. Runtime fixtures відсутні. Довгі ім'я та назва обрізаються без перекриття дій; повний текст доступний у title та accessible name.
+
+`WorkspaceUser` містить `username: string`, `email: string` та `avatarUrl?: string | null`. `WorkspaceHeader` отримує `user`, `menuButtonProps` і опційний `onEditProfile`. `WorkspaceSidebar` не має props; `WorkspaceBoard` отримує `activeBoard` та `onOpenFilters` із композиції.
 
 ## Запуск і перевірки
 

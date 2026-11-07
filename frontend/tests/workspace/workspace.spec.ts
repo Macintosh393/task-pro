@@ -226,6 +226,10 @@ test('resize releases modal state and transfers navigation focus', async ({ page
   await expect(menu).toHaveAttribute('aria-expanded', 'false');
   await expect(menu).toBeFocused();
   await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Theme', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: `Edit profile: ${user.username}` })).toBeFocused();
+  await page.keyboard.press('Tab');
   await expect(page.getByRole('region', { name: 'Board canvas' })).toBeFocused();
   await menu.click();
   await expect(page.getByRole('dialog')).toBeVisible();
@@ -296,7 +300,7 @@ for (const width of [375, 1440]) {
   test(`protected empty home preserves user display and reload at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 812 });
     await openHome(page);
-    await expect(page.getByText(user.email, { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: `Edit profile: ${user.username}` })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Your workspace', exact: true })).toBeVisible();
     await page.reload();
     await expect(page.getByText(user.username, { exact: true })).toBeVisible();
