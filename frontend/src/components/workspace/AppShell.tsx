@@ -6,7 +6,6 @@ import {
   type ComponentPropsWithRef,
   type ReactNode,
 } from 'react';
-import { Button } from '../ui';
 
 export type NavigationButtonProps = ComponentPropsWithRef<'button'>;
 
@@ -181,19 +180,7 @@ export function AppShell({ header, sidebar, children }: AppShellProps) {
           swipeStart.current = null;
         }}
       >
-        {!desktop && (
-          <>
-            <Button
-              variant="ghost"
-              size="small"
-              className="app-shell__close mx-3 mt-2 shrink-0 self-start text-sidebar enabled:hover:text-sidebar"
-              onClick={closeNavigation}
-            >
-              Close navigation
-            </Button>
-            {sidebar({ closeNavigation })}
-          </>
-        )}
+        {!desktop && sidebar({ closeNavigation })}
       </dialog>
     </div>
   );

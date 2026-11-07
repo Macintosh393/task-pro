@@ -67,3 +67,30 @@ Headless Chromium shell 141, Playwright 1.56.1, `--disable-gpu --disable-softwar
 ## UI-kit продовження
 
 Shared primitives, локальний Poppins, derived interaction tokens і перевірки: [ui-kit.md](ui-kit.md). `Foundation/Theme tokens` тепер використовує спільні Heading/Text та Poppins; результати первинного color-only scope вище збережено як історію.
+
+## Ролі Sidebar
+
+Окремі семантичні ролі для Sidebar workspace (`themes.css` → `tailwind-theme.css`). Існуючі токени не змінено. Назви Tailwind: текстова роль `--text-sidebar-x` → `--color-sidebar-x` → `text-sidebar-x` (як `--text-sidebar` → `text-sidebar`); поверхні зберігають префікс `surface-`.
+
+| Роль | Utility | Dark | Light | Violet |
+| --- | --- | --- | --- | --- |
+| `--surface-sidebar-selected` | `bg-surface-sidebar-selected` | #1f1f1f | #f6f6f7 | #6366c3 |
+| `--surface-sidebar-hover` | `bg-surface-sidebar-hover` | #262626 | #fbfbfc | #6769c4 |
+| `--surface-sidebar-help` | `bg-surface-sidebar-help` | #1f1f1f | #f6f6f7 | #ecedfd |
+| `--border-sidebar-divider` | `border-sidebar-divider` | #ffffff1a | #1616161a | #ffffff1a |
+| `--sidebar-active-indicator` | `bg-sidebar-active-indicator` | #bedbb0 | #4f7042 | #ffffff |
+| `--text-sidebar-label` | `text-sidebar-label` | #b8b8b8 | #626262 | #e1e2f5 |
+| `--text-sidebar-help` | `text-sidebar-help` | #ffffff | #161616 | #161616 |
+| `--text-sidebar-help-accent` | `text-sidebar-help-accent` | `--action-primary` | #4f7042 | `--action-primary` |
+
+Контраст (WCAG): Dark — білий на selected 16.48, на hover 15.13; #b8b8b8 на Sidebar 9.44; акцент #bedbb0 на Help card 10.95. Light — #626262 на білому 6.10, на hover 5.90; акцент #4f7042 на Help card 5.21; індикатор на білому 5.63. Violet — білий на selected 4.98, на hover 4.78; #e1e2f5 на Sidebar 4.85; акцент #5255bc на Help card 5.35; #161616 на Help card 15.60. Приглушений label не використовується на selected/hover поверхнях (у Violet це 3.89 / 3.73): рядок при hover/focus переходить на повний `text-sidebar`.
+
+Навмисні відхилення від Figma:
+
+- Violet selected: Figma білий 50% дає білий текст 2.21:1 → 10% білого поверх Sidebar (#6366c3).
+- Violet Help card: Figma #ECEDFD 40% (≈#9092d6) дає білий текст 2.89:1 → непрозорий #ECEDFD з темним текстом. Візуально помітно відрізняється від макета.
+- Light акцент і індикатор: #BEDBB0 має 1.39–1.51:1 на білому/#F6F6F7 → #4F7042.
+- Light/Violet приглушений текст: 50% alpha (3.41 / 2.80) → суцільні #626262 / #E1E2F5. Наявний `--text-sidebar-muted` не змінено й тут не використовується.
+- Hover світліший за selected (рішення продукту), а не «на 10% прозоріший».
+- Light logout icon залишається #BEDBB0 (наявний токен; декоративний, зміст несе текст «Log out»).
+

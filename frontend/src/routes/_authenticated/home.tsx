@@ -1,8 +1,29 @@
+import { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { useAuth } from '../../features/auth';
 import { WorkspaceView } from '../../components/workspace/WorkspaceView';
 
 export function HomePage() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [loggingOut, setLoggingOut] = useState(false);
 
-  return <WorkspaceView user={{ username: user?.username || 'User', email: user?.email ?? '' }} />;
+  const handleLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await logout();
+      await navigate({ to: '/', replace: true });
+    } catch {
+      setLoggingOut(false);
+    }
+  };
+
+  return (
+    <WorkspaceView
+      user={{ username: user?.username || 'User', email: user?.email ?? '' }}
+      onLogout={handleLogout}
+      logoutPending={loggingOut}
+    />
+  );
 }
