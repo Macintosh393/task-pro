@@ -259,7 +259,7 @@ export async function collect(api, manifest) {
     path: item.path, line: item.line, original_line: item.original_line, in_reply_to_id: item.in_reply_to_id,
   }));
   const data = JSON.stringify({
-    number: manifest.number, base: manifest.base, head: manifest.head, merge_base: mergeBase,
+    number: manifest.number, base: manifest.base, head: manifest.head, merge_base: mergeBase, trusted: manifest.trusted,
     title: context.pr.title, description: context.pr.body, issues,
     files: files.map(file => ({ filename: file.filename, previous_filename: file.previous_filename, status: file.status, patch: file.patch ?? null })),
     review_threads: context.threads, conversation: compact(context.comments), reviews: compact(context.reviews), inline_threads: compact(context.inline),
@@ -287,7 +287,7 @@ export async function publish(api, manifest, raw, anchors) {
   const missingPatches = (files ?? []).filter(file => !file.patch && !(file.status === 'renamed' && file.additions === 0 && file.deletions === 0)).map(file => file.filename);
   const { accepted, rejected } = selectFindings(result, changed, previous);
   const body = [
-    SUMMARY, `<!-- head:${manifest.head} -->`, `Codex review для \`${manifest.head.slice(0, 12)}\`.`,
+    SUMMARY, `<!-- head:${manifest.head} -->`, `OpenAI API review для \`${manifest.head.slice(0, 12)}\`.`,
     safeMarkdown(result.summary),
     `Нових findings: ${accepted.length}. Попередні зауваження не закриваються автоматично; відсутність у цьому review не підтверджує виправлення.`,
     ...(result.not_verified.length ? [`Не перевірено:\n${result.not_verified.map(value => `- ${safeMarkdown(value)}`).join('\n')}`] : []),
@@ -295,7 +295,7 @@ export async function publish(api, manifest, raw, anchors) {
     ...(rejected.length ? [`Відкинуто findings поза зміненими рядками: ${rejected.map(value => `\`${safeMarkdown(value)}\``).join(', ')}.`] : []),
     'Це автоматичний аналіз коду та доступних вимог. Він не підтверджує Figma-відповідність, поведінку браузера чи проходження тестів.',
   ].join('\n\n');
-  const reviewBody = `Codex: ${accepted.length} нових findings для \`${manifest.head.slice(0, 12)}\`. Деталі й межі перевірки в підсумковому коментарі.`;
+  const reviewBody = `OpenAI API: ${accepted.length} нових findings для \`${manifest.head.slice(0, 12)}\`. Деталі й межі перевірки в підсумковому коментарі.`;
   const comments = accepted.map(finding => ({
     path: finding.path, line: finding.line, side: finding.side,
     body: `<!-- taskpro-codex-finding:${finding.fingerprint} -->\n[${finding.priority}] ${safeMarkdown(finding.title)}\n\n${safeMarkdown(finding.body)}`,

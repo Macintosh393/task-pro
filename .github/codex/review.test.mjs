@@ -269,8 +269,12 @@ test('workflow trust boundaries and setup failure stay explicit', () => {
   assert.ok(!workflow.includes('pull_request_target'));
   assert.ok(!trigger.includes('checkout'));
   assert.ok(!trigger.includes('secrets.'));
-  assert.ok(workflow.includes("permission-profile: ':read-only'"));
-  assert.ok(workflow.includes('safety-strategy: drop-sudo'));
+  assert.ok(workflow.includes('run: node .github/codex/responses.mjs'));
+  assert.ok(!workflow.includes('openai/codex-action@'));
+  assert.ok(!workflow.includes('codex-version:'));
+  const reviewStep = workflow.split('      - name: Review pinned PR data with Responses API')[1].split('  publish:')[0];
+  assert.ok(!reviewStep.includes('GH_TOKEN'));
+  assert.ok(reviewStep.includes('OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}'));
   assert.ok(workflow.includes('KEY_CONFIGURED'));
   assert.ok(workflow.includes('OPENAI_API_KEY'));
   assert.equal((workflow.match(/pull-requests: write/g) ?? []).length, 1);
