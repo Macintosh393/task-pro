@@ -66,11 +66,16 @@ export async function runReview({ apiKey, prompt, schema, input, sourceTools, mo
         throw new Error(`OpenAI HTTP ${response.status}; no automatic retry`);
       }
       const data = await responseJson(response, budget.responseBytes);
-      if (Number.isSafeInteger(data.usage?.input_tokens) && data.usage.input_tokens >= 0 &&
-          Number.isSafeInteger(data.usage?.output_tokens) && data.usage.output_tokens >= 0) {
-        usage.input_tokens += data.usage.input_tokens;
-        usage.output_tokens += data.usage.output_tokens;
-        usage.usage_responses++;
+      const inputTokens = data.usage?.input_tokens;
+      const outputTokens = data.usage?.output_tokens;
+      if ([inputTokens, outputTokens].every(value => Number.isSafeInteger(value) && value >= 0)) {
+        const nextInput = usage.input_tokens + inputTokens;
+        const nextOutput = usage.output_tokens + outputTokens;
+        if ([nextInput, nextOutput, nextInput + nextOutput].every(Number.isSafeInteger)) {
+          usage.input_tokens = nextInput;
+          usage.output_tokens = nextOutput;
+          usage.usage_responses++;
+        }
       }
       remaining();
       if (data.status !== 'completed' || data.error) throw new Error('OpenAI response incomplete or failed; nothing will be published');
@@ -119,13 +124,17 @@ async function main() {
     head: context.head, base: context.merge_base, trusted: context.trusted,
   } });
   const input = JSON.stringify({ context, diff: readFileSync('.review-data/diff.patch', 'utf8'), trusted_documents: sourceTools.initialDocuments() });
+  let aggregateUsage;
   const result = await runReview({ apiKey: process.env.OPENAI_API_KEY,
     model: process.env.CODEX_REVIEW_MODEL || 'gpt-6.1-sol', effort: process.env.CODEX_REVIEW_EFFORT || 'high',
     prompt: readFileSync('.github/codex/prompt.md', 'utf8'), schema: JSON.parse(readFileSync('.github/codex/schema.json', 'utf8')),
-    input, sourceTools, onUsage: usage => console.log(JSON.stringify({ openai_review_usage: usage })),
+    input, sourceTools, onUsage: usage => {
+      aggregateUsage = usage;
+      console.log(JSON.stringify({ openai_review_usage: usage }));
+    },
   });
   const raw = JSON.stringify(result);
-  appendFileSync(process.env.GITHUB_OUTPUT, `result<<openai_review_result\n${raw}\nopenai_review_result\n`);
+  appendFileSync(process.env.GITHUB_OUTPUT, `result<<openai_review_result\n${raw}\nopenai_review_result\nusage=${JSON.stringify(aggregateUsage)}\n`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

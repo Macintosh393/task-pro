@@ -275,7 +275,22 @@ function safeMarkdown(text) {
   return text.replace(/<!--[\s\S]*?-->/g, '').replace(/@/g, '@\u200b').trim();
 }
 
-export async function publish(api, manifest, raw, anchors) {
+export function formatUsage(raw) {
+  const unavailable = 'Токени цього запуску: дані недоступні.';
+  if (typeof raw !== 'string' || Buffer.byteLength(raw) > 1000) return unavailable;
+  let usage;
+  try { usage = JSON.parse(raw); } catch { return unavailable; }
+  if (!exactKeys(usage, ['requests', 'tool_calls', 'input_tokens', 'output_tokens', 'usage_responses']) ||
+      !Object.values(usage).every(value => Number.isSafeInteger(value) && value >= 0) ||
+      usage.requests < 1 || usage.requests > 6 || usage.tool_calls > 30 || usage.usage_responses > usage.requests ||
+      !Number.isSafeInteger(usage.input_tokens + usage.output_tokens)) return unavailable;
+  if (!usage.usage_responses) return unavailable;
+  const tokens = `Токени цього запуску: вхідні ${usage.input_tokens} · вихідні ${usage.output_tokens} · разом ${usage.input_tokens + usage.output_tokens}`;
+  return usage.usage_responses === usage.requests ? `${tokens}.` :
+    `${tokens}, за ${usage.usage_responses} із ${usage.requests} запитів. Дані неповні.`;
+}
+
+export async function publish(api, manifest, raw, anchors, rawUsage) {
   const result = validateResult(raw);
   const context = await liveContext(api, manifest);
   if (!context) return { skipped: 'stale or unauthorized' };
@@ -289,6 +304,7 @@ export async function publish(api, manifest, raw, anchors) {
   const body = [
     SUMMARY, `<!-- head:${manifest.head} -->`, `OpenAI API review для \`${manifest.head.slice(0, 12)}\`.`,
     safeMarkdown(result.summary),
+    formatUsage(rawUsage),
     `Нових findings: ${accepted.length}. Попередні зауваження не закриваються автоматично; відсутність у цьому review не підтверджує виправлення.`,
     ...(result.not_verified.length ? [`Не перевірено:\n${result.not_verified.map(value => `- ${safeMarkdown(value)}`).join('\n')}`] : []),
     ...(missingPatches.length ? [`GitHub не повернув patch для цих файлів; inline anchors недоступні: ${missingPatches.map(path => `\`${safeMarkdown(path)}\``).join(', ')}.`] : []),
@@ -330,7 +346,7 @@ async function main() {
     output('proceed', String(await collect(api, JSON.parse(process.env.REVIEW_MANIFEST))));
   } else if (command === 'publish') {
     const manifest = JSON.parse(process.env.REVIEW_MANIFEST);
-    console.log(JSON.stringify(await publish(api, manifest, process.env.REVIEW_RESULT)));
+    console.log(JSON.stringify(await publish(api, manifest, process.env.REVIEW_RESULT, undefined, process.env.REVIEW_USAGE)));
   } else throw new Error('Expected gate, collect or publish');
 }
 

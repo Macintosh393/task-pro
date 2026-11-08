@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
-  SUMMARY, changedLines, fileAnchors, alreadyReviewed, createApi, eligible, fingerprint, gate,
+  SUMMARY, changedLines, fileAnchors, formatUsage, alreadyReviewed, createApi, eligible, fingerprint, gate,
   linkedIssues, publish, publishedFingerprints, requestNumber, selectFindings, validateResult,
 } from './review.mjs';
 
@@ -379,4 +379,54 @@ test('missing canonical patches are visible in summary even without findings', a
   api.all = async path => path === '/pulls/86/files' ? [{ filename: 'binary.png', status: 'modified' }] : originalAll(path);
   await publish(api, manifest, JSON.stringify(result([])));
   assert.match(api.calls.at(-1).body.body, /GitHub не повернув patch.*binary.png/s);
+});
+
+test('usage formatter identifies complete, partial and unavailable counts without fabricated zeroes', () => {
+  const usage = { requests: 2, tool_calls: 1, input_tokens: 357, output_tokens: 101, usage_responses: 2 };
+  assert.equal(formatUsage(JSON.stringify(usage)), 'Токени цього запуску: вхідні 357 · вихідні 101 · разом 458.');
+  assert.equal(formatUsage(JSON.stringify({ ...usage, usage_responses: 1 })), 'Токени цього запуску: вхідні 357 · вихідні 101 · разом 458, за 1 із 2 запитів. Дані неповні.');
+  for (const value of [undefined, '', 'invalid', JSON.stringify({ ...usage, usage_responses: 0 })]) {
+    assert.equal(formatUsage(value), 'Токени цього запуску: дані недоступні.');
+  }
+  assert.equal(formatUsage(JSON.stringify({ ...usage, input_tokens: 0, output_tokens: 0 })), 'Токени цього запуску: вхідні 0 · вихідні 0 · разом 0.');
+});
+
+test('publisher usage formatter rejects unsafe or inconsistent metadata', () => {
+  const usage = { requests: 2, tool_calls: 1, input_tokens: 100, output_tokens: 20, usage_responses: 2 };
+  for (const changed of [
+    { input_tokens: '100' }, { input_tokens: -1 }, { input_tokens: 1.5 }, { requests: 0 }, { requests: 7 },
+    { usage_responses: 3 }, { usage_responses: -1 }, { tool_calls: 31 },
+    { input_tokens: Number.MAX_SAFE_INTEGER, output_tokens: 1 }, { extra: 'model-controlled' },
+  ]) assert.equal(formatUsage(JSON.stringify({ ...usage, ...changed })), 'Токени цього запуску: дані недоступні.');
+  assert.equal(formatUsage('x'.repeat(1001)), 'Токени цього запуску: дані недоступні.');
+});
+
+test('publisher updates summary with this run usage separately from model JSON and prior reviews', async () => {
+  const api = mockApi({ comments: [{ id: 2, user: { login: 'github-actions[bot]' }, body: `${SUMMARY}\nТокени попереднього запуску: 9999` }] });
+  const usage = { requests: 2, tool_calls: 1, input_tokens: 357, output_tokens: 101, usage_responses: 2 };
+  await publish(api, manifest, JSON.stringify(result([])), new Map(), JSON.stringify(usage));
+  assert.equal(api.calls.at(-1).method, 'PATCH');
+  assert.match(api.calls.at(-1).body.body, /Токени цього запуску: вхідні 357 · вихідні 101 · разом 458\./);
+  assert.ok(!api.calls.at(-1).body.body.includes('9999'));
+  await assert.rejects(publish(mockApi(), manifest, JSON.stringify({ ...result([]), usage }), new Map()), /schema/);
+});
+
+test('publisher displays partial and unavailable usage explicitly', async () => {
+  const api = mockApi();
+  const partial = { requests: 2, tool_calls: 1, input_tokens: 100, output_tokens: 20, usage_responses: 1 };
+  await publish(api, manifest, JSON.stringify(result([])), new Map(), JSON.stringify(partial));
+  assert.match(api.calls.at(-1).body.body, /за 1 із 2 запитів. Дані неповні/);
+  const missing = mockApi();
+  await publish(missing, manifest, JSON.stringify(result([])), new Map());
+  assert.match(missing.calls.at(-1).body.body, /Токени цього запуску: дані недоступні/);
+});
+
+test('workflow forwards trusted usage output outside the structured model result', () => {
+  const workflow = readFileSync(new URL('../workflows/codex-review.yml', import.meta.url), 'utf8');
+  const runner = readFileSync(new URL('./responses.mjs', import.meta.url), 'utf8');
+  assert.ok(workflow.includes('usage: ${{ steps.review.outputs.usage }}'));
+  assert.ok(workflow.includes('REVIEW_USAGE: ${{ needs.analyze.outputs.usage }}'));
+  assert.ok(runner.includes('aggregateUsage = usage'));
+  assert.ok(runner.includes('usage=${JSON.stringify(aggregateUsage)}'));
+  assert.ok(!runner.includes('result.usage'));
 });

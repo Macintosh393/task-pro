@@ -58,6 +58,7 @@ jobs:
       pull-requests: read
     outputs:
       result: ${{ steps.review.outputs.result }}
+      usage: ${{ steps.review.outputs.usage }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -114,3 +115,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REVIEW_MANIFEST: ${{ needs.gate.outputs.manifest }}
           REVIEW_RESULT: ${{ needs.analyze.outputs.result }}
+          REVIEW_USAGE: ${{ needs.analyze.outputs.usage }}

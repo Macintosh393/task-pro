@@ -182,3 +182,46 @@ test('missing key, invalid variables and budget reject before network', async ()
   const value = harness([completed([message()])], { model: 'another-model', effort: 'medium' });
   await value.run(); assert.equal(value.requests[0].body.model, 'another-model'); assert.equal(value.requests[0].body.reasoning.effort, 'medium');
 });
+
+test('usage sums both token counts across every round in this run', async () => {
+  const value = harness([
+    { ...completed([call()]), usage: { input_tokens: 123, output_tokens: 45 } },
+    { ...completed([message()]), usage: { input_tokens: 234, output_tokens: 56 } },
+  ]);
+  await value.run();
+  assert.deepEqual(value.usage[0], { requests: 2, tool_calls: 1, input_tokens: 357, output_tokens: 101, usage_responses: 2 });
+});
+
+test('missing and partial round metadata never implies full usage coverage', async () => {
+  for (const metadata of [undefined, { input_tokens: 200 }, { output_tokens: 50 }]) {
+    const value = harness([
+      { ...completed([call()]), usage: metadata },
+      { ...completed([message()]), usage: { input_tokens: 100, output_tokens: 20 } },
+    ]);
+    await value.run();
+    assert.deepEqual(value.usage[0], { requests: 2, tool_calls: 1, input_tokens: 100, output_tokens: 20, usage_responses: 1 });
+  }
+  const missing = harness([{ ...completed([message()]), usage: undefined }]);
+  await missing.run();
+  assert.equal(missing.usage[0].usage_responses, 0);
+});
+
+test('malformed or overflowing usage counts are excluded without breaking review', async () => {
+  for (const metadata of [
+    { input_tokens: -1, output_tokens: 5 }, { input_tokens: 1.5, output_tokens: 5 },
+    { input_tokens: '100', output_tokens: 5 }, { input_tokens: Number.MAX_SAFE_INTEGER + 1, output_tokens: 0 },
+    { input_tokens: Number.MAX_SAFE_INTEGER, output_tokens: 1 },
+    { input_tokens: { toString: null, valueOf: null }, output_tokens: 1 },
+  ]) {
+    const value = harness([{ ...completed([message()]), usage: metadata }]);
+    await value.run();
+    assert.equal(value.usage[0].usage_responses, 0);
+  }
+  const aggregate = harness([
+    { ...completed([call()]), usage: { input_tokens: Number.MAX_SAFE_INTEGER - 1, output_tokens: 0 } },
+    { ...completed([message()]), usage: { input_tokens: 1, output_tokens: 1 } },
+  ]);
+  await aggregate.run();
+  assert.equal(aggregate.usage[0].input_tokens, Number.MAX_SAFE_INTEGER - 1);
+  assert.equal(aggregate.usage[0].usage_responses, 1);
+});
