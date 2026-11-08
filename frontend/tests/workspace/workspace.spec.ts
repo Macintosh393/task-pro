@@ -48,56 +48,129 @@ test('home drawer contains focus and blocks background interaction', async ({ pa
   await expect(page.getByText('Your boards and projects will appear here.')).toBeVisible();
   await page.getByRole('button', { name: 'Open navigation' }).click();
   const drawer = page.getByRole('dialog', { name: 'Workspace navigation' });
-  const close = drawer.getByRole('button', { name: 'Close navigation' });
-  await expect(close).toBeFocused();
+  const create = drawer.getByRole('button', { name: 'Create a new board' });
+  const logout = drawer.getByRole('button', { name: 'Log out' });
+  await expect(create).toBeFocused();
   await page.keyboard.press('Shift+Tab');
-  await expect(close).toBeFocused();
+  await expect(logout).toBeFocused();
   await page.keyboard.press('Tab');
-  await expect(close).toBeFocused();
+  await expect(create).toBeFocused();
   await page
     .getByRole('region', { name: 'Board canvas' })
     .evaluate((element: HTMLElement) => element.focus());
-  await expect(close).toBeFocused();
+  await expect(create).toBeFocused();
   await expect(page.locator('html')).toHaveCSS('overflow', 'hidden');
-  await close.click();
+  await page.keyboard.press('Escape');
   await expect(drawer).not.toBeVisible();
   await expect(page.getByRole('button', { name: 'Open navigation' })).toBeFocused();
   await expect(page.locator('html')).not.toHaveCSS('overflow', 'hidden');
 });
 
-for (const width of [375, 1440]) {
-  test(`home sidebar remains scrollable with long content at ${width}px`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 600 });
+async function openSidebar(page: Page, width: number) {
+  if (width < 1440) await page.getByRole('button', { name: 'Open navigation' }).click();
+  return width < 1440
+    ? page.getByRole('dialog')
+    : page.getByRole('complementary', { name: 'Workspace navigation' });
+}
+
+for (const width of [320, 375, 768, 1440]) {
+  test(`long board lists scroll without covering help or logout at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
     await openHome(page);
-    if (width < 1440) {
-      await page.getByRole('button', { name: 'Open navigation' }).click();
-      await page.getByRole('button', { name: 'Close navigation' }).evaluate((element) => {
-        element.style.lineHeight = '48px';
-      });
-    }
-    const sidebar =
-      width < 1440
-        ? page.getByRole('dialog')
-        : page.getByRole('complementary', { name: 'Workspace navigation' });
-    await sidebar.getByRole('navigation', { name: 'My boards' }).evaluate((element) => {
-      const template = element.querySelector('p')!;
+    const sidebar = await openSidebar(page, width);
+    await sidebar.locator('.workspace-board-list').evaluate((element) => {
+      const list = document.createElement('ul');
       for (let index = 0; index < 30; index++) {
-        const item = template.cloneNode(true);
-        item.textContent = `Test board ${index + 1}`;
-        element.append(item);
+        const item = document.createElement('li');
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'min-h-12 w-full px-5 text-left';
+        button.textContent =
+          index === 0 ? `Test board ${'very long title '.repeat(12)}` : `Test board ${index + 1}`;
+        item.append(button);
+        list.append(item);
       }
+      element.replaceChildren(list);
     });
-    const sizes = await sidebar.evaluate((element) => ({
+    const listBox = sidebar.locator('.workspace-board-list');
+    const sizes = await listBox.evaluate((element) => ({
       height: element.clientHeight,
       scrollHeight: element.scrollHeight,
     }));
     expect(sizes.scrollHeight).toBeGreaterThan(sizes.height);
-    const lastItem = sidebar.getByText('Test board 30', { exact: true });
+    const lastItem = sidebar.getByRole('button', { name: 'Test board 30', exact: true });
     await lastItem.scrollIntoViewIfNeeded();
-    await expect.poll(() => sidebar.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+    await expect.poll(() => listBox.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
     await expect(lastItem).toBeVisible();
+    const list = (await listBox.boundingBox())!;
+    const footer = (await sidebar.locator('.workspace-sidebar__footer').boundingBox())!;
+    expect(footer.y).toBeGreaterThanOrEqual(list.y + list.height - 1);
+    expect(footer.y + footer.height).toBeLessThanOrEqual(900);
+    await expect(sidebar.getByRole('button', { name: 'Need help?' })).toBeInViewport();
+    await expect(sidebar.getByRole('button', { name: 'Log out' })).toBeInViewport();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    const sidebarRoot = sidebar.locator('.workspace-sidebar');
+    expect(
+      await sidebarRoot.evaluate((element) => element.scrollWidth <= element.clientWidth),
+    ).toBe(true);
   });
 }
+
+test('short viewports keep help and logout reachable by scrolling the sidebar', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 480 });
+  await openHome(page);
+  const sidebar = await openSidebar(page, 320);
+  const logout = sidebar.getByRole('button', { name: 'Log out' });
+  await logout.scrollIntoViewIfNeeded();
+  await expect(logout).toBeInViewport();
+  const list = (await sidebar.locator('.workspace-board-list').boundingBox())!;
+  const footer = (await sidebar.locator('.workspace-sidebar__footer').boundingBox())!;
+  expect(footer.y).toBeGreaterThanOrEqual(list.y + list.height - 1);
+});
+
+test('sidebar shows create above the list, help copy and a text-only help button', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openHome(page);
+  const sidebar = await openSidebar(page, 1440);
+  const create = (await sidebar.getByRole('button', { name: 'Create a new board' }).boundingBox())!;
+  const list = (await sidebar.locator('.workspace-board-list').boundingBox())!;
+  expect(create.y + create.height).toBeLessThanOrEqual(list.y);
+  await expect(
+    sidebar.getByText(
+      'If you need help with TaskPro, check out our support resources or reach out to our customer support team.',
+    ),
+  ).toBeVisible();
+  const help = sidebar.getByRole('button', { name: 'Need help?' });
+  await expect(help).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await expect(help).toHaveCSS('border-top-color', 'rgba(0, 0, 0, 0)');
+});
+
+test('log out clears the session and returns to Welcome', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openHome(page);
+  let loggedOut = false;
+  await page.route('**/api/auth/logout', (route) => {
+    loggedOut = true;
+    return route.fulfill({ status: 204 });
+  });
+  await page.route('**/api/users/me', (route) =>
+    loggedOut
+      ? route.fulfill({ status: 401, json: {} })
+      : route.fulfill({ status: 200, json: user }),
+  );
+  await page.getByRole('button', { name: 'Log out' }).click();
+  await expect(page).toHaveURL('http://127.0.0.1:5175/');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.locator('.app-shell')).toHaveCount(0);
+});
 
 test('drawer scroll lock preserves existing html classes and inline overflow', async ({ page }) => {
   await openHome(page);
@@ -132,7 +205,8 @@ test('focus trap skips sidebar controls removed from the Tab order', async ({ pa
   await openHome(page);
   await page.getByRole('button', { name: 'Open navigation' }).click();
   const drawer = page.getByRole('dialog');
-  const close = drawer.getByRole('button', { name: 'Close navigation' });
+  const first = drawer.getByRole('button', { name: 'Create a new board' });
+  const last = drawer.getByRole('button', { name: 'Log out' });
   await drawer.evaluate((element) => {
     const control = document.createElement('button');
     control.textContent = 'Test focus control';
@@ -148,11 +222,11 @@ test('focus trap skips sidebar controls removed from the Tab order', async ({ pa
       if (mode === 'disabled') element.disabled = true;
       if (mode === 'hidden') element.hidden = true;
     }, mode);
-    await close.focus();
+    await first.focus();
     await page.keyboard.press('Shift+Tab');
-    await expect(close).toBeFocused();
+    await expect(last).toBeFocused();
     await page.keyboard.press('Tab');
-    await expect(close).toBeFocused();
+    await expect(first).toBeFocused();
     await lastControl.evaluate((element: HTMLButtonElement) => {
       element.removeAttribute('tabindex');
       element.style.visibility = '';
@@ -168,7 +242,7 @@ test('a queued close event preserves a drawer that has already reopened', async 
   const menu = page.getByRole('button', { name: 'Open navigation' });
   const drawer = page.getByRole('dialog');
   await menu.click();
-  await drawer.getByRole('button', { name: 'Close navigation' }).click();
+  await page.keyboard.press('Escape');
   await menu.click();
   await expect(drawer).toBeVisible();
   await drawer.dispatchEvent('close');
@@ -194,9 +268,6 @@ test('Escape, backdrop, button and edge swipe work without capturing canvas scro
   await page.mouse.click(350, 400);
   await expect(drawer).not.toBeVisible();
   await expect(menu).toBeFocused();
-  await menu.click();
-  await drawer.getByRole('button', { name: 'Close navigation' }).click();
-  await expect(drawer).not.toBeVisible();
   await swipe(page, '.app-shell__swipe-edge', 2, 110);
   await expect(drawer).toBeVisible();
   await swipe(page, '.app-shell__drawer', 180, 40);
@@ -305,10 +376,10 @@ for (const width of [375, 1440]) {
       width < 1440
         ? page.getByRole('dialog')
         : page.getByRole('complementary', { name: 'Workspace navigation' });
-    await expect(
-      navigation.getByRole('navigation', { name: 'My boards' }).getByRole('button'),
-    ).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Log out', exact: true })).toHaveCount(0);
+    await expect(navigation.locator('.workspace-board-list').getByRole('button')).toHaveCount(0);
+    await expect(navigation.getByRole('button', { name: 'Create a new board' })).toBeVisible();
+    await expect(navigation.getByRole('button', { name: 'Need help?' })).toBeVisible();
+    await expect(navigation.getByRole('button', { name: 'Log out', exact: true })).toBeVisible();
     await expect(page.getByText('Your boards will appear here.')).toBeVisible();
   });
 }

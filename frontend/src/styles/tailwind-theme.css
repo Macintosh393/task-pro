@@ -54,5 +54,13 @@
   --color-avatar-add-ink: var(--avatar-add-ink);
   --color-logout-icon: var(--logout-icon);
   --color-logout-hover: var(--logout-hover);
+  --color-surface-sidebar-selected: var(--surface-sidebar-selected);
+  --color-surface-sidebar-hover: var(--surface-sidebar-hover);
+  --color-surface-sidebar-help: var(--surface-sidebar-help);
+  --color-sidebar-divider: var(--border-sidebar-divider);
+  --color-sidebar-active-indicator: var(--sidebar-active-indicator);
+  --color-sidebar-label: var(--text-sidebar-label);
+  --color-sidebar-help: var(--text-sidebar-help);
+  --color-sidebar-help-accent: var(--text-sidebar-help-accent);
   --shadow-field: 0 4px 16px rgb(22 22 22 / 8%);
 }
