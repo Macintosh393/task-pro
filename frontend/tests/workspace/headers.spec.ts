@@ -1,6 +1,44 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
+test('home shows the current user avatar and falls back when it is unavailable', async ({
+  page,
+}) => {
+  let avatarUrl: string | null = '/test-avatar.svg';
+  await page.route('**/api/users/me', (route) =>
+    route.fulfill({
+      json: {
+        id: 'test',
+        username: 'Current user',
+        email: 'user@example.test',
+        avatarUrl,
+        theme: 'dark',
+      },
+    }),
+  );
+  await page.route('**/test-avatar.svg', (route) =>
+    route.fulfill({
+      contentType: 'image/svg+xml',
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" fill="blue"/></svg>',
+    }),
+  );
+  await page.goto('/home');
+  const profile = page.getByRole('button', { name: 'Edit profile: Current user' });
+  const image = profile.locator('img');
+  await expect(image).toBeVisible();
+  await expect(image).toHaveAttribute('src', '/test-avatar.svg');
+  await expect.poll(() => image.evaluate((el: HTMLImageElement) => el.naturalWidth)).toBe(32);
+  avatarUrl = '/missing-avatar.png';
+  await page.route('**/missing-avatar.png', (route) => route.fulfill({ status: 404, body: '' }));
+  await page.reload();
+  await expect(profile.locator('svg')).toBeVisible();
+  await expect(image).toHaveCount(0);
+  avatarUrl = null;
+  await page.reload();
+  await expect(profile.locator('svg')).toBeVisible();
+  await expect(image).toHaveCount(0);
+});
+
 for (const width of [320, 375, 768, 1440]) {
   test(`headers support keyboard, global themes and long names at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 812 });
