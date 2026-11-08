@@ -1,0 +1,122 @@
+name: Codex review
+
+on:
+  workflow_run:
+    workflows: [Codex review request]
+    types: [completed]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      pull_request:
+        description: 'Номер відкритого PR з цього репозиторію'
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  gate:
+    if: >-
+      github.event_name == 'workflow_run' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.issue.pull_request && github.event.comment.body == '/codex-review')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: read
+    outputs:
+      allowed: ${{ steps.gate.outputs.allowed }}
+      manifest: ${{ steps.gate.outputs.manifest }}
+      number: ${{ steps.gate.outputs.number }}
+      trusted: ${{ steps.gate.outputs.trusted }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24.22.1'
+      - id: gate
+        run: node .github/codex/review.mjs gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  analyze:
+    needs: gate
+    if: needs.gate.outputs.allowed == 'true'
+    concurrency:
+      group: codex-analyze-${{ github.repository }}-${{ needs.gate.outputs.number }}
+      cancel-in-progress: false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      result: ${{ steps.codex.outputs.final-message }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ needs.gate.outputs.trusted }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24.22.1'
+      - id: collect
+        run: node .github/codex/review.mjs collect
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REVIEW_MANIFEST: ${{ needs.gate.outputs.manifest }}
+      - name: Check OpenAI setup
+        if: steps.collect.outputs.proceed == 'true'
+        env:
+          KEY_CONFIGURED: ${{ secrets.OPENAI_API_KEY != '' }}
+        run: |
+          if [ "$KEY_CONFIGURED" != "true" ]; then
+            echo '::error::Додайте repository Actions secret OPENAI_API_KEY. Значення ключа не слід надсилати в PR або чат.'
+            exit 1
+          fi
+      - name: Review pinned PR data
+        id: codex
+        if: steps.collect.outputs.proceed == 'true'
+        uses: openai/codex-action@bdf19a4a223ec2549a3e2274a0cf61556bc07675 # v1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          codex-version: '0.167.0'
+          permission-profile: ':read-only'
+          safety-strategy: drop-sudo
+          prompt-file: .github/codex/prompt.md
+          output-schema-file: .github/codex/schema.json
+          model: ${{ vars.CODEX_REVIEW_MODEL }}
+          effort: ${{ vars.CODEX_REVIEW_EFFORT }}
+          codex-args: '["--ephemeral"]'
+
+  publish:
+    needs: [gate, analyze]
+    if: needs.analyze.outputs.result != ''
+    concurrency:
+      group: codex-publish-${{ github.repository }}-${{ needs.gate.outputs.number }}
+      cancel-in-progress: false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ needs.gate.outputs.trusted }}
+          persist-credentials: false
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24.22.1'
+      - run: node .github/codex/review.mjs publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REVIEW_MANIFEST: ${{ needs.gate.outputs.manifest }}
+          REVIEW_RESULT: ${{ needs.analyze.outputs.result }}

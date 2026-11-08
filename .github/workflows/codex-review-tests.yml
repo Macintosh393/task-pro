@@ -1,0 +1,28 @@
+name: Codex review offline checks
+
+on:
+  pull_request:
+    paths:
+      - '.github/codex/**'
+      - '.github/workflows/codex-review*.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/codex/**'
+      - '.github/workflows/codex-review*.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24.22.1'
+      - run: node --test .github/codex/review.test.mjs
