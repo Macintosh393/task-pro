@@ -24,9 +24,9 @@ Vite покаже адресу локального застосунку в те
 
 ## Робота над workspace
 
-Відкрийте застосунок, зареєструйтеся або увійдіть. Після входу `/home` показує спільну порожню основу з Header, Sidebar і областю дошки. Для цього потрібні backend, база даних і чинна сесія. Тестових дошок, колонок та окремого preview-маршруту в застосунку немає.
+Відкрийте застосунок, зареєструйтеся або увійдіть. Після входу `/home` показує Header, Sidebar (Logo, My boards, Create a new board, порожній список дошок, Help card, Log out) і область дошки. Для цього потрібні backend, база даних і чинна сесія. Log out очищає сесію й повертає на Welcome. Тестових дошок, колонок та окремого preview-маршруту в застосунку немає; демонстраційні дошки є лише в stories і tests.
 
-Header, Sidebar і Board мають окремі TSX файли з Tailwind utilities. [Контракт workspace](docs/workspace-contract.md) описує поточні props, layout і overflow. Storybook залишається додатковим ізольованим переглядом UI-kit і компонентів.
+Header, Sidebar (`sidebar/`) і Board мають окремі TSX файли з Tailwind utilities. [Контракт workspace](docs/workspace-contract.md) описує поточні props, layout і overflow. Storybook залишається додатковим ізольованим переглядом UI-kit і компонентів.
 
 ```bash
 npm run lint

@@ -1,10 +1,12 @@
 import { Button, Icon } from '../ui';
-import type { WorkspaceViewProps } from './workspace-types';
+import type { WorkspaceBoard as Board } from './workspace-types';
 
-export function WorkspaceBoard({
-  activeBoard = null,
-  onOpenFilters,
-}: Pick<WorkspaceViewProps, 'activeBoard' | 'onOpenFilters'>) {
+interface WorkspaceBoardProps {
+  activeBoard?: Pick<Board, 'id' | 'title'> | null;
+  onOpenFilters?: () => void;
+}
+
+export function WorkspaceBoard({ activeBoard = null, onOpenFilters }: WorkspaceBoardProps) {
   return (
     <section
       className="workspace-board flex h-full min-h-0 min-w-0 flex-col"

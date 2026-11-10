@@ -188,3 +188,36 @@
   --logout-icon: #ffffff;
   --logout-hover: #b8bcfd;
 }
+
+/* Workspace sidebar roles (docs/themes.md): AA-safe adaptations of the sidebar design. */
+:root,
+:root[data-theme='dark'] {
+  --surface-sidebar-selected: #1f1f1f;
+  --surface-sidebar-hover: #262626;
+  --surface-sidebar-help: #1f1f1f;
+  --border-sidebar-divider: #ffffff1a;
+  --sidebar-active-indicator: #bedbb0;
+  --text-sidebar-label: #b8b8b8;
+  --text-sidebar-help: #ffffff;
+  --text-sidebar-help-accent: var(--action-primary);
+}
+:root[data-theme='light'] {
+  --surface-sidebar-selected: #f6f6f7;
+  --surface-sidebar-hover: #fbfbfc;
+  --surface-sidebar-help: #f6f6f7;
+  --border-sidebar-divider: #1616161a;
+  --sidebar-active-indicator: #4f7042;
+  --text-sidebar-label: #626262;
+  --text-sidebar-help: #161616;
+  --text-sidebar-help-accent: #4f7042;
+}
+:root[data-theme='violet'] {
+  --surface-sidebar-selected: #6366c3;
+  --surface-sidebar-hover: #6769c4;
+  --surface-sidebar-help: #ecedfd;
+  --border-sidebar-divider: #ffffff1a;
+  --sidebar-active-indicator: #ffffff;
+  --text-sidebar-label: #e1e2f5;
+  --text-sidebar-help: #161616;
+  --text-sidebar-help-accent: var(--action-primary);
+}
