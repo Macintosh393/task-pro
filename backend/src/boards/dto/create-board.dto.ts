@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsIn, IsNotEmpty, IsString, MaxLength, ValidateIf } from 'class-validator';
+import { IsIn, IsNotEmpty, IsString, Matches, MaxLength, ValidateIf } from 'class-validator';
 
 import {
   BOARD_BACKGROUNDS,
@@ -17,6 +17,8 @@ export class CreateBoardDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(255)
+  // PostgreSQL rejects U+0000 in text (22021), which would surface as HTTP 500 instead of 400.
+  @Matches(/^[^\0]*$/, { message: 'title must not contain null characters' })
   title: string;
 
   @ApiPropertyOptional({ enum: BOARD_ICONS, default: DEFAULT_BOARD_ICON })

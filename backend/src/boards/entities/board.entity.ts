@@ -21,11 +21,13 @@ import {
   type BoardIcon,
 } from '../board-options.js';
 
+// Constraint names are pinned to the ones created by the AddBoards migration, so that
+// `migration:generate` does not emit a drop/recreate for them.
 @Entity('boards')
-@Index(['userId', 'createdAt', 'id'])
+@Index('IDX_boards_user_created_id', ['userId', 'createdAt', 'id'])
 export class Board {
   @ApiProperty({ example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' })
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('uuid', { primaryKeyConstraintName: 'PK_boards_id' })
   id: string;
 
   @Exclude()
@@ -34,7 +36,7 @@ export class Board {
 
   @Exclude()
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'userId', foreignKeyConstraintName: 'FK_boards_userId_users' })
   user: User;
 
   @ApiProperty({ example: 'Project Alpha', maxLength: 255 })

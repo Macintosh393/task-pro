@@ -72,6 +72,7 @@ describe('CreateBoardDto', () => {
       ['whitespace only', '     '],
       ['tabs and newlines only', '\t\n '],
       ['256 characters', 'a'.repeat(256)],
+      ['containing a null character (PostgreSQL cannot store it)', 'Road\u0000map'],
       ['a number', 123],
       ['an object', { value: 'x' }],
       ['an array', ['x']],

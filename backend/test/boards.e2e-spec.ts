@@ -18,11 +18,13 @@ import { Board } from '../src/boards/entities/board.entity.js';
 const JWT_SECRET = 'test-secret';
 
 type Where = Partial<Pick<Board, 'id' | 'userId'>>;
+type Order = Partial<Record<'createdAt' | 'id', 'ASC' | 'DESC'>>;
 
 /**
  * Stateful in-memory stand-in for Repository<Board>. It honours `where` (AND of
- * equality checks; uuid comparison is case-insensitive like Postgres) and
- * `order` (createdAt, id), which is all BoardsService relies on.
+ * equality checks; uuid comparison is case-insensitive like Postgres) and the
+ * `order` option passed by the caller (createdAt, id; first key wins), which is
+ * all BoardsService relies on. Without `order`, rows come back in insertion order.
  */
 function createFakeBoardsRepository() {
   const rows: Board[] = [];
@@ -32,6 +34,18 @@ function createFakeBoardsRepository() {
     Object.entries(where).every(
       ([key, value]) => String(board[key as keyof Where]).toLowerCase() === String(value).toLowerCase(),
     );
+
+  const compare = (a: Board, b: Board, order: Order) => {
+    for (const [key, direction] of Object.entries(order) as [keyof Order, 'ASC' | 'DESC'][]) {
+      const diff = key === 'createdAt' ? a.createdAt.getTime() - b.createdAt.getTime() : a[key].localeCompare(b[key]);
+
+      if (diff !== 0) {
+        return direction === 'DESC' ? -diff : diff;
+      }
+    }
+
+    return 0;
+  };
 
   return {
     rows,
@@ -47,10 +61,8 @@ function createFakeBoardsRepository() {
 
       return Promise.resolve(Object.assign(new Board(), stored));
     }),
-    find: vi.fn(({ where }: { where: Where }) => {
-      const result = rows
-        .filter((board) => matches(board, where))
-        .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id.localeCompare(b.id));
+    find: vi.fn(({ where, order = {} }: { where: Where; order?: Order }) => {
+      const result = rows.filter((board) => matches(board, where)).sort((a, b) => compare(a, b, order));
 
       return Promise.resolve(result.map((board) => Object.assign(new Board(), board)));
     }),
@@ -240,15 +252,21 @@ describe('BoardsController (e2e)', () => {
     });
 
     it('returns boards oldest first', async () => {
-      const titles = ['first', 'second', 'third'];
-      for (const title of titles) {
+      // Stored out of chronological order, so only the query's ORDER BY can produce the expected sequence.
+      const base = new Date('2026-01-01T00:00:00.000Z').getTime();
+      const stored: [title: string, offsetMs: number][] = [
+        ['second', 1000],
+        ['third', 2000],
+        ['first', 0],
+      ];
+      for (const [title, offsetMs] of stored) {
+        repository.clock.now = new Date(base + offsetMs);
         await createBoard(userA, { title }).expect(201);
-        repository.clock.now = new Date(repository.clock.now.getTime() + 1000);
       }
 
       const response = await request(app.getHttpServer()).get('/api/boards').set(bearer(userA)).expect(200);
 
-      expect(response.body.map((board: { title: string }) => board.title)).toEqual(titles);
+      expect(response.body.map((board: { title: string }) => board.title)).toEqual(['first', 'second', 'third']);
     });
 
     it('orders boards created at the same instant deterministically by id', async () => {
@@ -272,6 +290,7 @@ describe('BoardsController (e2e)', () => {
       ['an empty title', { title: '' }],
       ['a whitespace-only title', { title: '   ' }],
       ['a 256-character title', { title: 'a'.repeat(256) }],
+      ['a title with a null character', { title: 'Road\u0000map' }],
       ['a numeric title', { title: 42 }],
       ['a null title', { title: null }],
       ['an unknown icon', { title: 'Board', icon: 'rocket' }],
