@@ -107,6 +107,18 @@ npm run start:dev
 
 Для локальної перевірки після міграцій запустіть `npm test` та `npm run test:e2e`. E2E-команда використовує підключення до PostgreSQL з `.env`.
 
+## Дошки
+
+Усі маршрути потребують access token (cookie `accessToken` або `Authorization: Bearer`); власник дошки визначається лише з поточної сесії.
+
+- `POST /api/boards` приймає `title` (обов’язковий, після trim 1–255 символів), `icon` та `background`. Повертає HTTP 201 з дошкою.
+- `GET /api/boards` повертає лише власні дошки від найстаріших до найновіших (`createdAt`, далі `id`); порожній список — `[]`.
+- `GET /api/boards/:id` повертає власну дошку. Чужий або неіснуючий `id` дає однакову відповідь HTTP 404 `Board not found`; `id`, що не є UUID, — HTTP 400.
+
+Відповідь: `{ id, title, icon, background, createdAt, updatedAt }` (у БД — колонки `iconId` та `backgroundId`).
+
+Допустимі `icon`: `project` (типово), `star`, `loading`, `puzzle`, `container`, `lightning`, `colors`, `hexagon`. Допустимі `background`: `none` (типово) та `bg-01` … `bg-15`. Список зберігається в `src/boards/board-options.ts`; ідентифікатори фонів потрібно узгодити з FE #37. Додаткові поля в тілі (наприклад `userId`) відхиляються з HTTP 400.
+
 ## Команди
 
 | Команда              | Призначення                                       |
