@@ -1,5 +1,6 @@
 export * from './Avatar';
 export * from './AvatarUpload';
+export * from './BoardBackgroundPicker';
 export * from './BoardIconPicker';
 export * from './Button';
 export * from './FormField';
