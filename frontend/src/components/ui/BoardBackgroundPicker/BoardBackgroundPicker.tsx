@@ -2,6 +2,8 @@ import { useId } from 'react';
 import { cn } from '../cn';
 import { radioStyles } from '../control-styles';
 import { Icon } from '../Icon';
+import { boardBackgrounds, type BoardBackground } from './board-backgrounds';
+export type { BoardBackground };
 import bg01 from '../../../assets/board-backgrounds/picker/bg-01.png';
 import bg02 from '../../../assets/board-backgrounds/picker/bg-02.png';
 import bg03 from '../../../assets/board-backgrounds/picker/bg-03.png';
@@ -17,26 +19,6 @@ import bg12 from '../../../assets/board-backgrounds/picker/bg-12.png';
 import bg13 from '../../../assets/board-backgrounds/picker/bg-13.png';
 import bg14 from '../../../assets/board-backgrounds/picker/bg-14.png';
 import bg15 from '../../../assets/board-backgrounds/picker/bg-15.png';
-
-const boardBackgrounds = [
-  'none',
-  'bg-01',
-  'bg-02',
-  'bg-03',
-  'bg-04',
-  'bg-05',
-  'bg-06',
-  'bg-07',
-  'bg-08',
-  'bg-09',
-  'bg-10',
-  'bg-11',
-  'bg-12',
-  'bg-13',
-  'bg-14',
-  'bg-15',
-] as const;
-export type BoardBackground = (typeof boardBackgrounds)[number];
 
 const previews: Record<Exclude<BoardBackground, 'none'>, string> = {
   'bg-01': bg01,

@@ -1,4 +1,4 @@
-import type { BoardIcon } from '../ui';
+import type { BoardBackground, BoardIcon } from '../ui';
 
 export interface WorkspaceUser {
   username: string;
@@ -12,6 +12,14 @@ export interface WorkspaceBoard {
 }
 
 export type WorkspaceBoardsStatus = 'loading' | 'ready' | 'error';
+
+/** What the board area shows; title and background always come from the active board. */
+export type WorkspaceActiveBoard =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'not-found'; onBack: () => void }
+  | { status: 'error'; onRetry: () => void }
+  | { status: 'ready'; board: { title: string; background: BoardBackground } };
 
 export interface WorkspaceSidebarProps {
   boards: readonly WorkspaceBoard[];
@@ -32,6 +40,7 @@ export interface WorkspaceViewProps {
   boards?: readonly WorkspaceBoard[];
   boardsStatus?: WorkspaceBoardsStatus;
   activeBoardId?: string | null;
+  activeBoard?: WorkspaceActiveBoard;
   onCreateBoard?: () => void;
   onSelectBoard?: (board: WorkspaceBoard) => void;
   onEditBoard?: (board: WorkspaceBoard) => void;

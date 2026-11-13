@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getCurrentUser, loginApi, logoutApi } from '../api/auth.api';
 import type { AuthContextType, LoginCredentials } from '../types';
 import { AuthContext, AUTH_QUERY_KEY } from './auth-context-definition';
+import { boardKeys } from '../../boards/queries/board-queries';
 
 export interface AuthProviderProps {
   children: ReactNode;
@@ -26,6 +27,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const loginMutation = useMutation({
     mutationFn: loginApi,
     onSuccess: (userData) => {
+      // A new session never inherits another account's boards.
+      queryClient.removeQueries({ queryKey: boardKeys.all });
       queryClient.setQueryData(AUTH_QUERY_KEY, userData);
     },
   });
@@ -33,6 +36,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const registerMutation = useMutation({
     mutationFn: registerUser,
     onSuccess: (userData) => {
+      // A new session never inherits another account's boards.
+      queryClient.removeQueries({ queryKey: boardKeys.all });
       queryClient.setQueryData(AUTH_QUERY_KEY, userData);
     },
   });

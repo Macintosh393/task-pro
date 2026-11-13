@@ -1,6 +1,14 @@
 # Контракт workspace
 
-`WorkspaceView` збирає захищений `/home` після входу. Header показує користувача. Sidebar містить Logo, My boards, Create a new board, список дошок, Help card і Log out. Board містить заголовок Your workspace та порожній canvas. У застосунку список дошок порожній: дані й маршрут дошки з'являться у #36.
+`WorkspaceView` збирає захищений `/home` після входу. Header показує користувача. Sidebar містить Logo, My boards, Create a new board, список дошок, Help card і Log out. Board показує активну дошку: її назву та фон. Без вибору лишається заголовок Your workspace із підказкою створити або обрати дошку.
+
+## Дані дошок і маршрут
+
+`src/features/boards` містить API (`GET/POST /api/boards`, `GET /api/boards/:id`), TanStack Query options, mutation створення, zod-схему та `CreateBoardModal`. Ключі кешу `['boards', userId, 'list' | 'detail', boardId?]` прив'язані до користувача. Login/register прибирають `['boards']`, logout очищає весь `queryClient`, тож дошки іншого акаунта не показуються.
+
+Активна дошка — search param `/home?boardId=<uuid>` (`validateSearch` зберігає сирий рядок). Container `home.tsx` бере `boardId` з маршруту: Sidebar отримує його як `activeBoardId`, а `WorkspaceBoard` — стан detail query того самого id, тож highlight, назва й фон завжди з однієї дошки. Detail query має `initialData` зі списку, тому вибір відкривається миттєво, а прямий маршрут після reload завантажує дошку окремо. Кожен id має власний ключ: пізня відповідь попереднього вибору не підміняє поточний. Не-UUID id одразу дає not found без запиту; 404/400 від backend також означають not found.
+
+Create a new board відкриває `CreateBoardModal` (Modal `size="compact"`): Title (обов'язковий, trim, ≤255), 8 іконок (типово `project`) і 16 фонів (типово `none`). Після успіху дошка додається в кінець списку (backend сортує від найстаршої), кеш detail заповнюється, список інвалідовується, модалка закривається й маршрут переходить на нову дошку. Помилка сервера показується в `role="alert"`, введені значення зберігаються. Закриття модалки під час запиту лишає дошку в списку без переходу. На mobile/tablet `WorkspaceView` спершу закриває drawer, потім викликає `onCreateBoard`; модалка рендериться після `WorkspaceView`, тому фокус після закриття повертається до кнопки меню.
 
 ## Файли та відповідальність
 
@@ -15,7 +23,8 @@
 | `sidebar/WorkspaceBoardItem.tsx`   | Рядок дошки: вибір, активний стан, Edit і Delete                       |
 | `sidebar/WorkspaceCreateBoard.tsx` | Рядок Create a new board                                               |
 | `sidebar/WorkspaceHelpCard.tsx`    | Рослина, текст і кнопка Need help?                                     |
-| `WorkspaceBoard.tsx`               | Заголовок та canvas з обмеженою висотою                                |
+| `WorkspaceBoard.tsx`               | Стан активної дошки, заголовок, фон, відступи контенту й canvas        |
+| `board-backgrounds.ts`             | Повнорозмірні фони `bg-NN-{mobile,tablet,desktop}.jpg` за id           |
 
 Auth container у `src/routes/_authenticated/home.tsx` отримує поточного користувача й `logout` через `useAuth` і передає їх у `WorkspaceView`. Після успішного `logout` (він очищає auth-кеш і `queryClient`) container переходить на `/` з `replace: true`; помилка скидає pending і лишає користувача на `/home`. Runtime fixture data, preview controls та auth bypass відсутні.
 
@@ -25,7 +34,7 @@ Auth container у `src/routes/_authenticated/home.tsx` отримує поточ
 | ---------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `header`   | `({ menuButtonProps }) => ReactNode` | Рендер Header. `menuButtonProps` має тип `ComponentPropsWithRef<'button'>` і містить `ref`, `type`, `aria-label`, `aria-controls`, `aria-expanded`, `onClick`, `hidden` |
 | `sidebar`  | `({ closeNavigation }) => ReactNode` | Рендер єдиного Sidebar у desktop `<aside>` або мобільному `<dialog>`. `closeNavigation(): void` закриває drawer                                                         |
-| `children` | `ReactNode`                          | Контент у `<main>` з обмеженою шириною та висотою                                                                                                                       |
+| `children` | `ReactNode`                          | Контент у `<main>` з обмеженою шириною та висотою; відступи контенту задає `WorkspaceBoard`, щоб фон дошки заповнював усю область під Header                              |
 
 Header передає всі `menuButtonProps` спільному `Button`, який прокидає ref. AppShell володіє єдиним drawer state.
 
@@ -49,7 +58,7 @@ Native `dialog.showModal()` блокує фон. Tailwind utility `overflow-hidd
 
 ## `WorkspaceView` та компоненти
 
-`WorkspaceUser` містить `username: string` і `email: string`; `WorkspaceBoard` — `id`, `title` і `icon: BoardIcon`. `WorkspaceView` приймає `user` та необов'язкові `boards` (за замовчуванням `[]`), `boardsStatus` (`'loading' | 'ready' | 'error'`, за замовчуванням `'ready'`), `activeBoardId`, `onCreateBoard`, `onSelectBoard`, `onEditBoard`, `onDeleteBoard`, `onRetryBoards`, `onOpenHelp`, `onLogout`, `logoutPending`. Відсутні callbacks замінюються модульним no-op. `WorkspaceHeader` отримує `user` та `menuButtonProps`. `WorkspaceBoard` не має props.
+`WorkspaceUser` містить `username: string` і `email: string`; `WorkspaceBoard` — `id`, `title` і `icon: BoardIcon`. `WorkspaceView` приймає `user` та необов'язкові `boards` (за замовчуванням `[]`), `boardsStatus` (`'loading' | 'ready' | 'error'`, за замовчуванням `'ready'`), `activeBoardId`, `onCreateBoard`, `onSelectBoard`, `onEditBoard`, `onDeleteBoard`, `onRetryBoards`, `onOpenHelp`, `onLogout`, `logoutPending`. Відсутні callbacks замінюються модульним no-op. `WorkspaceView` також приймає `activeBoard` (`WorkspaceActiveBoard`): `idle`, `loading` (`role="status"`), `not-found` (`onBack` → `/home` без параметра), `error` (`role="alert"`, `onRetry`) або `ready` з `board: { title, background }`. `WorkspaceHeader` отримує `user` та `menuButtonProps`. `WorkspaceBoard` отримує `activeBoard`; для фону, відмінного від `none`, він задає динамічні CSS-змінні `--board-bg-mobile/tablet/desktop`, а Tailwind utilities `bg-(image:--board-bg-*)` з breakpoints 768/1440 обирають файл, тож браузер завантажує лише потрібний розмір. `data-board-background` містить id фону для browser checks.
 
 ## Sidebar
 
@@ -65,7 +74,7 @@ Native `dialog.showModal()` блокує фон. Tailwind utility `overflow-hidd
 
 Стани списку: `loading` — `role="status"` і три placeholder; `error` — `role="alert"` і кнопка Try again (`onRetryBoards`); `ready` без дошок — «Your boards will appear here.»; `ready` — `ul` з рядками.
 
-Активна дошка визначається лише prop `activeBoardId`; `WorkspaceView` і `/home` не зберігають вибір (це робить #36). У stories вибір інтерактивний через локальний state обгортки.
+Активна дошка визначається лише prop `activeBoardId`, який `/home` бере з search param `boardId`; вибір дошки викликає перехід на `/home?boardId=<id>`. У stories вибір інтерактивний через локальний state обгортки.
 
 Рядок дошки: native `<button>` (іконка 18px, назва з `truncate` і `title`) та окремі sibling-кнопки Edit і Delete (`IconButton`, glyph 16px, ціль 24×24, `aria-label` містить назву дошки). Активний рядок має `aria-current="true"`, поверхню `surface-sidebar-selected` і індикатор 4px біля правого краю Sidebar; його дії завжди видимі. Неактивний рядок приглушений; при hover/focus-within отримує `surface-sidebar-hover` і повний колір тексту. Дії неактивного рядка прибрані з layout (`hidden`, тож не займають місце під назву) лише на пристроях із `hover: hover` і з'являються при hover/focus-within; на touch вони завжди видимі. Edit і Delete викликають лише свої callbacks, вибір дошки не запускають. Вибір дошки викликає `onSelectBoard(board)`, а потім `closeNavigation()` (на desktop no-op).
 

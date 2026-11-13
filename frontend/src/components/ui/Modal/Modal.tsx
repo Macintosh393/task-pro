@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type ReactNode, type RefObject } from 'react';
+import { cn } from '../cn';
 import { Heading } from '../Heading';
 import { IconButton } from '../IconButton';
 export type ModalProps = {
@@ -9,6 +10,12 @@ export type ModalProps = {
   children: ReactNode;
   initialFocusRef?: RefObject<HTMLElement | null>;
   closeLabel?: string;
+  /** `default` is the 480px shell; `compact` is 335px on mobile and 350px from 768px. */
+  size?: 'default' | 'compact';
+};
+const sizeStyles = {
+  default: 'w-[min(480px,calc(100vw-32px))]',
+  compact: 'w-[min(335px,calc(100vw-32px))] min-[768px]:w-[350px]',
 };
 export function Modal({
   open,
@@ -18,6 +25,7 @@ export function Modal({
   children,
   initialFocusRef,
   closeLabel = 'Close dialog',
+  size = 'default',
 }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const id = useId();
@@ -37,7 +45,10 @@ export function Modal({
   return (
     <dialog
       ref={dialogRef}
-      className="ui-modal m-auto box-border max-h-[calc(100dvh-32px)] w-[min(480px,calc(100vw-32px))] max-w-none overflow-auto rounded-lg border border-control-border bg-surface-filters p-6 font-ui text-primary backdrop:bg-modal-backdrop [&_:focus-visible]:outline-(length:--focus-ring-width) [&_:focus-visible]:outline-solid [&_:focus-visible]:outline-focus-ring [&_:focus-visible]:outline-offset-(--focus-ring-offset)"
+      className={cn(
+        'ui-modal m-auto box-border max-h-[calc(100dvh-32px)] max-w-none overflow-auto rounded-lg border border-control-border bg-surface-filters p-6 font-ui text-primary backdrop:bg-modal-backdrop [&_:focus-visible]:outline-(length:--focus-ring-width) [&_:focus-visible]:outline-solid [&_:focus-visible]:outline-focus-ring [&_:focus-visible]:outline-offset-(--focus-ring-offset)',
+        sizeStyles[size],
+      )}
       aria-labelledby={`${id}-title`}
       aria-describedby={description ? `${id}-description` : undefined}
       onCancel={(event) => {
@@ -90,7 +101,10 @@ export function Modal({
         />
       </div>
       {description && (
-        <p id={`${id}-description`} className="mt-0 mb-4 text-sm/normal text-control-muted wrap-anywhere">
+        <p
+          id={`${id}-description`}
+          className="mt-0 mb-4 text-sm/normal text-control-muted wrap-anywhere"
+        >
           {description}
         </p>
       )}

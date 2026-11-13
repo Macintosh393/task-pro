@@ -40,3 +40,16 @@ export const Filled: Story = {
     ],
   },
 };
+export const WithBackground: Story = {
+  args: {
+    ...Filled.args,
+    activeBoard: { status: 'ready', board: { title: 'Project office', background: 'bg-05' } },
+  },
+};
+export const BoardNotFound: Story = {
+  args: {
+    ...Filled.args,
+    activeBoardId: null,
+    activeBoard: { status: 'not-found', onBack: () => {} },
+  },
+};

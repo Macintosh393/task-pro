@@ -12,6 +12,7 @@ const user = {
 async function openHome(page: Page) {
   await page.route('**/api/users/me', (route) => route.fulfill({ status: 200, json: user }));
   await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 401, json: {} }));
+  await page.route('**/api/boards', (route) => route.fulfill({ status: 200, json: [] }));
   await page.goto('/home');
   await expect(page.getByText(user.username, { exact: true })).toBeVisible();
 }
@@ -45,7 +46,9 @@ async function swipe(page: Page, selector: string, startX: number, endX: number)
 
 test('home drawer contains focus and blocks background interaction', async ({ page }) => {
   await openHome(page);
-  await expect(page.getByText('Your boards and projects will appear here.')).toBeVisible();
+  await expect(
+    page.getByText('Select a board in the sidebar or create a new one to get started.'),
+  ).toBeVisible();
   await page.getByRole('button', { name: 'Open navigation' }).click();
   const drawer = page.getByRole('dialog', { name: 'Workspace navigation' });
   const create = drawer.getByRole('button', { name: 'Create a new board' });
@@ -110,9 +113,9 @@ for (const width of [320, 375, 768, 1440]) {
     expect(footer.y + footer.height).toBeLessThanOrEqual(900);
     await expect(sidebar.getByRole('button', { name: 'Need help?' })).toBeInViewport();
     await expect(sidebar.getByRole('button', { name: 'Log out' })).toBeInViewport();
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-    ).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
     const sidebarRoot = sidebar.locator('.workspace-sidebar');
     expect(
       await sidebarRoot.evaluate((element) => element.scrollWidth <= element.clientWidth),
@@ -286,7 +289,7 @@ test('resize releases modal state and transfers navigation focus', async ({ page
   await openHome(page);
   await page.getByRole('button', { name: 'Open navigation' }).click();
   await page.setViewportSize({ width: 1440, height: 770 });
-  await expect(page.locator('dialog')).not.toHaveAttribute('open');
+  await expect(page.locator('dialog.app-shell__drawer')).not.toHaveAttribute('open');
   const sidebar = page.getByRole('complementary', { name: 'Workspace navigation' });
   await expect(sidebar).toBeFocused();
   await expect(page.locator('html')).not.toHaveCSS('overflow', 'hidden');
@@ -306,7 +309,9 @@ for (const width of [300, 320, 375, 768, 1440]) {
   test(`home bounds independent content scroll at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: width === 300 ? 300 : 600 });
     await openHome(page);
-    await expect(page.getByText('Your boards and projects will appear here.')).toBeVisible();
+    await expect(
+      page.getByText('Select a board in the sidebar or create a new one to get started.'),
+    ).toBeVisible();
     await addOverflowContent(page);
     const dimensions = await page.evaluate(() => ({
       width: innerWidth,
@@ -343,7 +348,9 @@ for (const width of [300, 320, 375, 768, 1440]) {
     expect(await page.locator('.app-shell__header').boundingBox()).toEqual(header);
     expect(await page.locator('.workspace-board__heading').boundingBox()).toEqual(heading);
     await page.reload();
-    await expect(page.getByText('Your boards and projects will appear here.')).toBeVisible();
+    await expect(
+      page.getByText('Select a board in the sidebar or create a new one to get started.'),
+    ).toBeVisible();
     await expect(page.getByTestId('overflow-list')).toHaveCount(0);
   });
 }

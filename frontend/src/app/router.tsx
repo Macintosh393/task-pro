@@ -1,4 +1,5 @@
 import { createRouter, createRoute, redirect } from '@tanstack/react-router';
+import { z } from 'zod';
 import { rootRoute, type RouterContext } from '../routes/__root';
 import { AUTH_QUERY_KEY } from '../features/auth/context/auth-context-definition';
 import { WelcomePage } from '../pages/WelcomePage';
@@ -59,6 +60,8 @@ const authenticatedRoute = createRoute({
 const homeRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/home',
+  // The raw id is kept: a malformed boardId must show "not found", not silently vanish.
+  validateSearch: z.object({ boardId: z.string().optional().catch(undefined) }),
   component: HomePage,
 });
 
