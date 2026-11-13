@@ -4,9 +4,11 @@
 
 ## Контракт
 
+AppHeader має `ThemePicker`: Light / Dark / Violet змінюють єдиний `html[data-theme]` без перезавантаження. Поточна тема читається з цього атрибута; окремої копії theme state немає. Меню підтримує Enter/Space, стрілки, Home/End, Escape з поверненням фокуса, Tab і закриття ззовні. Список має source розмір 100×107px із рядками 25px; trigger зберігає hit area 44px. Поточна тема позначена акцентом і підкресленням; у Light темний текст зберігає контраст замість source світло-зеленого. Persistence та backend policy залишаються в #35.
+
 `src/index.css` імпортує `src/styles/palette.css` і `src/styles/themes.css` для застосунку та `.storybook/preview.ts`. Storybook React/Vite використовує існуючий Vite config з Tailwind 4. `Foundation/Theme tokens` читає назви токенів із `themes.css?raw` і показує їх як swatch grid зі спільним Poppins. Width/offset focus ring і shadow виключені, бо це не кольори. Окремого keyboard-focus specimen у цій story немає; focus перевіряють component stories та browser tests.
 
-Теми задаються **на html**: `document.documentElement.dataset.theme = 'dark'` (також `light`, `violet`). HTML застосунку починає з Dark; CSS має Dark fallback. Toolbar Dark / Light / Violet використовує `withThemeByDataAttribute` на html preview iframe. Менеджер Storybook має власний UI; теми застосовуються до preview. Немає app theme picker, storage або profileAPI policy.
+Теми задаються **на html**: `document.documentElement.dataset.theme = 'dark'` (також `light`, `violet`). HTML застосунку починає з Dark; CSS має Dark fallback. Toolbar Dark / Light / Violet використовує `withThemeByDataAttribute` на html preview iframe. Менеджер Storybook має власний UI; теми застосовуються до preview. App theme picker описаний вище; storage та profileAPI policy належать #35.
 
 Компоненти споживають семантичні ролі, наприклад `background: var(--surface-card); color: var(--text-primary); border-color: var(--border-subtle)`. У TSX використовуйте Tailwind semantic utilities на кшталт `bg-surface-card text-primary` або arbitrary utilities для наявних токенів. [Правила стилізації](../../AGENTS.md) визначені на рівні репозиторію. Не вставляйте raw hex чи palette tokens безпосередньо в продуктову компоненту. Sidebar використовує `--text-sidebar` на `--surface-sidebar`, а не content text.
 
@@ -93,4 +95,3 @@ Shared primitives, локальний Poppins, derived interaction tokens і п�
 - Light/Violet приглушений текст: 50% alpha (3.41 / 2.80) → суцільні #626262 / #E1E2F5. Наявний `--text-sidebar-muted` не змінено й тут не використовується.
 - Hover світліший за selected (рішення продукту), а не «на 10% прозоріший».
 - Light logout icon залишається #BEDBB0 (наявний токен; декоративний, зміст несе текст «Log out»).
-

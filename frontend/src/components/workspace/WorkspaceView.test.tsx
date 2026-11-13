@@ -64,3 +64,38 @@ it('keeps the drawer open when edit or delete is used', () => {
   act(() => dialog.querySelector<HTMLButtonElement>('button[aria-label^="Delete"]')!.click());
   expect(menu.getAttribute('aria-expanded')).toBe('true');
 });
+
+it('keeps sidebar selection and board header in sync with controlled data', () => {
+  const boards = [
+    { id: 'a', title: 'Project office', icon: 'project' as const },
+    { id: 'b', title: 'Second project', icon: 'puzzle' as const },
+  ];
+  const filters = vi.fn();
+  const render = (activeBoardId: string | null) => {
+    act(() =>
+      dom.root.render(
+        <WorkspaceView
+          user={{ username: 'User', email: 'user@example.test' }}
+          boards={boards}
+          activeBoardId={activeBoardId}
+          onOpenFilters={filters}
+        />,
+      ),
+    );
+  };
+  render('a');
+  expect(dom.host.querySelector('h1')?.textContent).toBe('Project office');
+  expect(dom.host.querySelector('[aria-current="true"]')?.textContent).toBe('Project office');
+  render('b');
+  expect(dom.host.querySelector('h1')?.textContent).toBe('Second project');
+  expect(dom.host.querySelector('[aria-current="true"]')?.textContent).toBe('Second project');
+  const filterButton = dom.host.querySelector<HTMLButtonElement>(
+    '.workspace-board__heading button',
+  )!;
+  act(() => filterButton.click());
+  expect(filters).toHaveBeenCalledOnce();
+  render('missing');
+  expect(dom.host.querySelector('h1')?.textContent).toBe('Your workspace');
+  expect(dom.host.querySelector('[aria-current="true"]')).toBeNull();
+  expect(filterButton.disabled).toBe(true);
+});

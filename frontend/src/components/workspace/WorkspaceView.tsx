@@ -20,11 +20,19 @@ export function WorkspaceView({
   onOpenHelp = noop,
   onLogout = noop,
   logoutPending,
+  onEditProfile,
+  onOpenFilters,
 }: WorkspaceViewProps) {
+  const activeBoard = boards.find((board) => board.id === activeBoardId) ?? null;
+
   return (
     <AppShell
       header={({ menuButtonProps }) => (
-        <WorkspaceHeader user={user} menuButtonProps={menuButtonProps} />
+        <WorkspaceHeader
+          user={user}
+          menuButtonProps={menuButtonProps}
+          onEditProfile={onEditProfile}
+        />
       )}
       sidebar={({ closeNavigation }) => (
         <WorkspaceSidebar
@@ -45,7 +53,7 @@ export function WorkspaceView({
         />
       )}
     >
-      <WorkspaceBoard />
+      <WorkspaceBoard activeBoard={activeBoard} onOpenFilters={onOpenFilters} />
     </AppShell>
   );
 }

@@ -11,6 +11,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const Placeholder: Story = {};
+export const Header: Story = { args: { size: 32 } };
 export const Image: Story = {
   args: {
     src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="68" height="68"%3E%3Crect width="68" height="68" fill="%238fa1d0"/%3E%3C/svg%3E',

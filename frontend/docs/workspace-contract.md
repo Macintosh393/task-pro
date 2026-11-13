@@ -49,7 +49,11 @@ Native `dialog.showModal()` блокує фон. Tailwind utility `overflow-hidd
 
 ## `WorkspaceView` та компоненти
 
-`WorkspaceUser` містить `username: string` і `email: string`; `WorkspaceBoard` — `id`, `title` і `icon: BoardIcon`. `WorkspaceView` приймає `user` та необов'язкові `boards` (за замовчуванням `[]`), `boardsStatus` (`'loading' | 'ready' | 'error'`, за замовчуванням `'ready'`), `activeBoardId`, `onCreateBoard`, `onSelectBoard`, `onEditBoard`, `onDeleteBoard`, `onRetryBoards`, `onOpenHelp`, `onLogout`, `logoutPending`. Відсутні callbacks замінюються модульним no-op. `WorkspaceHeader` отримує `user` та `menuButtonProps`. `WorkspaceBoard` не має props.
+AppHeader показує Theme та кнопку профілю з `username` і `avatarUrl` (опційний/null → placeholder). Email не відображається в шапці. `onEditProfile` — точка підключення #32–34; редактор профілю тут не реалізований.
+
+`WorkspaceUser` містить `username: string`, `email: string` та `avatarUrl?: string | null`; `WorkspaceBoard` — `id`, `title` і `icon: BoardIcon`. `WorkspaceView` приймає `user` та необов'язкові `boards` (за замовчуванням `[]`), `boardsStatus` (`'loading' | 'ready' | 'error'`, за замовчуванням `'ready'`), `activeBoardId`, `onCreateBoard`, `onSelectBoard`, `onEditBoard`, `onDeleteBoard`, `onRetryBoards`, `onOpenHelp`, `onLogout`, `logoutPending`, `onEditProfile` та `onOpenFilters`. Відсутні callbacks Sidebar замінюються модульним no-op. `WorkspaceHeader` отримує `user`, `menuButtonProps` і опційний `onEditProfile`.
+
+`activeBoardId` є єдиним джерелом вибору. `WorkspaceView` знаходить відповідну дошку в `boards` і передає її як `activeBoard` у `WorkspaceBoard` разом із `onOpenFilters`; локальної копії вибраної дошки немає. До #36 `/home` залишається порожнім із заголовком Your workspace. `onOpenFilters` — точка підключення #49; Filters disabled без дошки або обробника. Runtime fixtures відсутні. Довгі ім'я та назва обрізаються без перекриття дій; повний текст доступний у title та accessible name.
 
 ## Sidebar
 

@@ -21,7 +21,11 @@ export function HomePage() {
 
   return (
     <WorkspaceView
-      user={{ username: user?.username || 'User', email: user?.email ?? '' }}
+      user={{
+        username: user?.username || 'User',
+        email: user?.email ?? '',
+        avatarUrl: user?.avatarUrl,
+      }}
       onLogout={handleLogout}
       logoutPending={loggingOut}
     />

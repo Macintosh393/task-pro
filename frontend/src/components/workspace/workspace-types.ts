@@ -3,6 +3,7 @@ import type { BoardIcon } from '../ui';
 export interface WorkspaceUser {
   username: string;
   email: string;
+  avatarUrl?: string | null;
 }
 
 export interface WorkspaceBoard {
@@ -40,4 +41,6 @@ export interface WorkspaceViewProps {
   onOpenHelp?: () => void;
   onLogout?: () => void | Promise<void>;
   logoutPending?: boolean;
+  onEditProfile?: () => void;
+  onOpenFilters?: () => void;
 }

@@ -1,29 +1,46 @@
-import { Button } from '../ui';
+import { Avatar, Button } from '../ui';
+import { ThemePicker } from './ThemePicker';
 import type { NavigationButtonProps } from './AppShell';
 import type { WorkspaceViewProps } from './workspace-types';
 
 export function WorkspaceHeader({
   user,
   menuButtonProps,
-}: Pick<WorkspaceViewProps, 'user'> & { menuButtonProps: NavigationButtonProps }) {
+  onEditProfile,
+}: Pick<WorkspaceViewProps, 'user' | 'onEditProfile'> & {
+  menuButtonProps: NavigationButtonProps;
+}) {
   return (
     <>
       <Button
         {...menuButtonProps}
         variant="ghost"
         size="small"
-        className="workspace-menu w-11 shrink-0 p-0 text-primary enabled:hover:text-primary [&[hidden]]:hidden"
+        className="workspace-menu w-11 shrink-0 justify-start border-0 p-0 text-primary enabled:hover:text-primary [&[hidden]]:hidden"
       >
         <span
           className="workspace-menu__icon block size-6 bg-current [mask-image:url(/src/assets/workspace/menu.svg)] [mask-position:center] [mask-size:contain] [mask-repeat:no-repeat] min-[768px]:size-8 min-[768px]:[mask-image:url(/src/assets/workspace/menu-tablet.svg)]"
           aria-hidden="true"
         />
       </Button>
-      <div className="workspace-user flex min-w-0 flex-1 flex-col items-end text-[14px]">
-        <span className="max-w-full truncate">{user.username}</span>
-        <span className="workspace-user__email max-w-full truncate text-[10px] text-text-description">
-          {user.email}
-        </span>
+      <div className="workspace-user ml-auto flex min-w-0 justify-end gap-3.5">
+        <ThemePicker />
+        <Button
+          variant="ghost"
+          size="small"
+          onClick={onEditProfile}
+          aria-label={`Edit profile: ${user.username}`}
+          title={user.username}
+          className="min-w-0 gap-2 border-0 p-0 text-primary enabled:hover:text-primary"
+        >
+          <span className="truncate">{user.username}</span>
+          <Avatar
+            size={32}
+            name={user.username}
+            src={user.avatarUrl ?? undefined}
+            aria-hidden="true"
+          />
+        </Button>
       </div>
     </>
   );
