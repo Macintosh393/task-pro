@@ -132,7 +132,6 @@ function CreateBoardForm({ userId, titleRef, onCreated }: CreateBoardFormProps) 
             <BoardIconPicker
               name="board-icon"
               label="Icons"
-              size="compact"
               value={field.state.value}
               onChange={field.handleChange}
             />

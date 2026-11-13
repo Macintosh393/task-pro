@@ -49,14 +49,3 @@ export const Selection: Story = {
     await expect(args.onChange).toHaveBeenCalledWith('star');
   },
 };
-/** One row of 32px targets, as in the 350px New board modal. */
-export const Compact: Story = {
-  args: { size: 'compact', label: 'Icons' },
-  decorators: [
-    (Story) => (
-      <div className="w-[300px]">
-        <Story />
-      </div>
-    ),
-  ],
-};
