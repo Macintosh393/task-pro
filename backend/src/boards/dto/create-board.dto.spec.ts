@@ -51,6 +51,18 @@ describe('CreateBoardDto', () => {
       expect(dto.title).toHaveLength(255);
     });
 
+    it('accepts 255 code points that include variation selectors', async () => {
+      const { fields } = await check({ title: `${'❤️'.repeat(127)}a` });
+
+      expect(fields).toEqual([]);
+    });
+
+    it('counts a surrogate-pair emoji as a single code point, like PostgreSQL', async () => {
+      const { fields } = await check({ title: '\u{1F680}'.repeat(255) });
+
+      expect(fields).toEqual([]);
+    });
+
     it('accepts unicode and emoji titles', async () => {
       const { fields } = await check({ title: 'Проєкт «Весна» 🚀' });
 
@@ -73,6 +85,8 @@ describe('CreateBoardDto', () => {
       ['tabs and newlines only', '\t\n '],
       ['256 characters', 'a'.repeat(256)],
       ['containing a null character (PostgreSQL cannot store it)', 'Road\u0000map'],
+      ['200 emoji with variation selectors (400 code points)', '❤️'.repeat(200)],
+      ['255 letters plus a text variation selector', `${'a'.repeat(255)}︎`],
       ['a number', 123],
       ['an object', { value: 'x' }],
       ['an array', ['x']],

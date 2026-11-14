@@ -38,7 +38,8 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<LoginResult> {
     const { email, password } = loginDto;
 
-    const user = await this.usersService.findByEmail(email);
+    // Stored emails are lower-cased on registration, so the lookup must match that.
+    const user = await this.usersService.findByEmail(email.trim().toLowerCase());
     if (user === null) {
       throw new UnauthorizedException('Wrong email or password');
     }

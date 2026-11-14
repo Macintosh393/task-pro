@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
-import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, INestApplication } from '@nestjs/common';
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
@@ -14,6 +14,7 @@ import { BoardsController } from '../src/boards/boards.controller.js';
 import { BoardsService } from '../src/boards/boards.service.js';
 import { BOARD_BACKGROUNDS, BOARD_ICONS } from '../src/boards/board-options.js';
 import { Board } from '../src/boards/entities/board.entity.js';
+import { createGlobalPipes } from '../src/common/pipes/create-global-pipes.js';
 
 const JWT_SECRET = 'test-secret';
 
@@ -103,7 +104,7 @@ describe('BoardsController (e2e)', () => {
     app = module.createNestApplication();
     app.setGlobalPrefix('api');
     app.use(cookieParser());
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
+    app.useGlobalPipes(...createGlobalPipes());
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
     await app.init();
 
@@ -291,6 +292,8 @@ describe('BoardsController (e2e)', () => {
       ['a whitespace-only title', { title: '   ' }],
       ['a 256-character title', { title: 'a'.repeat(256) }],
       ['a title with a null character', { title: 'Road\u0000map' }],
+      // 400 code points: validator's isLength counts each ❤️ as one, PostgreSQL varchar(255) as two.
+      ['a title of 200 emoji with variation selectors', { title: '❤️'.repeat(200) }],
       ['a numeric title', { title: 42 }],
       ['a null title', { title: null }],
       ['an unknown icon', { title: 'Board', icon: 'rocket' }],
@@ -332,6 +335,17 @@ describe('BoardsController (e2e)', () => {
 
     it('accepts a title of exactly 255 characters', async () => {
       await createBoard(userA, { title: 'a'.repeat(255) }).expect(201);
+    });
+
+    it('accepts a title of exactly 255 code points including variation selectors', async () => {
+      await createBoard(userA, { title: `${'❤️'.repeat(127)}a` }).expect(201);
+    });
+
+    it('stores the title in Unicode NFC', async () => {
+      const response = await createBoard(userA, { title: 'Café' }).expect(201);
+
+      expect(response.body.title).toBe('Café');
+      expect(repository.rows[0].title).toBe('Café');
     });
 
     it('rejects a malformed board id with 400', async () => {
