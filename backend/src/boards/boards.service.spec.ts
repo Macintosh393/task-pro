@@ -1,5 +1,5 @@
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { QueryFailedError, Repository } from 'typeorm';
+import { QueryFailedError, Repository, type EntityManager } from 'typeorm';
 
 import { BoardsService } from './boards.service.js';
 import { Board } from './entities/board.entity.js';
@@ -131,6 +131,23 @@ describe('BoardsService', () => {
 
       expect(repository.findOne).toHaveBeenCalledOnce();
       expect(repository.findOne).toHaveBeenCalledWith({ where: { id: boardId, userId } });
+    });
+
+    it('runs through the given manager and takes the requested lock', async () => {
+      const transactional = { findOne: vi.fn().mockResolvedValue({ id: boardId, userId } as Board) };
+      const manager = { getRepository: vi.fn(() => transactional) };
+
+      await service.findOneOwnedOrFail(userId, boardId, {
+        manager: manager as unknown as EntityManager,
+        lock: { mode: 'for_no_key_update' },
+      });
+
+      expect(manager.getRepository).toHaveBeenCalledWith(Board);
+      expect(transactional.findOne).toHaveBeenCalledWith({
+        where: { id: boardId, userId },
+        lock: { mode: 'for_no_key_update' },
+      });
+      expect(repository.findOne).not.toHaveBeenCalled();
     });
 
     it('returns the board when it belongs to the user', async () => {
