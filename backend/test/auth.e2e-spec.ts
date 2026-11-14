@@ -1,4 +1,4 @@
-import { ClassSerializerInterceptor, ConflictException, INestApplication, ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, ConflictException, INestApplication } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../src/users/entities/user.entity.js';
@@ -7,6 +7,7 @@ import request from 'supertest';
 import { App } from 'supertest/types.js';
 import { AuthController } from '../src/auth/auth.controller.js';
 import { AuthService } from '../src/auth/auth.service.js';
+import { createGlobalPipes } from '../src/common/pipes/create-global-pipes.js';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication<App>;
@@ -44,13 +45,7 @@ describe('AuthController (e2e)', () => {
 
     app.setGlobalPrefix('api');
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
-      }),
-    );
+    app.useGlobalPipes(...createGlobalPipes());
 
     await app.init();
   });
@@ -90,6 +85,34 @@ describe('AuthController (e2e)', () => {
         name: '   ',
         email: 'invalid-email',
       })
+      .expect(400);
+
+    expect(authService.register).not.toHaveBeenCalled();
+  });
+
+  it('normalizes the name to NFC but passes the password through unchanged', async () => {
+    authService.register.mockResolvedValue({
+      user: Object.assign(new User(), { id: 'user-123', username: 'Zoë', email: registrationData.email }),
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+    });
+
+    await request(app.getHttpServer())
+      .post('/api/auth/register')
+      .send({ ...registrationData, name: 'Zoë', password: 'Pássword-123' })
+      .expect(201);
+
+    expect(authService.register).toHaveBeenCalledWith({
+      ...registrationData,
+      name: 'Zoë',
+      password: 'Pássword-123',
+    });
+  });
+
+  it('rejects a name longer than 32 code points even when validator undercounts it', async () => {
+    await request(app.getHttpServer())
+      .post('/api/auth/register')
+      .send({ ...registrationData, name: '❤️'.repeat(17) })
       .expect(400);
 
     expect(authService.register).not.toHaveBeenCalled();

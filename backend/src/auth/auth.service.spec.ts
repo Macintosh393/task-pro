@@ -105,6 +105,17 @@ describe('AuthService', () => {
       expect(usersService.findByEmail).toHaveBeenCalledWith('user@example.com');
     });
 
+    it('should look the email up the same way register stores it (trimmed, lower-cased)', async () => {
+      usersService.findByEmail.mockResolvedValue(mockUser);
+      (bcrypt.compare as ReturnType<typeof vi.fn>).mockResolvedValue(true);
+      jwtService.signAsync.mockResolvedValue('at');
+      refreshTokensService.issue.mockResolvedValue('rt');
+
+      await authService.login({ ...loginDto, email: '  User@Example.COM ' });
+
+      expect(usersService.findByEmail).toHaveBeenCalledWith('user@example.com');
+    });
+
     it('should call bcrypt.compare with the raw password and stored hash', async () => {
       usersService.findByEmail.mockResolvedValue(mockUser);
       (bcrypt.compare as ReturnType<typeof vi.fn>).mockResolvedValue(true);

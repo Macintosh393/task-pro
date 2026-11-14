@@ -107,6 +107,27 @@ npm run start:dev
 
 Для локальної перевірки після міграцій запустіть `npm test` та `npm run test:e2e`. E2E-команда використовує підключення до PostgreSQL з `.env`.
 
+## Дошки
+
+Усі маршрути потребують access token (cookie `accessToken` або `Authorization: Bearer`); власник дошки визначається лише з поточної сесії.
+
+- `POST /api/boards` приймає `title` (обов’язковий, після trim 1–255 символів), `icon` та `background`. Повертає HTTP 201 з дошкою.
+- `GET /api/boards` повертає лише власні дошки від найстаріших до найновіших (`createdAt`, далі `id`); порожній список — `[]`.
+- `GET /api/boards/:id` повертає власну дошку. Чужий або неіснуючий `id` дає однакову відповідь HTTP 404 `Board not found`; `id`, що не є UUID, — HTTP 400.
+
+Відповідь: `{ id, title, icon, background, createdAt, updatedAt }` (у БД — колонки `iconId` та `backgroundId`).
+
+Допустимі `icon`: `project` (типово), `star`, `loading`, `puzzle`, `container`, `lightning`, `colors`, `hexagon`. Допустимі `background`: `none` (типово) та `bg-01` … `bg-15`. Список зберігається в `src/boards/board-options.ts`; ідентифікатори фонів потрібно узгодити з FE #37. Додаткові поля в тілі (наприклад `userId`) відхиляються з HTTP 400.
+
+## Колонки
+
+Маршрути вкладені в дошку й доступні лише її власнику. Без access token — HTTP 401; чужа або неіснуюча дошка дає однакову відповідь HTTP 404 `Board not found`; `boardId`, що не є UUID, — HTTP 400.
+
+- `POST /api/boards/:boardId/columns` приймає лише `title` (обов’язковий, після trim 1–255 символів) і додає колонку в кінець дошки. Повертає HTTP 201 з колонкою. Поля `boardId`, `position` тощо в тілі відхиляються з HTTP 400.
+- `GET /api/boards/:boardId/columns` повертає колонки дошки за `position` від першої до останньої; для дошки без колонок — `[]`.
+
+Відповідь: `{ id, boardId, title, position, createdAt, updatedAt }`; `boardId` завжди у нижньому регістрі, навіть якщо шлях містив UUID у верхньому. `position` починається з 0 і унікальна в межах дошки (`UQ_columns_board_position`, deferrable — для майбутнього перевпорядкування). Нова колонка отримує `max(position) + 1`, обчислене в самому `INSERT`. Створення виконується в транзакції `READ COMMITTED` і блокує рядок дошки (`FOR NO KEY UPDATE`), тож паралельні запити не отримують однакову позицію: рівень ізоляції задано явно, бо під `REPEATABLE READ` `INSERT` бачив би знімок, зроблений до отримання блокування. Перевірку власника виконує `BoardsService.findOneOwnedOrFail`, спільний для дошок і колонок. Після видалення колонки (#42) у позиціях можуть бути пропуски — порядок від цього не змінюється. Видалення дошки каскадно видаляє її колонки.
+
 ## Команди
 
 | Команда              | Призначення                                       |

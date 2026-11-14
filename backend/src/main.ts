@@ -1,10 +1,11 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module.js';
 import type { EnvironmentVariables } from './config/environment-variables.js';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
+import { createGlobalPipes } from './common/pipes/create-global-pipes.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,13 +17,7 @@ async function bootstrap() {
   });
 
   app.use(cookieParser());
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+  app.useGlobalPipes(...createGlobalPipes());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   const documentConfig = new DocumentBuilder()

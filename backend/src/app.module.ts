@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { validate, EnvironmentVariables } from './config/environment-variables.js';
 import { UsersModule } from './users/users.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { BoardsModule } from './boards/boards.module.js';
+import { ColumnsModule } from './columns/columns.module.js';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { AuthModule } from './auth/auth.module.js';
     }),
     UsersModule,
     AuthModule,
+    BoardsModule,
+    ColumnsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
