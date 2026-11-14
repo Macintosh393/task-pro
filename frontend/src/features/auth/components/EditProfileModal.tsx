@@ -16,6 +16,7 @@ export function EditProfileModal({ user, onClose }: { user: User; onClose: () =>
   const [emailError, setEmailError] = useState('');
   const submitting = useRef(false);
   const mounted = useRef(true);
+  const nameInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
     mounted.current = true;
     return () => {
@@ -62,41 +63,46 @@ export function EditProfileModal({ user, onClose }: { user: User; onClose: () =>
   };
 
   return (
-    <Modal open title="Edit profile" onClose={close}>
-      <form onSubmit={submit} className="flex flex-col gap-4" aria-busy={pending}>
-        <div className="mb-2 flex justify-center">
-          <Avatar name={user.username} src={user.avatarUrl ?? undefined} size={68} />
-        </div>
-        <FormField label="Name" error={nameError}>
-          <Input
-            autoComplete="name"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            required
-            maxLength={32}
-            disabled={pending}
-          />
-        </FormField>
-        <FormField label="Email" error={emailError}>
-          <Input
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-            maxLength={255}
-            disabled={pending}
-          />
-        </FormField>
-        {error && (
-          <p role="alert" className="text-sm text-text-error wrap-anywhere">
-            {error}
-          </p>
-        )}
-        <Button type="submit" loading={pending}>
-          Save changes
-        </Button>
-      </form>
-    </Modal>
+    <div className="[&>dialog]:relative [&>dialog]:w-[min(400px,calc(100vw-40px))] [&>dialog]:border-border-filters [&>dialog]:shadow-[0_4px_8px_color-mix(in_srgb,var(--action-neutral)_5%,transparent)] [&>dialog]:p-[23px] [&>dialog>div]:mb-6 [&_[data-modal-heading]]:leading-normal [&>dialog>div>button]:absolute [&>dialog>div>button]:top-0 [&>dialog>div>button]:right-0 [&>dialog>div>button]:size-11 [&>dialog>div>button]:min-h-11 [&>dialog>div>button]:border-0 [&>dialog>div>button]:text-primary">
+      <Modal open title="Edit profile" onClose={close} initialFocusRef={nameInput}>
+        <form onSubmit={submit} className="flex flex-col gap-3.5" aria-busy={pending}>
+          <div className="mb-[11px] flex justify-center">
+            <Avatar name={user.username} src={user.avatarUrl ?? undefined} size={68} />
+          </div>
+          <FormField label="Name" labelClassName="sr-only" error={nameError}>
+            <Input
+              ref={nameInput}
+              className="bg-transparent px-[17px] text-control-muted shadow-none enabled:not-placeholder-shown:border-control-border enabled:focus:border-field-accent enabled:focus:text-primary enabled:aria-invalid:border-text-error"
+              autoComplete="name"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              required
+              maxLength={32}
+              disabled={pending}
+            />
+          </FormField>
+          <FormField label="Email" labelClassName="sr-only" error={emailError}>
+            <Input
+              className="bg-transparent px-[17px] text-control-muted shadow-none enabled:not-placeholder-shown:border-control-border enabled:focus:border-field-accent enabled:focus:text-primary enabled:aria-invalid:border-text-error"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+              maxLength={255}
+              disabled={pending}
+            />
+          </FormField>
+          {error && (
+            <p role="alert" className="text-sm text-text-error wrap-anywhere">
+              {error}
+            </p>
+          )}
+          <Button type="submit" loading={pending} className="mt-2.5">
+            Send
+          </Button>
+        </form>
+      </Modal>
+    </div>
   );
 }
