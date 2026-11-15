@@ -96,6 +96,35 @@ it('ignores a late response when the current auth user was cleared', async () =>
   expect(queryClient.getQueryData(AUTH_QUERY_KEY)).toBeNull();
 });
 
+it('does not cancel queries belonging to a new session', async () => {
+  submit();
+  queryClient.clear();
+  queryClient.setQueryData(AUTH_QUERY_KEY, { ...user, id: 'other' });
+  const cancel = vi.spyOn(queryClient, 'cancelQueries');
+  await act(async () => resolveSave(updated));
+  expect(cancel).not.toHaveBeenCalled();
+  expect(queryClient.getQueryData<User>(AUTH_QUERY_KEY)?.id).toBe('other');
+});
+
+it('rechecks the session after awaiting cancellation', async () => {
+  submit();
+  vi.spyOn(queryClient, 'cancelQueries').mockImplementationOnce(async () => {
+    queryClient.clear();
+    queryClient.setQueryData(AUTH_QUERY_KEY, { ...user, id: 'other' });
+  });
+  await act(async () => resolveSave(updated));
+  expect(queryClient.getQueryData<User>(AUTH_QUERY_KEY)?.id).toBe('other');
+  expect(onClose).not.toHaveBeenCalled();
+});
+
+it('can finish after unmount without closing another modal in the same session', async () => {
+  submit();
+  act(() => dom.root.render(<div />));
+  await act(async () => resolveSave(updated));
+  expect(queryClient.getQueryData(AUTH_QUERY_KEY)).toEqual(updated);
+  expect(onClose).not.toHaveBeenCalled();
+});
+
 it('shows an error and allows closing and retrying after a failed save', async () => {
   submit();
   await act(async () => rejectSave(new Error('Network failed')));
