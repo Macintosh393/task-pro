@@ -29,6 +29,24 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { username } });
   }
 
+  async updateProfile(id: string, data: Pick<User, 'username' | 'email'>): Promise<User> {
+    const user = await this.findByIdOrFail(id);
+    const email = data.email.trim().toLowerCase();
+    const existing = await this.findByEmail(email);
+    if (existing && existing.id !== id) {
+      throw new ConflictException('Email is already registered');
+    }
+    try {
+      await this.usersRepository.update(id, { username: data.username.trim(), email });
+    } catch (error) {
+      if (error instanceof QueryFailedError && (error.driverError as { code?: string }).code === '23505') {
+        throw new ConflictException('Email is already registered');
+      }
+      throw error;
+    }
+    return this.findByIdOrFail(user.id);
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     return this.usersRepository.findOne({ where: { email } });
   }
