@@ -34,6 +34,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
+export const Subtle: Story = { args: { variant: 'subtle', defaultValue: 'Ivetta' } };
+export const SubtleDisabled: Story = {
+  args: { variant: 'subtle', disabled: true, defaultValue: 'Ivetta' },
+};
 export const Disabled: Story = { args: { disabled: true, defaultValue: 'Preserved value' } };
 export const Error: Story = {
   render: (args) => (
@@ -65,3 +69,4 @@ export const Controlled: Story = {
 };
 
 export const Filled: Story = { args: { defaultValue: 'The Watch Spot Design' } };
+export const SubtleError: Story = { ...Error, args: { variant: 'subtle' } };
