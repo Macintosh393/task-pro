@@ -105,6 +105,8 @@ describe('Profile (e2e)', () => {
   it.each([
     { username: '   ' },
     { username: 'x'.repeat(33) },
+    { username: '\u2764\uFE0F'.repeat(32) },
+    { username: 'User\u0000name' },
     { username: null },
     { email: 'invalid' },
     { email: null },
@@ -119,6 +121,18 @@ describe('Profile (e2e)', () => {
       .expect(400);
     expect(repository.update).not.toHaveBeenCalled();
   });
+
+  it.each(['a'.repeat(32), '\u2764\uFE0F'.repeat(16), '\u{1F600}'.repeat(32)])(
+    'accepts usernames with at most 32 database code points: %s',
+    async (username) => {
+      const response = await request(app.getHttpServer())
+        .patch('/api/users/me')
+        .set('Authorization', auth())
+        .send({ ...profile, username })
+        .expect(200);
+      expect(response.body.username).toBe(username);
+    },
+  );
 
   it('requires both profile fields', async () => {
     await request(app.getHttpServer()).patch('/api/users/me').set('Authorization', auth()).send({}).expect(400);
