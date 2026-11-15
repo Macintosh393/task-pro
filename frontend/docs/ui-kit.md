@@ -6,6 +6,10 @@
 
 ## Контракти
 
+API, запропоноване для review у #95: `Modal variant="compact"` задає shell профільного макета Figma `1058:3270` (400px, mobile viewport мінус 40px, padding 23px плюс border, компактне розміщення close). Типовий `default` не змінюється. `closeDisabled` вимикає кнопку close та Escape; parent може закрити controlled modal після завершення запиту. Це не блокує зовнішній unmount або навігацію.
+
+`Input variant="subtle"` задає прозоре поле з відступом 17px, приглушеним неактивним текстом і акцентом при focus. Disabled/error зберігають спільні стани. Типовий `default` не змінюється. Контраст неактивних полів та focus ring залишаються адаптаціями UI-kit замість source opacity 40%. Варіанти `Compact`, `Pending`, `Subtle`, `SubtleDisabled`, `SubtleError` додані до Storybook для узгодження спільного API.
+
 `Avatar` приймає `name`, опційний `src` і `size={32 | 68}` (типово 68). Розмір 32 використовується в Header; placeholder зберігає пропорції. Відсутнє або недоступне зображення показує placeholder.
 
 | Компонент        | API / поведінка                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |

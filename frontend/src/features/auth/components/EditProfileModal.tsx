@@ -24,6 +24,7 @@ export function EditProfileModal({ user, onClose }: { user: User; onClose: () =>
     };
   }, []);
   const close = () => {
+    if (submitting.current) return;
     mounted.current = false;
     onClose();
   };
@@ -31,7 +32,11 @@ export function EditProfileModal({ user, onClose }: { user: User; onClose: () =>
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (submitting.current) return;
-    if (!username.trim() || username.trim().length > 32) {
+    if (
+      !username.trim() ||
+      Array.from(username.trim()).length > 32 ||
+      username.includes('\u0000')
+    ) {
       setNameError('Name must contain between 1 and 32 characters.');
       return;
     }
@@ -40,14 +45,24 @@ export function EditProfileModal({ user, onClose }: { user: User; onClose: () =>
     setError('');
     setNameError('');
     setEmailError('');
+    const authQuery = queryClient.getQueryCache().find({ queryKey: AUTH_QUERY_KEY, exact: true });
+    const isCurrentSession = () => {
+      const currentQuery = queryClient
+        .getQueryCache()
+        .find({ queryKey: AUTH_QUERY_KEY, exact: true });
+      const currentUser = queryClient.getQueryData<User | null>(AUTH_QUERY_KEY);
+      return Boolean(authQuery && currentQuery === authQuery && currentUser?.id === user.id);
+    };
     try {
       const updatedUser = await updateProfile({
         username: username.trim(),
         email: email.trim().toLowerCase(),
       });
+      if (!isCurrentSession()) return;
       await queryClient.cancelQueries({ queryKey: AUTH_QUERY_KEY });
+      if (!isCurrentSession()) return;
       queryClient.setQueryData(AUTH_QUERY_KEY, updatedUser);
-      if (mounted.current) close();
+      if (mounted.current) onClose();
     } catch (failure) {
       if (mounted.current) {
         if (axios.isAxiosError(failure) && failure.response?.status === 409) {
@@ -63,46 +78,50 @@ export function EditProfileModal({ user, onClose }: { user: User; onClose: () =>
   };
 
   return (
-    <div className="[&>dialog]:relative [&>dialog]:w-[min(400px,calc(100vw-40px))] [&>dialog]:border-border-filters [&>dialog]:shadow-[0_4px_8px_color-mix(in_srgb,var(--action-neutral)_5%,transparent)] [&>dialog]:p-[23px] [&>dialog>div]:mb-6 [&_[data-modal-heading]]:leading-normal [&>dialog>div>button]:absolute [&>dialog>div>button]:top-0 [&>dialog>div>button]:right-0 [&>dialog>div>button]:size-11 [&>dialog>div>button]:min-h-11 [&>dialog>div>button]:border-0 [&>dialog>div>button]:text-primary">
-      <Modal open title="Edit profile" onClose={close} initialFocusRef={nameInput}>
-        <form onSubmit={submit} className="flex flex-col gap-3.5" aria-busy={pending}>
-          <div className="mb-[11px] flex justify-center">
-            <Avatar name={user.username} src={user.avatarUrl ?? undefined} size={68} />
-          </div>
-          <FormField label="Name" labelClassName="sr-only" error={nameError}>
-            <Input
-              ref={nameInput}
-              className="bg-transparent px-[17px] text-control-muted shadow-none enabled:not-placeholder-shown:border-control-border enabled:focus:border-field-accent enabled:focus:text-primary enabled:aria-invalid:border-text-error"
-              autoComplete="name"
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              required
-              maxLength={32}
-              disabled={pending}
-            />
-          </FormField>
-          <FormField label="Email" labelClassName="sr-only" error={emailError}>
-            <Input
-              className="bg-transparent px-[17px] text-control-muted shadow-none enabled:not-placeholder-shown:border-control-border enabled:focus:border-field-accent enabled:focus:text-primary enabled:aria-invalid:border-text-error"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-              maxLength={255}
-              disabled={pending}
-            />
-          </FormField>
-          {error && (
-            <p role="alert" className="text-sm text-text-error wrap-anywhere">
-              {error}
-            </p>
-          )}
-          <Button type="submit" loading={pending} className="mt-2.5">
-            Send
-          </Button>
-        </form>
-      </Modal>
-    </div>
+    <Modal
+      open
+      title="Edit profile"
+      variant="compact"
+      closeDisabled={pending}
+      onClose={close}
+      initialFocusRef={nameInput}
+    >
+      <form onSubmit={submit} className="flex flex-col gap-3.5" aria-busy={pending}>
+        <div className="mb-[11px] flex justify-center">
+          <Avatar name={user.username} src={user.avatarUrl ?? undefined} size={68} />
+        </div>
+        <FormField label="Name" labelClassName="sr-only" error={nameError}>
+          <Input
+            ref={nameInput}
+            variant="subtle"
+            autoComplete="name"
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+            required
+            disabled={pending}
+          />
+        </FormField>
+        <FormField label="Email" labelClassName="sr-only" error={emailError}>
+          <Input
+            variant="subtle"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+            maxLength={255}
+            disabled={pending}
+          />
+        </FormField>
+        {error && (
+          <p role="alert" className="text-sm text-text-error wrap-anywhere">
+            {error}
+          </p>
+        )}
+        <Button type="submit" loading={pending} className="mt-2.5">
+          Send
+        </Button>
+      </form>
+    </Modal>
   );
 }

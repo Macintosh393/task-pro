@@ -100,6 +100,11 @@ for (const width of [375, 768, 1440]) {
       await save.click();
       await expect(save).toBeDisabled();
       await expect.poll(() => saves).toBe(1);
+      await expect(dialog.getByRole('button', { name: 'Close dialog' })).toBeDisabled();
+      await page.keyboard.press('Escape');
+      await expect(dialog).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Edit profile: Current user' })).toHaveCount(1);
+      expect(saves).toBe(1);
       finishSave();
       await expect(dialog).not.toBeVisible();
       const updatedTrigger = page.getByRole('button', { name: 'Edit profile: Updated user' });

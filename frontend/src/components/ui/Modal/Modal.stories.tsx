@@ -51,6 +51,8 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
+export const Compact: Story = { args: { variant: 'compact' } };
+export const Pending: Story = { args: { variant: 'compact', closeDisabled: true } };
 export const InitialFieldFocus: Story = {
   render: function FieldFocus(args) {
     const [open, setOpen] = useState(false);
