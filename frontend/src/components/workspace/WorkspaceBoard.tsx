@@ -1,14 +1,21 @@
 import type { CSSProperties } from 'react';
 import { getBoardBackgroundImage } from './board-backgrounds';
+import { WorkspaceColumns } from './board/WorkspaceColumns';
+import { WorkspaceEmptyState } from './board/WorkspaceEmptyState';
 import { Button } from '../ui';
 import { cn } from '../ui/cn';
-import type { WorkspaceActiveBoard } from './workspace-types';
+import type { WorkspaceActiveBoard, WorkspaceBoardActions } from './workspace-types';
 
-export interface WorkspaceBoardProps {
+export interface WorkspaceBoardProps extends WorkspaceBoardActions {
   activeBoard?: WorkspaceActiveBoard;
 }
 
 const idleBoard: WorkspaceActiveBoard = { status: 'idle' };
+const noop = () => {};
+
+// Heading and canvas carry the side padding, so the canvas scrolls edge to edge and a
+// column's card scrollbar can sit in that padding instead of widening the canvas.
+const sidePadding = 'px-5 min-[768px]:px-8 min-[1440px]:px-6';
 
 function headingFor(activeBoard: WorkspaceActiveBoard) {
   switch (activeBoard.status) {
@@ -23,7 +30,15 @@ function headingFor(activeBoard: WorkspaceActiveBoard) {
   }
 }
 
-export function WorkspaceBoard({ activeBoard = idleBoard }: WorkspaceBoardProps) {
+export function WorkspaceBoard({
+  activeBoard = idleBoard,
+  onCreateBoard = noop,
+  onAddColumn = noop,
+  onEditColumn = noop,
+  onDeleteColumn = noop,
+  onAddCard = noop,
+}: WorkspaceBoardProps) {
+  const idle = activeBoard.status === 'idle';
   const image =
     activeBoard.status === 'ready' ? getBoardBackgroundImage(activeBoard.board.background) : null;
   // Dynamic per-board values only; the utilities below pick the viewport-sized asset.
@@ -38,7 +53,7 @@ export function WorkspaceBoard({ activeBoard = idleBoard }: WorkspaceBoardProps)
   return (
     <section
       className={cn(
-        'workspace-board flex h-full min-h-0 min-w-0 flex-col px-5 pt-3.5 pb-5 min-[768px]:px-8 min-[768px]:pt-[26px] min-[768px]:pb-8 min-[1440px]:px-6 min-[1440px]:pt-2.5 min-[1440px]:pb-2',
+        'workspace-board flex h-full min-h-0 min-w-0 flex-col pt-3.5 pb-5 min-[768px]:pt-[26px] min-[768px]:pb-8 min-[1440px]:pt-2.5 min-[1440px]:pb-2',
         image &&
           'bg-(image:--board-bg-mobile) bg-cover bg-center bg-no-repeat min-[768px]:bg-(image:--board-bg-tablet) min-[1440px]:bg-(image:--board-bg-desktop)',
       )}
@@ -49,31 +64,49 @@ export function WorkspaceBoard({ activeBoard = idleBoard }: WorkspaceBoardProps)
       aria-label="Board workspace"
       aria-busy={activeBoard.status === 'loading' || undefined}
     >
-      <div className="workspace-board__heading shrink-0 pb-[26px] min-[1440px]:pb-2">
-        {activeBoard.status === 'loading' ? (
-          <div role="status" className="flex h-6 items-center min-[768px]:h-7">
-            <span className="sr-only">Loading board…</span>
-            <span
-              aria-hidden="true"
-              className="h-4 w-40 animate-pulse rounded-md bg-surface-card motion-reduce:animate-none"
-            />
-          </div>
-        ) : (
-          <h1 className="m-0 text-sm/6 font-medium wrap-anywhere min-[768px]:text-lg/7">
-            {headingFor(activeBoard)}
-          </h1>
-        )}
-      </div>
+      {idle ? (
+        // No board yet: the design shows only the prompt; the page keeps its heading for AT.
+        <h1 className="sr-only">{headingFor(activeBoard)}</h1>
+      ) : (
+        <div
+          className={cn(
+            'workspace-board__heading shrink-0 pb-[26px] min-[1440px]:pb-2',
+            sidePadding,
+          )}
+        >
+          {activeBoard.status === 'loading' ? (
+            <div role="status" className="flex h-6 items-center min-[768px]:h-7">
+              <span className="sr-only">Loading board…</span>
+              <span
+                aria-hidden="true"
+                className="h-4 w-40 animate-pulse rounded-md bg-surface-card motion-reduce:animate-none"
+              />
+            </div>
+          ) : (
+            <h1 className="m-0 text-sm/6 font-medium wrap-anywhere min-[768px]:text-lg/7">
+              {headingFor(activeBoard)}
+            </h1>
+          )}
+        </div>
+      )}
       <div
-        className="workspace-canvas min-h-0 min-w-0 flex-1 overflow-auto overscroll-x-contain focus-visible:outline-(length:--focus-ring-width) focus-visible:outline-solid focus-visible:outline-focus-ring focus-visible:outline-offset-[-2px]"
+        className={cn(
+          'workspace-canvas min-h-0 min-w-0 flex-1 overflow-auto overscroll-x-contain [scrollbar-color:var(--text-caption)_transparent] focus-visible:outline-(length:--focus-ring-width) focus-visible:outline-solid focus-visible:outline-focus-ring focus-visible:outline-offset-[-2px]',
+          sidePadding,
+        )}
         tabIndex={0}
         role="region"
         aria-label="Board canvas"
       >
-        {activeBoard.status === 'idle' && (
-          <p className="workspace-empty m-auto max-w-[480px] py-6 text-[14px] text-text-description">
-            Select a board in the sidebar or create a new one to get started.
-          </p>
+        {idle && <WorkspaceEmptyState onCreateBoard={onCreateBoard} />}
+        {activeBoard.status === 'ready' && (
+          <WorkspaceColumns
+            state={activeBoard.columns}
+            onAddColumn={onAddColumn}
+            onEditColumn={onEditColumn}
+            onDeleteColumn={onDeleteColumn}
+            onAddCard={onAddCard}
+          />
         )}
         {activeBoard.status === 'not-found' && (
           <div className="flex max-w-[480px] flex-col items-start gap-4 py-6">

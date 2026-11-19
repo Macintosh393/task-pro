@@ -53,6 +53,8 @@ async function mockBoardsApi(page: Page, initial: Board[] = []) {
     }
     return route.fulfill({ status: 200, json: boards });
   });
+  // Columns are covered by columns.spec.ts; here every board is empty.
+  await page.route('**/api/boards/*/columns', (route) => route.fulfill({ status: 200, json: [] }));
   await page.route('**/api/boards/*', (route: Route) => {
     const id = new URL(route.request().url()).pathname.split('/').at(-1);
     const board = boards.find((item) => item.id === id);

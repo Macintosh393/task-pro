@@ -46,9 +46,7 @@ async function swipe(page: Page, selector: string, startX: number, endX: number)
 
 test('home drawer contains focus and blocks background interaction', async ({ page }) => {
   await openHome(page);
-  await expect(
-    page.getByText('Select a board in the sidebar or create a new one to get started.'),
-  ).toBeVisible();
+  await expect(page.getByText(/Before starting your project, it is essential/)).toBeVisible();
   await page.getByRole('button', { name: 'Open navigation' }).click();
   const drawer = page.getByRole('dialog', { name: 'Workspace navigation' });
   const create = drawer.getByRole('button', { name: 'Create a new board' });
@@ -309,9 +307,7 @@ for (const width of [300, 320, 375, 768, 1440]) {
   test(`home bounds independent content scroll at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: width === 300 ? 300 : 600 });
     await openHome(page);
-    await expect(
-      page.getByText('Select a board in the sidebar or create a new one to get started.'),
-    ).toBeVisible();
+    await expect(page.getByText(/Before starting your project, it is essential/)).toBeVisible();
     await addOverflowContent(page);
     const dimensions = await page.evaluate(() => ({
       width: innerWidth,
@@ -322,7 +318,7 @@ for (const width of [300, 320, 375, 768, 1440]) {
     expect(dimensions.scrollWidth).toBe(dimensions.width);
     expect(dimensions.scrollHeight).toBe(dimensions.height);
     const header = await page.locator('.app-shell__header').boundingBox();
-    const heading = await page.locator('.workspace-board__heading').boundingBox();
+    const board = await page.locator('.workspace-board').boundingBox();
     await page.locator('.workspace-canvas').evaluate((element) => {
       element.scrollLeft = 500;
     });
@@ -346,11 +342,9 @@ for (const width of [300, 320, 375, 768, 1440]) {
     if (sidebarPosition)
       expect(await page.locator('.app-shell__sidebar').boundingBox()).toEqual(sidebarPosition);
     expect(await page.locator('.app-shell__header').boundingBox()).toEqual(header);
-    expect(await page.locator('.workspace-board__heading').boundingBox()).toEqual(heading);
+    expect(await page.locator('.workspace-board').boundingBox()).toEqual(board);
     await page.reload();
-    await expect(
-      page.getByText('Select a board in the sidebar or create a new one to get started.'),
-    ).toBeVisible();
+    await expect(page.getByText(/Before starting your project, it is essential/)).toBeVisible();
     await expect(page.getByTestId('overflow-list')).toHaveCount(0);
   });
 }

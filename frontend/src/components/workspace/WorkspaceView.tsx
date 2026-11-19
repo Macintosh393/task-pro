@@ -26,6 +26,10 @@ export function WorkspaceView({
   onOpenHelp = noop,
   onLogout = noop,
   logoutPending,
+  onAddColumn,
+  onEditColumn,
+  onDeleteColumn,
+  onAddCard,
 }: WorkspaceViewProps) {
   return (
     <AppShell
@@ -55,7 +59,14 @@ export function WorkspaceView({
         />
       )}
     >
-      <WorkspaceBoard activeBoard={activeBoard} />
+      <WorkspaceBoard
+        activeBoard={activeBoard}
+        onCreateBoard={onCreateBoard}
+        onAddColumn={onAddColumn}
+        onEditColumn={onEditColumn}
+        onDeleteColumn={onDeleteColumn}
+        onAddCard={onAddCard}
+      />
     </AppShell>
   );
 }
