@@ -63,12 +63,13 @@ export function WorkspaceColumns({
           />
         ))}
       </ol>
-      {/* Always last on the right, after every column. */}
+      {/* Always last on the right, after every column. Same surface as a column header;
+          the plus tile inverts it (white on Dark, #161616 on Light, accent on Violet). */}
       <Button
-        variant="neutral"
+        variant="secondary"
         size="large"
         leadingIcon="boxed-plus"
-        className={`workspace-columns__add ${columnWidth}`}
+        className={`workspace-columns__add border-transparent bg-surface-column-heading [--button-icon-ink:var(--surface-column-heading)] [--button-icon-surface:var(--text-primary)] in-data-[theme=violet]:[--button-icon-surface:var(--action-primary)] ${columnWidth}`}
         onClick={onAddColumn}
       >
         Add another column

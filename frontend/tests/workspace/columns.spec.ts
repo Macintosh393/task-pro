@@ -196,6 +196,11 @@ test('the Add column modal works from the keyboard', async ({ page }) => {
   await page.keyboard.press('Escape');
   await expect(modal).toBeHidden();
   await expect(add).toBeFocused();
+  // The focus ring (2px + 2px offset) must not be clipped by the scrolling canvas.
+  const ring = (await add.boundingBox())!;
+  const canvas = (await page.locator('.workspace-canvas').boundingBox())!;
+  expect(ring.y - 4).toBeGreaterThanOrEqual(canvas.y);
+  expect(ring.x - 4).toBeGreaterThanOrEqual(canvas.x);
 
   await page.keyboard.press('Enter');
   await page.keyboard.type('Backlog');
@@ -280,7 +285,13 @@ test('each column scrolls its cards while its header and Add another card stay',
   expect(await page.locator('.workspace-canvas').evaluate((element) => element.scrollTop)).toBe(0);
 });
 
-for (const theme of ['dark', 'light', 'violet']) {
+const addColumnColors = {
+  dark: { surface: 'rgb(18, 18, 18)', tile: 'rgb(255, 255, 255)' },
+  light: { surface: 'rgb(255, 255, 255)', tile: 'rgb(22, 22, 22)' },
+  violet: { surface: 'rgb(255, 255, 255)', tile: 'rgb(82, 85, 188)' },
+};
+
+for (const theme of ['dark', 'light', 'violet'] as const) {
   test(`columns and Add column modal accessibility in ${theme}`, async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await mockColumnsApi(page, ['To Do', 'In progress', 'Done']);
@@ -289,6 +300,9 @@ for (const theme of ['dark', 'light', 'violet']) {
       element.dataset.theme = value;
     }, theme);
     await expect(page.locator('.workspace-column')).toHaveCount(3);
+    const add = page.getByRole('button', { name: 'Add another column' });
+    await expect(add).toHaveCSS('background-color', addColumnColors[theme].surface);
+    await expect(add.locator('svg path').first()).toHaveCSS('fill', addColumnColors[theme].tile);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.getByRole('button', { name: 'Add another column' }).click();
     await expect(page.getByRole('dialog', { name: 'Add column' })).toBeVisible();

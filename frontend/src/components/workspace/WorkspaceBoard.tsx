@@ -91,7 +91,9 @@ export function WorkspaceBoard({
       )}
       <div
         className={cn(
-          'workspace-canvas min-h-0 min-w-0 flex-1 overflow-auto overscroll-x-contain [scrollbar-color:var(--text-caption)_transparent] focus-visible:outline-(length:--focus-ring-width) focus-visible:outline-solid focus-visible:outline-focus-ring focus-visible:outline-offset-[-2px]',
+          // -my-1/py-1 keep the 4px focus ring of controls at the canvas edges (Add another
+          // column, the first column header) from being clipped by the scroll container.
+          'workspace-canvas -my-1 min-h-0 min-w-0 flex-1 overflow-auto py-1 overscroll-x-contain [scrollbar-color:var(--text-caption)_transparent] focus-visible:outline-(length:--focus-ring-width) focus-visible:outline-solid focus-visible:outline-focus-ring focus-visible:outline-offset-[-2px]',
           sidePadding,
         )}
         tabIndex={0}
