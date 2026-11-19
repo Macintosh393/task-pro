@@ -8,6 +8,7 @@ import {
   Input,
   Modal,
 } from '../../../components/ui';
+import { firstErrorMessage, serverErrorMessage } from '../../../lib/form-errors';
 import { useCreateBoard } from '../hooks/use-create-board';
 import type { Board } from '../types';
 import { createBoardDefaults, createBoardSchema } from '../validation/create-board.schema';
@@ -32,21 +33,6 @@ export function CreateBoardModal({ open, userId, onClose, onCreated }: CreateBoa
       {open && <CreateBoardForm userId={userId} titleRef={titleRef} onCreated={onCreated} />}
     </Modal>
   );
-}
-
-function serverErrorMessage(error: unknown): string {
-  const message = (error as { response?: { data?: { message?: unknown } } })?.response?.data
-    ?.message;
-  if (Array.isArray(message) && message.length > 0) return message.join(', ');
-  if (typeof message === 'string' && message) return message;
-  return 'Could not create the board. Please try again.';
-}
-
-function firstErrorMessage(errors: readonly unknown[]): string | undefined {
-  const error = errors[0];
-  if (!error) return undefined;
-  if (typeof error === 'string') return error;
-  return (error as { message?: string }).message;
 }
 
 interface CreateBoardFormProps {
@@ -77,7 +63,10 @@ function CreateBoardForm({ userId, titleRef, onCreated }: CreateBoardFormProps) 
         const board = await createBoard.mutateAsync(createBoardSchema.parse(value));
         if (mounted.current) onCreated(board);
       } catch (error) {
-        if (mounted.current) setServerError(serverErrorMessage(error));
+        if (mounted.current)
+          setServerError(
+            serverErrorMessage(error, 'Could not create the board. Please try again.'),
+          );
       }
     },
   });

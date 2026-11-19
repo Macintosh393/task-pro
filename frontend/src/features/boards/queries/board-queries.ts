@@ -21,6 +21,13 @@ export function isBoardNotFound(error: unknown): boolean {
   return status === 404 || status === 400;
 }
 
+/** Client errors (bad id, no session, foreign/missing board) are final; others retry twice. */
+export function retryUnlessClientError(failureCount: number, error: unknown): boolean {
+  const status = responseStatus(error);
+  if (status === 400 || status === 401 || status === 403 || status === 404) return false;
+  return failureCount < 2;
+}
+
 export function boardsQueryOptions(userId: string) {
   return queryOptions({
     queryKey: boardKeys.list(userId),
@@ -36,10 +43,6 @@ export function boardQueryOptions(queryClient: QueryClient, userId: string, boar
     initialData: () =>
       queryClient.getQueryData<Board[]>(listKey)?.find((board) => board.id === boardId),
     initialDataUpdatedAt: () => queryClient.getQueryState(listKey)?.dataUpdatedAt,
-    retry: (failureCount, error) => {
-      const status = responseStatus(error);
-      if (status === 400 || status === 401 || status === 403 || status === 404) return false;
-      return failureCount < 2;
-    },
+    retry: retryUnlessClientError,
   });
 }
