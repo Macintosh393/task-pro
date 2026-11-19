@@ -2,16 +2,22 @@ import { AppShell } from './AppShell';
 import { WorkspaceHeader } from './WorkspaceHeader';
 import { WorkspaceSidebar } from './sidebar/WorkspaceSidebar';
 import { WorkspaceBoard } from './WorkspaceBoard';
-import type { WorkspaceBoard as Board, WorkspaceViewProps } from './workspace-types';
+import type {
+  WorkspaceActiveBoard,
+  WorkspaceBoard as Board,
+  WorkspaceViewProps,
+} from './workspace-types';
 
 const noop = () => {};
 const noBoards: readonly Board[] = [];
+const idleBoard: WorkspaceActiveBoard = { status: 'idle' };
 
 export function WorkspaceView({
   user,
   boards = noBoards,
   boardsStatus = 'ready',
   activeBoardId,
+  activeBoard = idleBoard,
   onCreateBoard = noop,
   onSelectBoard = noop,
   onEditBoard = noop,
@@ -20,6 +26,10 @@ export function WorkspaceView({
   onOpenHelp = noop,
   onLogout = noop,
   logoutPending,
+  onAddColumn,
+  onEditColumn,
+  onDeleteColumn,
+  onAddCard,
 }: WorkspaceViewProps) {
   return (
     <AppShell
@@ -31,7 +41,11 @@ export function WorkspaceView({
           boards={boards}
           status={boardsStatus}
           activeBoardId={activeBoardId}
-          onCreateBoard={onCreateBoard}
+          onCreateBoard={() => {
+            // On mobile/tablet the drawer gives way to the create modal.
+            closeNavigation();
+            onCreateBoard();
+          }}
           onSelectBoard={(board) => {
             onSelectBoard(board);
             closeNavigation();
@@ -45,7 +59,14 @@ export function WorkspaceView({
         />
       )}
     >
-      <WorkspaceBoard />
+      <WorkspaceBoard
+        activeBoard={activeBoard}
+        onCreateBoard={onCreateBoard}
+        onAddColumn={onAddColumn}
+        onEditColumn={onEditColumn}
+        onDeleteColumn={onDeleteColumn}
+        onAddCard={onAddCard}
+      />
     </AppShell>
   );
 }

@@ -24,7 +24,7 @@ Vite покаже адресу локального застосунку в те
 
 ## Робота над workspace
 
-Відкрийте застосунок, зареєструйтеся або увійдіть. Після входу `/home` показує Header, Sidebar (Logo, My boards, Create a new board, порожній список дошок, Help card, Log out) і область дошки. Для цього потрібні backend, база даних і чинна сесія. Log out очищає сесію й повертає на Welcome. Тестових дошок, колонок та окремого preview-маршруту в застосунку немає; демонстраційні дошки є лише в stories і tests.
+Відкрийте застосунок, зареєструйтеся або увійдіть. Після входу `/home` показує Header, Sidebar (Logo, My boards, Create a new board, список власних дошок, Help card, Log out) і область дошки. Create a new board відкриває модалку New board; створена дошка з'являється в Sidebar і відкривається за адресою `/home?boardId=<id>`, яка працює й після reload. Для цього потрібні backend, база даних і чинна сесія. Log out очищає сесію й повертає на Welcome. Тестових дошок, колонок та окремого preview-маршруту в застосунку немає; демонстраційні дошки є лише в stories і tests. Дошки потребують backend з boards API (#36).
 
 Header, Sidebar (`sidebar/`) і Board мають окремі TSX файли з Tailwind utilities. [Контракт workspace](docs/workspace-contract.md) описує поточні props, layout і overflow. Storybook залишається додатковим ізольованим переглядом UI-kit і компонентів.
 
@@ -34,7 +34,7 @@ npm test -- --run
 npm run test:workspace
 ```
 
-`test:workspace` збирає production app, запускає dev/preview Vite на портах 5175/4175 та перевіряє захищений `/home`, drawer, клавіатуру, resize, overflow, теми й auth navigation. API responses та додатковий overflow content створюються тільки в browser tests. У продукті mocks немає. Перед першим browser-запуском виконайте `npm run test:ui:install`; порти 5175 і 4175 мають бути вільними.
+`test:workspace` збирає production app, запускає dev/preview Vite на портах 5175/4175 та перевіряє захищений `/home`, створення й відкриття дошок (`tests/workspace/boards.spec.ts`), drawer, клавіатуру, resize, overflow, теми й auth navigation. API responses та додатковий overflow content створюються тільки в browser tests. У продукті mocks немає. Перед першим browser-запуском виконайте `npm run test:ui:install`; порти 5175 і 4175 мають бути вільними.
 
 ## Перевірки
 

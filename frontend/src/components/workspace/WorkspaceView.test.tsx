@@ -64,3 +64,24 @@ it('keeps the drawer open when edit or delete is used', () => {
   act(() => dialog.querySelector<HTMLButtonElement>('button[aria-label^="Delete"]')!.click());
   expect(menu.getAttribute('aria-expanded')).toBe('true');
 });
+
+it('closes the drawer before asking the container to open the create modal', () => {
+  const onCreateBoard = vi.fn();
+  act(() =>
+    dom.root.render(
+      <WorkspaceView
+        user={{ username: 'User', email: 'user@example.test' }}
+        onCreateBoard={onCreateBoard}
+      />,
+    ),
+  );
+  const menu = dom.host.querySelector<HTMLButtonElement>('button[aria-label="Open navigation"]')!;
+  act(() => menu.click());
+  const dialog = dom.host.querySelector('dialog')!;
+  act(() =>
+    dialog.querySelector<HTMLButtonElement>('button[aria-label="Create a new board"]')!.click(),
+  );
+  expect(onCreateBoard).toHaveBeenCalledOnce();
+  expect(menu.getAttribute('aria-expanded')).toBe('false');
+  expect(dialog.hasAttribute('open')).toBe(false);
+});

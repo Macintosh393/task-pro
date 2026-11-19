@@ -2,17 +2,8 @@ import { cn } from '../cn';
 import { choiceStyles, radioStyles } from '../control-styles';
 import { useId } from 'react';
 import { Icon } from '../Icon';
-const boardIcons = [
-  'project',
-  'star',
-  'loading',
-  'puzzle',
-  'container',
-  'lightning',
-  'colors',
-  'hexagon',
-] as const;
-export type BoardIcon = (typeof boardIcons)[number];
+import { boardIcons, type BoardIcon } from './board-icons';
+export type { BoardIcon };
 const boardLabels = {
   project: 'Project',
   star: 'Star',
@@ -41,13 +32,13 @@ export function BoardIconPicker({
   const id = useId();
   return (
     <fieldset className="m-0 min-w-0 border-0 p-0" disabled={disabled}>
-      <legend className="mb-1.5 text-sm/[21px] font-medium">{label}</legend>
-      <div className="flex flex-wrap">
+      <legend className="mb-3.5 text-sm/[21px] font-medium">{label}</legend>
+      <div className="flex flex-wrap gap-1">
         {boardIcons.map((icon) => (
           <label
             className={cn(
               choiceStyles,
-              'text-control-muted has-checked:text-primary has-checked:after:pointer-events-none has-checked:after:absolute has-checked:after:inset-[3px] has-checked:after:rounded-md has-checked:after:border has-checked:after:border-field-accent',
+              'size-7 text-control-muted has-checked:text-primary has-checked:after:pointer-events-none has-checked:after:absolute has-checked:after:-inset-0.5 has-checked:after:rounded-lg has-checked:after:border-2 has-checked:after:border-field-accent',
             )}
             key={icon}
           >

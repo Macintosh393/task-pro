@@ -64,4 +64,22 @@ describe('authenticated route guard', () => {
 
     expect(router.state.location.pathname).toBe('/login');
   });
+
+  it('keeps the active board id in the /home search params', async () => {
+    queryClient.setQueryData(AUTH_QUERY_KEY, {
+      id: 'user-1',
+      username: 'test',
+      email: 'test@example.com',
+      avatarUrl: null,
+      theme: 'dark',
+    });
+    const boardId = '3f0d6a52-8a0e-4c4f-9f3b-2d6f4a1e9c11';
+
+    await router.navigate({ to: '/home', search: { boardId } });
+    expect(router.state.location.pathname).toBe('/home');
+    expect(router.state.location.search).toEqual({ boardId });
+
+    await router.navigate({ href: '/home?boardId=not-a-uuid' });
+    expect(router.state.location.search).toEqual({ boardId: 'not-a-uuid' });
+  });
 });

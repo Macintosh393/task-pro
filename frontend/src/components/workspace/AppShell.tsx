@@ -93,7 +93,7 @@ export function AppShell({ header, sidebar, children }: AppShellProps) {
             },
           })}
         </header>
-        <main className="app-shell__content min-h-0 min-w-0 flex-1 overflow-hidden px-5 pt-3.5 pb-5 min-[768px]:px-8 min-[768px]:pt-[26px] min-[768px]:pb-8 min-[1440px]:px-6 min-[1440px]:pt-2.5 min-[1440px]:pb-2">
+        <main className="app-shell__content min-h-0 min-w-0 flex-1 overflow-hidden">
           {children}
         </main>
       </div>
